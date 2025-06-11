@@ -1,0 +1,332 @@
+import React from 'react';
+import {
+  View,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+  Text,
+  Dimensions,
+} from 'react-native';
+import { Feather, Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+
+const { width } = Dimensions.get('window');
+
+const Header = () => {
+  return (
+    <ScrollView showsVerticalScrollIndicator={false}>
+      <LinearGradient
+        colors={['#184977', '#459BEC', '#73BBFF', '#DFF0FF']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        style={styles.container}
+      >
+        {/* Logo */}
+        <View style={styles.logoContainer}>
+          <Image
+            source={require('../assets/logo/logo.png')}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+        </View>
+
+        {/* Floating Icons */}
+        <View style={styles.floatingIcons}>
+          <TouchableOpacity style={styles.iconButton}>
+            <Feather name="bell" size={24} color="#184977" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.iconButton}>
+            <Feather name="heart" size={24} color="#184977" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.iconButton}>
+            <Ionicons name="bag-outline" size={26} color="#184977" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Search Bar */}
+        <View style={styles.searchContainer}>
+          <Feather name="search" size={20} color="#666" style={{ marginLeft: 10 }} />
+          <TextInput
+            placeholder="Search for product, brands and more"
+            placeholderTextColor="#666"
+            style={styles.searchInput}
+          />
+          <TouchableOpacity>
+            <Ionicons name="mic-outline" size={20} color="#666" style={{ marginRight: 10 }} />
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <Feather name="camera" size={20} color="#666" style={{ marginRight: 10 }} />
+          </TouchableOpacity>
+        </View>
+
+        {/* Categories Horizontal Scroll */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.categoryScroll}
+        >
+          {categories.map((item, index) => (
+            <View key={index} style={styles.categoryItem}>
+              <Image source={item.image} style={styles.categoryImage} />
+              <Text style={styles.categoryText}>{item.name}</Text>
+            </View>
+          ))}
+        </ScrollView>
+      </LinearGradient>
+
+      {/* Banner Carousel */}
+      <ScrollView
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        style={styles.bannerCarousel}
+      >
+        <Image source={require('../assets/banners/banner.png')} style={styles.bannerImage} />
+        <Image source={require('../assets/banners/banner.png')} style={styles.bannerImage} />
+      </ScrollView>
+
+      {/* Feature Icons with Background Gradient */}
+      <View style={styles.featuresRow}>
+        <LinearGradient colors={['#e66465', '#9198e5']} style={styles.featureCard}>
+          <Ionicons name="car-outline" size={24} color="#fff" />
+          <Text style={styles.featureText}>Free Delivery</Text>
+        </LinearGradient>
+        <LinearGradient colors={['#2193b0', '#6dd5ed']} style={styles.featureCard}>
+          <Ionicons name="cash-outline" size={24} color="#fff" />
+          <Text style={styles.featureText}>Open Box</Text>
+        </LinearGradient>
+        <LinearGradient colors={['#cc2b5e', '#753a88']} style={styles.featureCard}>
+          <Ionicons name="refresh-outline" size={24} color="#fff" />
+          <Text style={styles.featureText}>Easy Return</Text>
+        </LinearGradient>
+      </View>
+
+      {/* Merged Deals Section */}
+      <View style={styles.dealsSection}>
+        <LinearGradient
+          colors={['#F3C2C2', '#FF3C3C']}
+          style={styles.gradientBackground}
+        >
+          <ScrollView
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+          >
+            <Image source={require('../assets/images/deals.png')} style={styles.bannerImage1} />
+          </ScrollView>
+
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {deals.map((item, index) => (
+              <View key={index} style={styles.dealCard}>
+                <Image source={item.image} style={styles.dealImage} resizeMode="cover" />
+                <View style={styles.dealInfo}>
+                  <Text style={styles.dealTitle}>{item.title}</Text>
+                  <Text style={styles.dealDiscount}>{item.discount}</Text>
+                </View>
+              </View>
+            ))}
+          </ScrollView>
+        </LinearGradient>
+      </View>
+
+
+      
+
+    </ScrollView>
+  );
+};
+
+const categories = [
+  { name: 'Books', image: require('../assets/categories/books.png') },
+  { name: 'Grocery', image: require('../assets/categories/groceries.png') },
+  { name: 'Men', image: require('../assets/categories/mens.png') },
+  { name: 'Women', image: require('../assets/categories/women.png') },
+  { name: 'Laptop', image: require('../assets/categories/Laptop.png') },
+  { name: 'Beauty', image: require('../assets/categories/beauty.png') },
+  { name: 'Automobiles', image: require('../assets/categories/automobiles.png') },
+  { name: 'Bags', image: require('../assets/categories/Bags.png') },
+  { name: 'Bike', image: require('../assets/categories/bike.png') },
+  { name: 'Cycle', image: require('../assets/categories/cycle.png') },
+  { name: 'Electricals', image: require('../assets/categories/electricals.png') },
+  { name: 'Electrician', image: require('../assets/categories/electrician.png') },
+  { name: 'Furniture', image: require('../assets/categories/furniture.png') },
+  { name: 'Gifts', image: require('../assets/categories/gifts.png') },
+  { name: 'Nursery', image: require('../assets/categories/nursery.png') },
+  { name: 'GYM', image: require('../assets/categories/gym.png') },
+  { name: 'Health', image: require('../assets/categories/health.png') },
+  { name: 'Home', image: require('../assets/categories/home.png') },
+  { name: 'Jewellery', image: require('../assets/categories/jewellery.png') },
+  { name: 'Kids', image: require('../assets/categories/kids.png') },
+  { name: 'Kids Footwear', image: require('../assets/categories/kidsfoot.png') },
+  { name: 'Kids Toys', image: require('../assets/categories/kidstoys.png') },
+  { name: 'Kitchen', image: require('../assets/categories/kitchen.png') },
+  { name: 'Mobiles', image: require('../assets/categories/mobiles.png') },
+  { name: 'Pets', image: require('../assets/categories/pets.png') },
+  { name: 'Sports', image: require('../assets/categories/sports.png') },
+  { name: 'Stationary', image: require('../assets/categories/Stationary.png') },
+  { name: 'Women', image: require('../assets/categories/women.png') },
+  { name: 'Women Footwear', image: require('../assets/categories/womenfootwear.png') },  
+];
+
+const deals = [
+  { title: 'Deal on Blazer', discount: 'UPTO 30% OFF', image: require('../assets/deals/blazzer.png') },
+  { title: 'Deal on Jeans', discount: 'UPTO 30% OFF', image: require('../assets/deals/jeans.png') },
+  { title: 'Deal on Shirts', discount: 'UPTO 30% OFF', image: require('../assets/deals/Shirt.png') },
+  { title: 'Deal on Dresses', discount: 'UPTO 30% OFF', image: require('../assets/images/laptop.jpg') },
+  { title: 'Deal on Kurtis', discount: 'UPTO 30% OFF', image: require('../assets/images/laptop.jpg') },
+];
+
+const styles = StyleSheet.create({
+  container: {
+    paddingTop: 60,
+    paddingBottom: 20,
+    paddingHorizontal: 15,
+  },
+  logoContainer: {
+    alignItems: 'flex-start',
+  },
+  logo: {
+    width: 190,
+    height: 70,
+  },
+  floatingIcons: {
+    flexDirection: 'row',
+    position: 'absolute',
+    top: 70,
+    right: 15,
+    gap: 15,
+  },
+  iconButton: {
+    backgroundColor: '#DFF0FF',
+    padding: 8,
+    borderRadius: 20,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 1, height: 1 },
+    shadowRadius: 3,
+  },
+  searchContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 30,
+    paddingHorizontal: 5,
+  },
+  searchInput: {
+    flex: 1,
+    height: 45,
+    paddingHorizontal: 10,
+    fontSize: 20,
+  },
+  categoryScroll: {
+    marginTop: 20,
+  },
+  categoryItem: {
+    alignItems: 'center',
+    marginRight: 20,
+    // backgroundColor: '#000',
+  },
+  categoryImage: {
+    width: 50,
+    height: 60,
+    marginBottom: 5,
+    Color: '#000',
+  },
+  categoryText: {
+    fontSize: 15,
+    color: '#000',
+    textAlign: 'center',
+  },
+  bannerCarousel: {
+    marginTop: 10,
+  },
+  bannerImage: {
+    width: width - 1,
+    height: 180,
+    // borderRadius: 12,
+    marginRight: 10,
+  },
+
+  bannerImage1: {
+    width: width - 32,
+    height: 180,
+    // borderRadius: 10,
+    marginRight: 10,
+    marginLeft: 10,
+  },
+  dealsSection: {
+    backgroundColor: '#F3C2C2',
+    paddingVertical: 20,
+    paddingLeft: 10,
+    marginTop: 20,
+  },
+  gradientBackground: {
+    paddingVertical: 10,
+    borderRadius: 10,
+  },
+  dealCard: {
+    width: 140,
+    backgroundColor: '#fff',
+    // borderRadius: 10,
+    marginRight: 10,
+    marginLeft: 10,
+    marginTop: 20,
+    overflow: 'hidden',
+    elevation: 3,
+  },
+  dealImage: {
+    width: '100%',
+    height: 120,
+    
+  },
+  dealInfo: {
+    padding: 8,
+    alignItems: 'center',
+  },
+  dealTitle: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#333',
+    textAlign: 'center',
+  },
+  dealDiscount: {
+    fontSize: 15,
+    color: '#e53935',
+    marginTop: 5,
+    fontWeight: 'bold',
+  },
+  featuresRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginVertical: 16,
+    paddingHorizontal: 10,
+  },
+  featureCard: {
+    flex: 1,
+    height: 80,
+    borderRadius: 10,
+    marginHorizontal: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 10,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    marginTop: 10,
+  },
+  featureText: {
+    marginTop: 6,
+    color: '#fff',
+    fontSize: 16,
+    textAlign: 'center',
+  },
+});
+
+export default Header;
+

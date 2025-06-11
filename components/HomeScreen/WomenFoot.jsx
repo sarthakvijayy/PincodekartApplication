@@ -1,0 +1,96 @@
+import React from 'react';
+import { View, Text, Image, ScrollView, StyleSheet, Dimensions } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+
+const { width } = Dimensions.get('window');
+
+const deals = [
+  { title: 'Deal on Blazer', discount: 'UPTO 30% OFF', image: require('../../assets/womenfoot/wf1.png') },
+  { title: 'Deal on Jeans', discount: 'UPTO 30% OFF', image: require('../../assets/womenfoot/wf2.png') },
+  { title: 'Deal on Shirts', discount: 'UPTO 30% OFF', image: require('../../assets/womenfoot/wf3.png') },
+  { title: 'Deal on Dresses', discount: 'UPTO 30% OFF', image: require('../../assets/womenfoot/wf1.png') },
+  { title: 'Deal on Kurtis', discount: 'UPTO 30% OFF', image: require('../../assets/womenfoot/wf1.png') },
+];
+
+const WomenFoot = () => {
+  return (
+    <View style={styles.dealsSection}>
+      <LinearGradient
+        colors={['#BFCDFF', '#0B41FF']}
+        style={styles.gradientBackground}
+      >
+        <ScrollView>
+          <Image source={require('../../assets/womenfoot/wfbanner.png')} style={styles.bannerImage1} />
+        </ScrollView>
+
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {deals.map((item, index) => (
+            <View key={index} style={styles.dealCard}>
+              <Image source={item.image} style={styles.dealImage} resizeMode="cover" />
+              <View style={styles.dealInfo}>
+                <Text style={styles.dealTitle}>{item.title}</Text>
+                <Text style={styles.dealDiscount}>{item.discount}</Text>
+              </View>
+            </View>
+          ))}
+        </ScrollView>
+      </LinearGradient>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  bannerImage1: {
+    width: width - 32,
+    height: 180,
+    marginHorizontal: 16,
+    // borderRadius: 10,
+    // marginRight: 25,
+  },
+  dealsSection: {
+    backgroundColor: '#BFCDFF',
+    paddingVertical: 20,
+    // marginTop: 20,
+    // marginBottom: 20,
+  },
+  gradientBackground: {
+    paddingVertical: 10,
+    // borderRadius: 10,
+    marginHorizontal: 10,
+  },
+  dealCard: {
+    width: 140,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 10,
+    marginHorizontal: 10,
+    marginTop: 20,
+    overflow: 'hidden',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+  },
+  dealImage: {
+    width: '100%',
+    height: 120,
+  },
+  dealInfo: {
+    padding: 8,
+    alignItems: 'center',
+  },
+  dealTitle: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#333',
+    textAlign: 'center',
+  },
+  dealDiscount: {
+    fontSize: 15,
+    color: '#184977',
+    marginTop: 5,
+    fontWeight: 'bold',
+  },
+});
+
+export default WomenFoot;

@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "name": "pincodekart-app",
+    "slug": "pincodekartApp",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/logo/Favicon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/logo/logo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#184977"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.sarthakvijay.pincodekartApp",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/logo/logo.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.sarthakvijay.pincodekartApp"
+    },
+    "web": {
+      "favicon": "./assets/logo/logo.png"
+    },
+    "plugins": [
+      "expo-font"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "2948a157-0dab-4dcf-bb1f-daa017e1a418"
+      }
+    }
+  }
+}
