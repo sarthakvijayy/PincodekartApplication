@@ -20,17 +20,7 @@ import {ADD_TO_WISHLIST,REMOVE_FROM_WISHLIST,} from "../../graphql/mutations";
 const screenWidth = Dimensions.get("window").width;
 const CARD_WIDTH = screenWidth / 2 - 20;
 
-const ProductCard = ({
-  id,
-  image,
-  brand,
-  title,
-  mrpPrice,
-  originalPrice,
-  discount,
-  rating,
-  initialWishlisted = false,
-}) => {
+const ProductCard = ({id,image,brand,title,mrpPrice,originalPrice,discount,rating,initialWishlisted = false,}) => {
   const [isWishlisted, setIsWishlisted] = useState(initialWishlisted);
   const navigation = useNavigation();
 

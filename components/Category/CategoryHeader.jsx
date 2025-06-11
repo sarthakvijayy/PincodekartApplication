@@ -1,27 +1,40 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  StyleSheet,
+} from 'react-native';
 import { Feather, Ionicons, AntDesign } from '@expo/vector-icons';
+import { useNavigation } from "@react-navigation/native";
+import { LinearGradient } from 'expo-linear-gradient';
 
 const CategoryHeader = ({ navigation }) => {
   return (
-    <View style={styles.headerContainer}>
+    <LinearGradient
+      colors={['#184977', '#459BEC', '#73BBFF', '#DFF0FF']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
+      style={styles.headerContainer}
+    >
       {/* Top Row */}
       <View style={styles.topRow}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Feather name="arrow-left" size={24} color="black" />
+          <Feather name="arrow-left" size={24} color="#fff" />
         </TouchableOpacity>
 
         <Text style={styles.title}>All Shop</Text>
 
         <View style={styles.iconRow}>
-          <TouchableOpacity>
-            <Feather name="bell" size={22} color="#FFB800" />
+          <TouchableOpacity onPress={() => navigation.navigate("Notification")}>
+            <Feather name="bell" size={22} color="#FFEB3B" />
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate("WishlistCard")}>
             <AntDesign name="heart" size={22} color="#F44336" />
           </TouchableOpacity>
-          <TouchableOpacity>
-            <Ionicons name="bag-handle-outline" size={24} color="#0D47A1" />
+          <TouchableOpacity onPress={() => navigation.navigate("CartScreen")}>
+            <Ionicons name="bag-handle-outline" size={24} color="#fff" />
           </TouchableOpacity>
         </View>
       </View>
@@ -30,14 +43,14 @@ const CategoryHeader = ({ navigation }) => {
       <View style={styles.searchBar}>
         <Feather name="search" size={18} color="#888" />
         <TextInput
-          placeholder="Search for product, brands and more"
+          placeholder="Search for products, brands and more"
           placeholderTextColor="#888"
           style={styles.searchInput}
         />
         <Ionicons name="mic-outline" size={18} color="#888" />
         <Feather name="camera" size={18} color="#888" style={{ marginLeft: 10 }} />
       </View>
-    </View>
+    </LinearGradient>
   );
 };
 
@@ -45,9 +58,13 @@ const styles = StyleSheet.create({
   headerContainer: {
     paddingTop: 50,
     paddingHorizontal: 15,
-    backgroundColor: '#fff',
-    paddingBottom: 15,
-    // marginTop: 20,
+    paddingBottom: 40,
+    marginLeft: -20,
+    marginRight: -20,
+    marginTop: -20,
+    
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
   },
   topRow: {
     flexDirection: 'row',
@@ -55,12 +72,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   title: {
-    fontSize: 24,
-    lineHeight: '100',
+    fontSize: 20,
     fontWeight: '600',
+    color: '#fff',
     flex: 1,
     marginLeft: 10,
-    color: '#000',
   },
   iconRow: {
     flexDirection: 'row',
@@ -68,18 +84,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   searchBar: {
-    marginTop: 10,
+    marginTop: 35,
     backgroundColor: '#F2F2F2',
     borderRadius: 10,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 10,
-    height: 50,
+    height: 45,
   },
   searchInput: {
     flex: 1,
     paddingHorizontal: 10,
-    fontSize: 18,
+    fontSize: 16,
     color: '#000',
   },
 });

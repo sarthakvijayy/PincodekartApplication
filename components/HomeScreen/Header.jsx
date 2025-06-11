@@ -1,19 +1,34 @@
 import React from "react";
 
-import {View,TextInput,StyleSheet,TouchableOpacity,Image,FlatList,Text,ActivityIndicator,
+import {
+  View,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  FlatList,
+  Text,
+  ActivityIndicator,
 } from "react-native";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
 import { useQuery } from "@apollo/client";
 import { GET_ALL_CATEGORIES } from "../../graphql/queries";
+import { GET_WISHLIST_QUERY , GET_CART  } from "../../graphql/queries";
 
 const Header = () => {
   const navigation = useNavigation();
 
-  const { loading, data, error } = useQuery(GET_ALL_CATEGORIES, {
+
+
+  const { loading, data, error } = useQuery(GET_ALL_CATEGORIES, GET_WISHLIST_QUERY , GET_CART , {
     variables: { page: null, take: null },
   });
+
+  const wishlists = data?.getwishlist?.items|| [];
+  const cart = data?.getcart?.items|| [];
+  
 
   const categories = data?.getAllCategories?.categories || [];
 
@@ -24,7 +39,6 @@ const Header = () => {
       onPress={() =>
         navigation.navigate("CategoryScreen", {
           categoryId: item.id,
-
           catName: item.categoryName,
         })
       }
@@ -34,6 +48,13 @@ const Header = () => {
       <Text style={styles.categoryText}>{item.categoryName}</Text>
     </TouchableOpacity>
   );
+
+  
+  const notificationCount = data?.notifications?.length ||2;
+  const wishlistCount = data?.wishlist?.items?.length ||3;
+  const cartCount = data?.cart?.items?.length || 4;
+
+  console.log("data", data);
 
   return (
     <LinearGradient
@@ -55,31 +76,56 @@ const Header = () => {
       {/* Floating Icons */}
 
       <View style={styles.floatingIcons}>
+        {/* Notification */}
         <TouchableOpacity onPress={() => navigation.navigate("Notification")}>
-          <Feather
-            name="bell"
-            size={22}
-            color="#184977"
-            style={styles.iconButton}
-          />
+          <View style={styles.iconWithBadge}>
+            <Feather
+              name="bell"
+              size={22}
+              color="#184977"
+              style={styles.iconButton}
+            />
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>
+                <Text style={styles.badgeText}>{notificationCount}</Text>
+
+              </Text>
+            </View>
+          </View>
         </TouchableOpacity>
 
+        {/* Wishlist */}
         <TouchableOpacity onPress={() => navigation.navigate("WishlistCard")}>
-          <Feather
-            name="heart"
-            size={22}
-            color="#184977"
-            style={styles.iconButton}
-          />
+          <View style={styles.iconWithBadge}>
+            <Feather
+              name="heart"
+              size={22}
+              color="#184977"
+              style={styles.iconButton}
+            />
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>
+                <Text style={styles.badgeText}>{wishlistCount}</Text>
+              </Text>
+            </View>
+          </View>
         </TouchableOpacity>
 
+        {/* Cart */}
         <TouchableOpacity onPress={() => navigation.navigate("CartScreen")}>
-          <Ionicons
-            name="bag-outline"
-            size={24}
-            color="#184977"
-            style={styles.iconButton}
-          />
+          <View style={styles.iconWithBadge}>
+            <Ionicons
+              name="bag-outline"
+              size={24}
+              color="#184977"
+              style={styles.iconButton}
+            />
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>
+                <Text style={styles.badgeText}>{cartCount}</Text>
+              </Text>
+            </View>
+          </View>
         </TouchableOpacity>
       </View>
 
@@ -179,6 +225,28 @@ const styles = StyleSheet.create({
     borderRadius: 20,
 
     elevation: 4,
+  },
+  iconWithBadge: {
+    position: "relative",
+  },
+
+  badge: {
+    position: "absolute",
+    top: -4,
+    right: -4,
+    backgroundColor: "red",
+    borderRadius: 8,
+    minWidth: 16,
+    height: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 3,
+  },
+
+  badgeText: {
+    color: "#fff",
+    fontSize: 10,
+    fontWeight: "bold",
   },
 
   searchContainer: {
