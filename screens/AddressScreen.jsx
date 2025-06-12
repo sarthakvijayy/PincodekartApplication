@@ -19,11 +19,12 @@ import {
 } from "../graphql/mutations";
 import { Ionicons } from "@expo/vector-icons";
 
-const AddressScreen = ({setSelectedAddressId,selectedAddressId}) => {
+const AddressScreen = ({ setSelectedAddressId, selectedAddressId }) => {
   const [isEdit, setIsEdit] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  // const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [form, setForm] = useState({
+    fullName: "",
+    mobileNo: "",
     addressLine1: "",
     addressLine2: "",
     city: "",
@@ -40,6 +41,7 @@ const AddressScreen = ({setSelectedAddressId,selectedAddressId}) => {
     onCompleted: () => {
       Alert.alert("Success", "Address updated successfully!");
       refetch();
+      setModalVisible(false);
     },
     onError: (err) => {
       console.log(err);
@@ -47,20 +49,18 @@ const AddressScreen = ({setSelectedAddressId,selectedAddressId}) => {
     },
   });
 
-  const [deleteAddress, { loading: deletingAddress }] =
-    useMutation(DELETE_ADDRESS);
-  const [createAddress, { loading: creatingAddressLoading }] =
-    useMutation(CREATE_ADDRESS);
+  const [deleteAddress, { loading: deletingAddress }] = useMutation(DELETE_ADDRESS);
+  const [createAddress, { loading: creatingAddressLoading }] = useMutation(CREATE_ADDRESS);
 
   const handleCreate = async () => {
     const pincodeInt = parseInt(form.pincode, 10);
     if (isNaN(pincodeInt)) return Alert.alert("Invalid pincode");
 
-    console.log("DATA",form)
-
     try {
       await createAddress({
         variables: {
+          fullName: form.fullName,
+          mobileNo: form.mobileNo,
           addressLine1: form.addressLine1,
           addressLine2: form.addressLine2,
           city: form.city,
@@ -72,14 +72,7 @@ const AddressScreen = ({setSelectedAddressId,selectedAddressId}) => {
 
       Alert.alert("Success", "Address created successfully!");
       setModalVisible(false);
-      setForm({
-        addressLine1: "",
-        addressLine2: "",
-        city: "",
-        pincode: "",
-        state: "",
-        country: "",
-      });
+      resetForm();
       await refetch();
     } catch (error) {
       console.log(error);
@@ -93,9 +86,11 @@ const AddressScreen = ({setSelectedAddressId,selectedAddressId}) => {
     if (isNaN(pincodeInt)) return Alert.alert("Invalid pincode");
 
     try {
-      let res = await updateAddress({
+      await updateAddress({
         variables: {
           updateAddressId: selectedAddressId,
+          fullName: form.fullName,
+          mobileNo: form.mobileNo,
           addressLine1: form.addressLine1,
           addressLine2: form.addressLine2,
           city: form.city,
@@ -104,9 +99,7 @@ const AddressScreen = ({setSelectedAddressId,selectedAddressId}) => {
           pincode: pincodeInt,
         },
       });
-
-      await refetch();
-      return res;
+      resetForm();
     } catch (error) {
       console.log("update error", error);
     }
@@ -114,33 +107,29 @@ const AddressScreen = ({setSelectedAddressId,selectedAddressId}) => {
 
   const handleAddressDelete = async (id) => {
     try {
-      const res = await deleteAddress({
-        variables: {
-          deleteAddressId: id,
-        },
+      await deleteAddress({
+        variables: { deleteAddressId: id },
       });
       await refetch();
-      return res;
     } catch (error) {
-      console.log("error", error);
+      console.log("delete error", error);
     }
   };
 
-  useEffect(() => {
-    const selected = data?.getAllAddress?.addresses.find(
-      (addr) => addr.id === selectedAddressId
-    );
-    if (selected) {
-      setForm({
-        addressLine1: selected.addressLine1 || "",
-        addressLine2: selected.addressLine2 || "",
-        city: selected.city || "",
-        pincode: selected.pincode?.toString() || "",
-        state: selected.state || "",
-        country: selected.country || "",
-      });
-    }
-  }, [selectedAddressId, data]);
+  const resetForm = () => {
+    setForm({
+      fullName: "",
+      mobileNo: "",
+      addressLine1: "",
+      addressLine2: "",
+      city: "",
+      pincode: "",
+      state: "",
+      country: "",
+    });
+    setIsEdit(false);
+    setSelectedAddressId(null);
+  };
 
   const renderAddressItem = ({ item }) => (
     <TouchableOpacity
@@ -161,7 +150,8 @@ const AddressScreen = ({setSelectedAddressId,selectedAddressId}) => {
           color="#007BFF"
         />
         <View style={{ marginLeft: 10 }}>
-          <Text style={styles.addressLabel}>Address ID: {item.id}</Text>
+          <Text style={styles.addressLabel}>{item.fullName}</Text>
+          <Text>{item.mobileNo}</Text>
           <Text>
             {item.addressLine1}, {item.addressLine2}
           </Text>
@@ -170,45 +160,53 @@ const AddressScreen = ({setSelectedAddressId,selectedAddressId}) => {
           </Text>
           <Text>{item.country}</Text>
 
-          <View style={{ alignSelf: "flex-start", flexDirection: "row" }}>
-  <TouchableOpacity onPress={() => { setIsEdit(true); setSelectedAddressId(item.id); }}>
-    <Ionicons name="pencil-outline" size={24} />
-  </TouchableOpacity>
-  <TouchableOpacity onPress={() => handleAddressDelete(item?.id)}>
-    {deletingAddress ? (
-      <ActivityIndicator size="small" />
-    ) : (
-      <Ionicons name="trash-outline" size={24} />
-    )}
-  </TouchableOpacity>
-</View>
+          <View style={{ flexDirection: "row", marginTop: 5 }}>
+            <TouchableOpacity
+              onPress={() => {
+                setSelectedAddressId(item.id);
+                setForm({
+                  fullName: item.fullName || "",
+                  mobileNo: item.mobileNo || "",
+                  addressLine1: item.addressLine1 || "",
+                  addressLine2: item.addressLine2 || "",
+                  city: item.city || "",
+                  pincode: item.pincode?.toString() || "",
+                  state: item.state || "",
+                  country: item.country || "",
+                });
+                setIsEdit(true);
+                setModalVisible(true);
+              }}
+              style={{ marginRight: 12 }}
+            >
+              <Ionicons name="pencil-outline" size={22} />
+            </TouchableOpacity>
 
+            <TouchableOpacity onPress={() => handleAddressDelete(item.id)}>
+              {deletingAddress ? (
+                <ActivityIndicator size="small" />
+              ) : (
+                <Ionicons name="trash-outline" size={22} />
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </TouchableOpacity>
   );
 
   if (loading) return <ActivityIndicator style={{ marginTop: 20 }} />;
-  if (error)
-    return <Text style={{ color: "red", marginTop: 20 }}>{error.message}</Text>;
+  if (error) return <Text style={{ color: "red", marginTop: 20 }}>{error.message}</Text>;
 
   return (
     <View style={styles.container}>
-      <View style={styles.headContaier}>
+      <View style={styles.headContainer}>
         <Text style={styles.heading}>Your Addresses</Text>
         <TouchableOpacity
           style={styles.createBTN}
           onPress={() => {
+            resetForm();
             setModalVisible(true);
-            setIsEdit(false);
-            setForm({
-              addressLine1: "",
-              addressLine2: "",
-              city: "",
-              pincode: "",
-              state: "",
-              country: "",
-            });
           }}
         >
           <Ionicons name="add-outline" size={20} color={"blue"} />
@@ -235,24 +233,14 @@ const AddressScreen = ({setSelectedAddressId,selectedAddressId}) => {
             </Text>
 
             {[
-             {label: "Enter Your AddressLine1",
-              key: "addressLine1"
-             },
-              {label: "Enter Your AddressLine2",
-              key: "addressLine2"
-             },
-               {label: "Enter Your CityName",
-              key: "city"
-             },
-               {label: "Enter Your PINCODE",
-              key: "pincode"
-             },
-              {label: "Enter Your State",
-              key: "state"
-             },
-             {label: "Enter Your Country",
-              key: "country"
-             },
+              { label: "Full Name", key: "fullName" },
+              { label: "Mobile No.", key: "mobileNo" },
+              { label: "Address Line 1", key: "addressLine1" },
+              { label: "Address Line 2", key: "addressLine2" },
+              { label: "City", key: "city" },
+              { label: "Pincode", key: "pincode" },
+              { label: "State", key: "state" },
+              { label: "Country", key: "country" },
             ].map((field) => (
               <TextInput
                 key={field.key}
@@ -260,7 +248,7 @@ const AddressScreen = ({setSelectedAddressId,selectedAddressId}) => {
                 style={styles.input}
                 value={form[field.key]}
                 onChangeText={(text) => setForm({ ...form, [field.key]: text })}
-                keyboardType={field.key === "pincode" ? "numeric" : "default"}
+                keyboardType={field.key === "pincode" || field.key === "mobileNo" ? "numeric" : "default"}
               />
             ))}
 
@@ -297,7 +285,7 @@ export default AddressScreen;
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16, backgroundColor: "#fff" },
-  headContaier: {
+  headContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",

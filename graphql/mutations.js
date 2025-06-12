@@ -104,24 +104,27 @@ export const REMOVE_FROM_WISHLIST = gql`
 `;
 
 export const UPDATE_ADDRESS = gql`
-  mutation Mutation(
-    $updateAddressId: ID
-    $addressLine1: String
-    $addressLine2: String
-    $city: String
-    $pincode: Int
-    $state: String
-    $country: String
-  ) {
-    updateAddress(
-      id: $updateAddressId
-      addressLine1: $addressLine1
-      addressLine2: $addressLine2
-      city: $city
-      pincode: $pincode
-      state: $state
-      country: $country
-    ) {
+  mutation Mutation($updateAddressId: ID, $fullName: String, $mobileNo: String, $addressLine1: String, $addressLine2: String, $city: String, $pincode: Int, $state: String, $country: String) {
+  updateAddress(id: $updateAddressId, fullName: $fullName, mobileNo: $mobileNo, addressLine1: $addressLine1, addressLine2: $addressLine2, city: $city, pincode: $pincode, state: $state, country: $country) {
+    addressLine1
+    addressLine2
+    city
+    country
+    createdAt
+    fullName
+    id
+    mobileNo
+    pincode
+    state
+    updatedAt
+    userId
+  }
+}`;
+
+
+export const DELETE_ADDRESS = gql`
+  mutation DeleteAddress($deleteAddressId: ID) {
+    deleteAddress(id: $deleteAddressId) {
       id
       userId
       addressLine1
@@ -136,7 +139,27 @@ export const UPDATE_ADDRESS = gql`
   }
 `;
 
-export const CREATE_ORDER = gql`
+export const CREATE_ADDRESS =gql`
+mutation CreateAddress($fullName: String, $mobileNo: String, $addressLine1: String, $addressLine2: String, $city: String, $pincode: Int, $state: String, $country: String) {
+  createAddress(fullName: $fullName, mobileNo: $mobileNo, addressLine1: $addressLine1, addressLine2: $addressLine2, city: $city, pincode: $pincode, state: $state, country: $country) {
+    id
+    userId
+    fullName
+    mobileNo
+    addressLine1
+    addressLine2
+    city
+    pincode
+    state
+    country
+    createdAt
+    updatedAt
+  }
+}
+  `;
+
+
+  export const CREATE_ORDER = gql`
   mutation CreateOrder($addressId: ID, $paymentMethod: String) {
     createOrder(
       addressId: $addressId
@@ -177,38 +200,3 @@ export const CREATE_ORDER = gql`
   }
 `;
 
-export const DELETE_ADDRESS = gql`
-  mutation DeleteAddress($deleteAddressId: ID) {
-    deleteAddress(id: $deleteAddressId) {
-      id
-      userId
-      addressLine1
-      addressLine2
-      city
-      pincode
-      state
-      country
-      createdAt
-      updatedAt
-    }
-  }
-`;
-
-export const CREATE_ADDRESS =gql`
-mutation CreateAddress($fullName: String, $mobileNo: String, $addressLine1: String, $addressLine2: String, $city: String, $pincode: Int, $state: String, $country: String) {
-  createAddress(fullName: $fullName, mobileNo: $mobileNo, addressLine1: $addressLine1, addressLine2: $addressLine2, city: $city, pincode: $pincode, state: $state, country: $country) {
-    id
-    userId
-    fullName
-    mobileNo
-    addressLine1
-    addressLine2
-    city
-    pincode
-    state
-    country
-    createdAt
-    updatedAt
-  }
-}
-  `;

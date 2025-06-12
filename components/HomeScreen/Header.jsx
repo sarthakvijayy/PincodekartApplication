@@ -22,12 +22,19 @@ const Header = () => {
 
 
 
-  const { loading, data, error } = useQuery(GET_ALL_CATEGORIES, GET_WISHLIST_QUERY , GET_CART , {
+  const { loading, data, error } = useQuery(GET_ALL_CATEGORIES, {
     variables: { page: null, take: null },
   });
 
-  const wishlists = data?.getwishlist?.items|| [];
-  const cart = data?.getcart?.items|| [];
+  const { loading: wishlistLoading, data: wishlistData, error: wishlistError }
+   = useQuery(GET_WISHLIST_QUERY, 
+  );
+
+  const {loading: cartLoading, data: cartData , error: cartError}
+  = useQuery(GET_CART);
+
+  
+  
   
 
   const categories = data?.getAllCategories?.categories || [];
@@ -51,8 +58,8 @@ const Header = () => {
 
   
   const notificationCount = data?.notifications?.length ||2;
-  const wishlistCount = data?.wishlist?.items?.length ||3;
-  const cartCount = data?.cart?.items?.length || 4;
+  const wishlistCount = wishlistData?.getWishList?.wishlistProducts.length|| 0;
+  const cartCount = cartData?.getCart?.cartProducts?.length || 0;
 
   console.log("data", data);
 

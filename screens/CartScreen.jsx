@@ -9,12 +9,14 @@ import {
   ActivityIndicator,
   Image,
 } from "react-native";
+import { useNavigation, navigation} from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery, useMutation } from "@apollo/client";
 import { GET_CART, GET_PRODUCT } from "../graphql/queries";
 import { UPDATE_CART, REMOVE_FROM_CART } from "../graphql/mutations";
 
 const CartScreen = () => {
+   const navigation = useNavigation();
   const { loading, error, data, refetch } = useQuery(GET_CART);
 
   const [updateCartMutation] = useMutation(UPDATE_CART, {
@@ -146,11 +148,7 @@ const CartScreen = () => {
                 {
                   text: "OK",
                   onPress: () => {
-                    Alert.alert(
-                      "Order Placed",
-                      "Your order has been placed!"
-                    );
-                    refetch();
+                    navigation.navigate("MyOrdersScreen" )
                   },
                 },
               ]

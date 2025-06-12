@@ -2,8 +2,6 @@ import React from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import Header from '../components/HomeScreen/Header';
 import BottomNav from '../components/HomeScreen/BottomNav';
-
-// Import all sections in an array
 import BannerCarousel from '../components/HomeScreen/BannerCarousel';
 import FeatureRow from '../components/HomeScreen/FeatureRow';
 import DealsSection from '../components/HomeScreen/DealsSection';

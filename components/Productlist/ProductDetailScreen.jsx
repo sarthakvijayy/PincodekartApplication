@@ -19,22 +19,24 @@ import ReviewSection from "./ReviewSection";
 import ProductCoursel from "./ProductCoursel";
 import BottomNav from "../HomeScreen/BottomNav";
 import { ADD_TO_CART } from "../../graphql/mutations";
-// import { GET_ALL_REVIEWS } from "../../graphql/queries";
+import ImageViewing from "react-native-image-viewing";
 
 const { width } = Dimensions.get("window");
 
 const ProductDetailScreen = ({ route }) => {
   const { id } = route.params;
 
+  // ✅ All hooks at the top
   const { loading, error, data } = useQuery(GET_PRODUCT, {
     variables: { getProductId: id },
   });
 
   const [addCart] = useMutation(ADD_TO_CART);
-
   const [selectedColorIndex, setSelectedColorIndex] = useState(0);
   const [selectedSizeIndex, setSelectedSizeIndex] = useState(0);
   const [isScrolledEnough, setIsScrolledEnough] = useState(false);
+  const [isImageViewerVisible, setImageViewerVisible] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   const handleScroll = (event) => {
     const scrollY = event.nativeEvent.contentOffset.y;
@@ -73,7 +75,7 @@ const ProductDetailScreen = ({ route }) => {
       variantName: selectedColorVariant.variantName,
       size:
         typeof selectedSizeVariant === "object"
-          ? selectedSizeVariant.size
+          ? selectedSizeVariant.size[0]
           : selectedSizeVariant,
       price: parseFloat(selectedColorVariant?.mrpPrice) || 0,
     };
@@ -110,9 +112,23 @@ const ProductDetailScreen = ({ route }) => {
           horizontal
           pagingEnabled
           showsHorizontalScrollIndicator={false}
-          renderItem={({ item }) => (
-            <Image source={{ uri: item }} style={styles.bannerImage} />
+          renderItem={({ item, index }) => (
+            <TouchableOpacity
+              onPress={() => {
+                setSelectedImageIndex(index);
+                setImageViewerVisible(true);
+              }}
+            >
+              <Image source={{ uri: item }} style={styles.bannerImage} />
+            </TouchableOpacity>
           )}
+        />
+
+        <ImageViewing
+          images={images.map((img) => ({ uri: img }))}
+          imageIndex={selectedImageIndex}
+          visible={isImageViewerVisible}
+          onRequestClose={() => setImageViewerVisible(false)}
         />
 
         <View style={styles.sliderDots}>
@@ -136,7 +152,6 @@ const ProductDetailScreen = ({ route }) => {
             </Text>
           </View>
 
-          {/* Variant Selectors */}
           <View style={styles.variantContainer}>
             <Text style={styles.sectionTitle}>Select Variant</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -149,8 +164,7 @@ const ProductDetailScreen = ({ route }) => {
                   }}
                   style={[
                     styles.variantBox,
-                    index === selectedColorIndex &&
-                      styles.variantBoxSelected,
+                    index === selectedColorIndex && styles.variantBoxSelected,
                   ]}
                 >
                   <Text style={styles.variantText}>
@@ -161,7 +175,6 @@ const ProductDetailScreen = ({ route }) => {
             </ScrollView>
           </View>
 
-          {/* Size Selectors */}
           {sizeVariants.length > 0 && (
             <View style={styles.variantContainer}>
               <Text style={styles.sectionTitle}>Select Size</Text>
@@ -194,13 +207,11 @@ const ProductDetailScreen = ({ route }) => {
             </View>
           )}
 
-          {/* Product Description */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Product Details</Text>
             <Text style={styles.sectionText}>{product.description}</Text>
           </View>
 
-          {/* Buttons that scroll away */}
           {isScrolledEnough && (
             <View style={styles.scrollButtons}>
               <TouchableOpacity style={styles.cartButton} onPress={handleAddToCart}>
@@ -213,13 +224,11 @@ const ProductDetailScreen = ({ route }) => {
             </View>
           )}
 
-          {/* Reviews and Carousel */}
           <ReviewSection />
           <ProductCoursel />
         </View>
       </ScrollView>
 
-      {/* Fixed buttons at bottom */}
       {!isScrolledEnough && (
         <View style={styles.fixedButtons}>
           <TouchableOpacity style={styles.cartButton} onPress={handleAddToCart}>
@@ -238,6 +247,7 @@ const ProductDetailScreen = ({ route }) => {
 };
 
 export default ProductDetailScreen;
+
 
 const styles = StyleSheet.create({
   container: {

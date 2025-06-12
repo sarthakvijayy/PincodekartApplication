@@ -14,8 +14,8 @@ const BottomNav = () => {
   const tabs = [
     { name: 'Home', icon: 'home', route: 'HomeScreen' },
     { name: 'New Arrival', icon: 'fire', route: 'ProductShowcase' },
-    { name: '', isCenter: true, route: 'CategoryScreen' },
-    { name: 'Orders', icon: 'shopping-bag', route: 'MyOrdersScreen' },
+    { name: '', isCenter: true, route: 'Allcat' },
+    { name: 'Orders', icon: 'shopping-bag', route: 'OrderList' },
     { name: 'Profile', icon: 'user', route: 'Profile' },
   ];
 
@@ -25,7 +25,7 @@ const BottomNav = () => {
         {tabs.map((tab, index) => (
           <TouchableOpacity
             key={index}
-            onPress={() => tab.route && navigation.navigate(tab.route)}
+            onPress={() =>  tab.route && navigation.navigate(tab.route)}
             activeOpacity={0.7}
             style={[
               styles.tabItem,

@@ -70,7 +70,7 @@ const ProductCard = ({id,image,brand,title,mrpPrice,originalPrice,discount,ratin
       activeOpacity={0.9}
     >
       <View style={styles.card}>
-        <Text style={styles.sponsored}>Sponsored</Text>
+        <Text style={styles.sponsored}>Pincodekart</Text>
 
         <View style={styles.iconRow}>
           <TouchableOpacity

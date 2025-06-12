@@ -3,6 +3,9 @@ import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import BottomNav from '../components/HomeScreen/BottomNav';
+import { GET_CURRENT_USER } from '../graphql/queries';
+import { useQuery } from '@apollo/client';
+import CategoryHeader from '../components/Category/CategoryHeader';
 
 const { width } = Dimensions.get('window');
 
@@ -35,13 +38,18 @@ const ProfileScreen = () => {
     );
   };
 
+  const {data: currentUser } = useQuery(GET_CURRENT_USER);
+
+ 
   useEffect(() => {
     const checkLoginStatus = () => {
       setIsLoggedIn(true);
-      setUserName('Sarthak');
+      setUserName();
     };
     checkLoginStatus();
   }, []);
+
+ 
 
   return (
     <View style={{ flex: 1 }}>
@@ -51,16 +59,16 @@ const ProfileScreen = () => {
             style={styles.userSection}
             onPress={() => navigation.navigate(isLoggedIn ? 'EditProfile' : 'LoginScreen')}
           >
-            <Ionicons name="person-circle" size={36} color="#ccc" />
+            {/* <Ionicons name="person-circle" size={36} color="#ccc" />
             {isLoggedIn ? (
-              <Text style={styles.userName}>{userName}</Text>
+              <Text style={styles.userName}>{currentUser?.getCurrentUser?.firstName}</Text>
             ) : (
               <Text style={styles.userName}>Hello Guest</Text>
-            )}
+            )} */}
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.heading}>Hello {isLoggedIn ? userName : 'Guest'}</Text>
+        <Text style={styles.heading}>Hello {isLoggedIn ? currentUser?.getCurrentUser?.firstName : 'Guest'}</Text>
 
         {/* Quick Actions */}
         {isLoggedIn && (
@@ -193,7 +201,9 @@ const ProfileScreen = () => {
             style={styles.logoutBtn}
             onPress={() => {
               setIsLoggedIn(false);
-              setUserName('');
+              setUserName(
+              
+              );
             }}
           >
             <Text style={styles.logoutText}>Log Out</Text>

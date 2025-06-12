@@ -202,6 +202,8 @@ export const GET_ALL_ADDRESS_QUERY = gql`
         userId
         addressLine1
         addressLine2
+        fullName
+        mobileNo
         city
         pincode
         state
@@ -309,3 +311,27 @@ query GetAllOrder($page: Int, $take: Int) {
   }
 }
   `
+
+
+  export const GET_CURRENT_USER = gql`
+  query GetCurrentUser {
+  getCurrentUser {
+    id
+    email
+    updatePasswordToken
+    firstName
+    lastName
+    mobileNo
+    cartId
+    role
+    seller
+    wishlistId
+    wholeseller
+    createdAt
+    updatedAt
+    profilePic
+    userInterest
+    isSellerPaid
+  }
+}
+  `;
