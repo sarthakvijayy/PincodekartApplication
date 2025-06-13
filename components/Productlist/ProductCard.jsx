@@ -14,13 +14,25 @@ import { AntDesign, Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { useMutation } from "@apollo/client";
-import {ADD_TO_WISHLIST,REMOVE_FROM_WISHLIST,} from "../../graphql/mutations";
-
+import {
+  ADD_TO_WISHLIST,
+  REMOVE_FROM_WISHLIST,
+} from "../../graphql/mutations";
 
 const screenWidth = Dimensions.get("window").width;
-const CARD_WIDTH = screenWidth / 2 - 20;
+const CARD_WIDTH = (screenWidth - 48) / 2; 
 
-const ProductCard = ({id,image,brand,title,mrpPrice,originalPrice,discount,rating,initialWishlisted = false,}) => {
+const ProductCard = ({
+  id,
+  image,
+  brand,
+  title,
+  mrpPrice,
+  originalPrice,
+  discount,
+  rating,
+  initialWishlisted = false,
+}) => {
   const [isWishlisted, setIsWishlisted] = useState(initialWishlisted);
   const navigation = useNavigation();
 
@@ -66,7 +78,7 @@ const ProductCard = ({id,image,brand,title,mrpPrice,originalPrice,discount,ratin
 
   return (
     <TouchableOpacity
-      onPress={() => navigation.navigate("ProductDetail", { id: id })}
+      onPress={() => navigation.navigate("ProductDetail", { id })}
       activeOpacity={0.9}
     >
       <View style={styles.card}>
@@ -113,8 +125,6 @@ const ProductCard = ({id,image,brand,title,mrpPrice,originalPrice,discount,ratin
 
         <View style={styles.priceRow}>
           <Text style={styles.price}>₹{mrpPrice}</Text>
-          {/* <Text style={styles.originalPrice}>₹{originalPrice}</Text>
-          <Text style={styles.discount}>{discount}% OFF</Text> */}
         </View>
 
         <View style={styles.labels}>
@@ -130,15 +140,16 @@ export default ProductCard;
 
 const styles = StyleSheet.create({
   card: {
-    fontFamily: "Poppins_400Regular",
     backgroundColor: "#fff",
     borderRadius: 10,
     margin: 6,
     padding: 10,
     width: CARD_WIDTH,
+    minHeight: 280,
+    justifyContent: "space-between",
     elevation: 3,
     shadowColor: "#000",
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.08,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
   },
@@ -160,20 +171,24 @@ const styles = StyleSheet.create({
   },
   productImage: {
     width: "100%",
-    height: 140,
+    height: 130,
     borderRadius: 8,
     resizeMode: "cover",
-    marginVertical: 8,
+    marginTop: 12,
   },
   rating: {
     fontSize: 12,
     color: "#4CAF50",
     fontFamily: "Poppins_500Medium",
+    marginTop: 4,
   },
   title: {
-    fontSize: 14,
+    fontSize: 13,
     color: "#222",
     fontFamily: "Poppins_500Medium",
+    marginTop: 4,
+    height: 36,
+    lineHeight: 18,
   },
   priceRow: {
     flexDirection: "row",

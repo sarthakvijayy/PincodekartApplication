@@ -1,74 +1,100 @@
 import React, { useState } from 'react';
-import { Modal, View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions } from 'react-native';
+import {
+  Modal,
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  Dimensions,
+} from 'react-native';
 
 const filters = {
-  Color: ['Red', 'Green', 'Blue', 'Black', 'White', 'Pink', 'Purple', 'Olive', 'Orange', 'Khaaki', 'Maroon', 'Baby Pink'],
-  Fabric: ['Cotton', 'Linen', 'Silk', 'Denim'],
   Price: ['Under ₹500', '₹500 - ₹1000', '₹1000 - ₹2000', 'Above ₹2000'],
   Rating: ['4★ & above', '3★ & above'],
   Gender: ['Men', 'Women', 'Unisex'],
-  Combo: ['Single', 'Pack of 2', 'Pack of 3+'],
-  Discount: ['10% & above', '30% & above', '50% & above'],
   Types: ['Casual', 'Formal', 'Party Wear'],
   Other: ['New Arrivals', 'Best Sellers'],
 };
 
 const FilterModal = ({ visible, onClose }) => {
-  const [selectedCategory, setSelectedCategory] = useState('Color');
-  const [selectedOptions, setSelectedOptions] = useState({}); 
+  const [selectedCategory, setSelectedCategory] = useState(Object.keys(filters)[0]);
+  const [selectedOptions, setSelectedOptions] = useState({});
 
   const toggleOption = (category, option) => {
     const current = selectedOptions[category] || [];
-    if (current.includes(option)) {
-      setSelectedOptions({
-        ...selectedOptions,
-        [category]: current.filter(o => o !== option),
-      });
-    } else {
-      setSelectedOptions({
-        ...selectedOptions,
-        [category]: [...current, option],
-      });
-    }
+    const updated = current.includes(option)
+      ? current.filter(o => o !== option)
+      : [...current, option];
+
+    setSelectedOptions(prev => ({
+      ...prev,
+      [category]: updated,
+    }));
   };
 
   const clearAll = () => setSelectedOptions({});
 
+  const handleClose = () => {
+    if (typeof onClose === 'function') {
+      onClose(); // just close modal
+    }
+  };
+
   const handleDone = () => {
-    onClose(selectedOptions); // Send selected filters
+    if (typeof onClose === 'function') {
+      onClose(selectedOptions); // send selected filters to parent and close
+    }
   };
 
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <View style={styles.modalOverlay}>
         <View style={styles.modalContainer}>
+          {/* Header */}
           <View style={styles.header}>
             <Text style={styles.headerTitle}>Filters</Text>
-            <TouchableOpacity onPress={handleDone}>
+            <TouchableOpacity onPress={handleClose}>
               <Text style={styles.closeText}>✕</Text>
             </TouchableOpacity>
           </View>
 
+          {/* Content */}
           <View style={styles.contentRow}>
+            {/* Sidebar */}
             <View style={styles.sidebar}>
-              {Object.keys(filters).map((cat, index) => (
+              {Object.keys(filters).map((cat, idx) => (
                 <TouchableOpacity
-                  key={index}
+                  key={idx}
                   onPress={() => setSelectedCategory(cat)}
-                  style={[styles.tabButton, selectedCategory === cat && styles.activeTab]}>
-                  <Text style={[styles.tabText, selectedCategory === cat && styles.activeTabText]}>
+                  style={[
+                    styles.tabButton,
+                    selectedCategory === cat && styles.activeTab,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.tabText,
+                      selectedCategory === cat && styles.activeTabText,
+                    ]}
+                  >
                     {cat}
                   </Text>
                 </TouchableOpacity>
               ))}
             </View>
 
+            {/* Options */}
             <View style={styles.optionsPane}>
               <ScrollView contentContainerStyle={styles.optionsWrapper}>
                 {filters[selectedCategory].map((option, index) => (
                   <TouchableOpacity
                     key={index}
-                    style={[styles.optionPill, (selectedOptions[selectedCategory] || []).includes(option) && styles.optionSelected]}
+                    style={[
+                      styles.optionPill,
+                      (selectedOptions[selectedCategory] || []).includes(option) &&
+                        styles.optionSelected,
+                    ]}
                     onPress={() => toggleOption(selectedCategory, option)}
                   >
                     <Text style={styles.optionText}>{option}</Text>
@@ -78,6 +104,7 @@ const FilterModal = ({ visible, onClose }) => {
             </View>
           </View>
 
+          {/* Footer */}
           <View style={styles.footer}>
             <Text style={styles.productCount}>100 Products</Text>
             <TouchableOpacity style={styles.clearButton} onPress={clearAll}>

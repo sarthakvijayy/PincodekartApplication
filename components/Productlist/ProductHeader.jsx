@@ -12,6 +12,8 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { useQuery } from "@apollo/client";
+import { GET_CART } from "../../graphql/queries";
 import Modal from "react-native-modal";
 
 const { width } = Dimensions.get("window");
@@ -28,6 +30,9 @@ const ProductHeader = ({
     useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("");
+
+   const {loading: cartLoading, data: cartData , error: cartError}
+    = useQuery(GET_CART);
 
   const openCategoryModal = (category) => {
     setSelectedCategory(category);
@@ -48,6 +53,9 @@ const ProductHeader = ({
     setFilterModalVisible(false);
     setSelectedFilter("");
   };
+
+    const cartCount = cartData?.getCart?.cartProducts?.length || 0;
+
 
   return (
     <>
@@ -76,12 +84,21 @@ const ProductHeader = ({
               placeholderTextColor="#888"
             />
           </View>
-          <Ionicons
-            name="bag-outline"
-            size={22}
-            color="#fff"
-            onPress={() => navigation.navigate("CartScreen")}
-          />
+             <TouchableOpacity onPress={() => navigation.navigate("CartScreen")}>
+                   <View style={styles.iconWithBadge}>
+                     <Ionicons
+                       name="bag-outline"
+                       size={24}
+                       color="#184977"
+                       style={styles.iconButton}
+                     />
+                     <View style={styles.badge}>
+                       <Text style={styles.badgeText}>
+                         <Text style={styles.badgeText}>{cartCount}</Text>
+                       </Text>
+                     </View>
+                   </View>
+                 </TouchableOpacity>
         </View>
       </LinearGradient>
 
@@ -307,4 +324,48 @@ const styles = StyleSheet.create({
     color: "#888",
     textAlign: "center",
   },
+  floatingIcons: {
+    flexDirection: "row",
+
+    position: "absolute",
+
+    top: 60,
+
+    right: 15,
+
+    gap: 15,
+  },
+
+  iconButton: {
+    backgroundColor: "#DFF0FF",
+
+    padding: 8,
+
+    borderRadius: 20,
+
+    elevation: 4,
+  },
+  iconWithBadge: {
+    position: "relative",
+  },
+
+  badge: {
+    position: "absolute",
+    top: -4,
+    right: -4,
+    backgroundColor: "red",
+    borderRadius: 8,
+    minWidth: 16,
+    height: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 3,
+  },
+
+  badgeText: {
+    color: "#fff",
+    fontSize: 10,
+    fontWeight: "bold",
+  },
+
 });

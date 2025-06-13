@@ -31,35 +31,36 @@ import Bikes from '../components/HomeScreen/Bike';
 import Cycles from '../components/HomeScreen/Cycles';
 import Pet from '../components/HomeScreen/Pet';
 
+// Use functional references, not JSX
 const sections = [
-  <BannerCarousel key="banner" />,
-  <FeatureRow key="feature" />,
-  <DealsSection key="deals" />,
-  <FashionTalkSection key="fashion" />,
-  <DealsOfDaySection key="dealsOfDay" />,
-  <Laptops key="laptops" />,
-  <WomenFoot key="womenFoot" />,
-  <FruitsAndVeg key="fruits" />,
-  <Kids key="kids" />,
-  <Wellness key="wellness" />,
-  <Mobiles key="mobiles" />,
-  <Kitchens key="kitchen" />,
-  <HomeDecor key="decor" />,
-  <Stationary key="stationary" />,
-  <Medicines key="medicines" />,
-  <Sports key="sports" />,
-  <KidsFootwear key="kidsFootwear" />,
-  <Cosmatics key="cosmetics" />,
-  <Toys key="toys" />,
-  <Jewellery key="jewellery" />,
-  <Furniture key="furniture" />,
-  <CarAccesories key="carAccesories" />,
-  <Cars key="cars" />,
-  <Nursery key="nursery" />,
-  <Gifts key="gifts" />,
-  <Bikes key="bikes" />,
-  <Cycles key="cycles" />,
-  <Pet key="pet" />,
+  { key: 'banner', component: BannerCarousel },
+  { key: 'feature', component: FeatureRow },
+  { key: 'deals', component: DealsSection }, //Done
+  { key: 'fashion', component: FashionTalkSection },//Done
+  { key: 'dealsOfDay', component: DealsOfDaySection }, //Done
+  { key: 'laptops', component: Laptops },//done
+  { key: 'womenFoot', component: WomenFoot }, //done
+  { key: 'fruits', component: FruitsAndVeg }, //done
+  { key: 'kids', component: Kids }, //done
+  { key: 'wellness', component: Wellness },// done
+  { key: 'mobiles', component: Mobiles }, //Done
+  { key: 'kitchen', component: Kitchens }, //Done
+  { key: 'decor', component: HomeDecor }, //Done
+  { key: 'stationary', component: Stationary }, //Done
+  { key: 'medicines', component: Medicines }, //Done
+  { key: 'sports', component: Sports }, //Done
+  { key: 'kidsFootwear', component: KidsFootwear }, //Done
+  { key: 'cosmetics', component: Cosmatics }, //Done
+  { key: 'toys', component: Toys }, //Done
+  { key: 'jewellery', component: Jewellery }, //Done
+  { key: 'furniture', component: Furniture }, //Done
+  { key: 'carAccesories', component: CarAccesories }, //Done
+  { key: 'cars', component: Cars }, //Done
+  { key: 'nursery', component: Nursery },  //Done
+  { key: 'gifts', component: Gifts }, //Done
+  { key: 'bikes', component: Bikes }, //Done
+  { key: 'cycles', component: Cycles }, //Done
+  { key: 'pet', component: Pet },
 ];
 
 const HomeScreen = () => {
@@ -68,16 +69,21 @@ const HomeScreen = () => {
       <FlatList
         ListHeaderComponent={<Header />}
         data={sections}
-        renderItem={({ item }) => item}
-        keyExtractor={(item, index) => index.toString()}
-        contentContainerStyle={{ paddingBottom: 90 }}
+        renderItem={({ item }) => {
+          const Component = item.component;
+          return <Component />;
+        }}
+        keyExtractor={(item) => item.key}
         showsVerticalScrollIndicator={false}
-        initialNumToRender={5}
-        maxToRenderPerBatch={5}
+        initialNumToRender={6}
+        maxToRenderPerBatch={6}
         windowSize={10}
         updateCellsBatchingPeriod={50}
+        contentContainerStyle={{ paddingBottom: 100 }}
       />
-      <BottomNav />
+      <View style={styles.bottomNavContainer}>
+        <BottomNav />
+      </View>
     </View>
   );
 };
@@ -88,5 +94,18 @@ const styles = StyleSheet.create({
   screenContainer: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  bottomNavContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 80,
+    backgroundColor: '#fff',
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
 });

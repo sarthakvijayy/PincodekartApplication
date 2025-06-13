@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, Text, Image, ScrollView, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, Image, ScrollView, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-
+import { useNavigation } from '@react-navigation/native';
 const { width } = Dimensions.get('window');
 
 const deals = [
@@ -13,6 +13,12 @@ const deals = [
 ];
 
 const Cosmatics = () => {
+  const navigation = useNavigation();
+        
+          const handlePress = () => {
+            navigation.navigate('ProductShowcase');
+          };
+  
   return (
     <View style={styles.dealsSection}>
       <LinearGradient
@@ -25,13 +31,13 @@ const Cosmatics = () => {
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           {deals.map((item, index) => (
-            <View key={index} style={styles.dealCard}>
-              <Image source={item.image} style={styles.dealImage} resizeMode="cover" />
-              <View style={styles.dealInfo}>
-                <Text style={styles.dealTitle}>{item.title}</Text>
-                <Text style={styles.dealDiscount}>{item.discount}</Text>
-              </View>
-            </View>
+            <TouchableOpacity key={index} style={styles.dealCard} onPress={handlePress}>
+                          <Image source={item.image} style={styles.dealImage} resizeMode="cover" />
+                          <View style={styles.dealInfo}>
+                            <Text style={styles.dealTitle}>{item.title}</Text>
+                            <Text style={styles.dealDiscount}>{item.discount}</Text>
+                          </View>
+                        </TouchableOpacity>
           ))}
         </ScrollView>
       </LinearGradient>

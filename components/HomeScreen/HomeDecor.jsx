@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, Image, StyleSheet, Dimensions , TouchableOpacity} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useNavigation } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
 
@@ -12,6 +13,12 @@ const kidsDeals = [
 ];
 
 const HomeDecor = () => {
+  const navigation = useNavigation();
+        
+          const handlePress = () => {
+            navigation.navigate('ProductShowcase');
+          };
+
   return (
     <View style={styles.sectionWrapper}>
       <LinearGradient colors={['#FED68A', '#FFAF14']} style={styles.gradientBackground}>
@@ -25,13 +32,13 @@ const HomeDecor = () => {
         {/* Four Deal Cards in Single Row */}
         <View style={styles.dealsRow}>
           {kidsDeals.map((item, index) => (
-            <View key={index} style={styles.dealCard}>
-              <Image source={item.image} style={styles.dealImage} resizeMode="cover" />
-              <View style={styles.dealInfo}>
-                <Text style={styles.dealTitle}>{item.title}</Text>
-                <Text style={styles.dealDiscount}>{item.discount}</Text>
-              </View>
-            </View>
+            <TouchableOpacity key={index} style={styles.dealCard} onPress={handlePress}>
+                          <Image source={item.image} style={styles.dealImage} resizeMode="cover" />
+                          <View style={styles.dealInfo}>
+                            <Text style={styles.dealTitle}>{item.title}</Text>
+                            <Text style={styles.dealDiscount}>{item.discount}</Text>
+                          </View>
+                        </TouchableOpacity>
           ))}
         </View>
 

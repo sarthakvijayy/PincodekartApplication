@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, Image, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useNavigation } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
 
@@ -11,6 +12,14 @@ const products = [
 ];
 
 const Pet = () => {
+
+  const navigation = useNavigation();
+        
+          const handlePress = () => {
+            navigation.navigate('ProductShowcase');
+          };
+
+
   return (
     <View style={styles.sectionWrapper}>
       <LinearGradient
@@ -26,10 +35,10 @@ const Pet = () => {
         {/* 3 Static Product Cards */}
         <View style={styles.productRow}>
           {products.map((item, index) => (
-            <View key={index} style={styles.productCard}>
+            <TouchableOpacity key={index} style={styles.productCard} onPress={handlePress}>
               <Image source={item.image} style={styles.productImage} resizeMode="cover" />
               <Text style={styles.productTitle}>{item.title}</Text>
-            </View>
+            </TouchableOpacity>
           ))}
         </View>
       </LinearGradient>

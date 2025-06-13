@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Image, ScrollView, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useNavigation } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
 
@@ -19,6 +20,11 @@ const categories = [
 ];
 
 const DealsOfDaySection = () => {
+  const navigation = useNavigation();
+  
+    const handlePress = () => {
+      navigation.navigate('ProductShowcase');
+    };
   return (
     <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
       
@@ -28,11 +34,11 @@ const DealsOfDaySection = () => {
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.dealsRow}>
           {deals.map((item, index) => (
-            <View key={index} style={styles.dealCard}>
+            <TouchableOpacity key={index} style={styles.dealCard} onPress={handlePress}>
               <Image source={item.image} style={styles.dealImage} resizeMode="contain" />
               <Text style={styles.dealTitle}>{item.title}</Text>
               <Text style={styles.dealDiscount}>{item.discount}</Text>
-            </View>
+            </TouchableOpacity>
           ))}
         </ScrollView>
       </LinearGradient>

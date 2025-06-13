@@ -83,23 +83,7 @@ const Header = () => {
       {/* Floating Icons */}
 
       <View style={styles.floatingIcons}>
-        {/* Notification */}
-        <TouchableOpacity onPress={() => navigation.navigate("Notification")}>
-          <View style={styles.iconWithBadge}>
-            <Feather
-              name="bell"
-              size={22}
-              color="#184977"
-              style={styles.iconButton}
-            />
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>
-                <Text style={styles.badgeText}>{notificationCount}</Text>
-
-              </Text>
-            </View>
-          </View>
-        </TouchableOpacity>
+        
 
         {/* Wishlist */}
         <TouchableOpacity onPress={() => navigation.navigate("WishlistCard")}>

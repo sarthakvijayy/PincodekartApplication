@@ -13,7 +13,7 @@ import MyOrdersScreen from '../screens/MyOrdersScreen.jsx';
 import ProfileScreen from '../screens/ProfileScreen.jsx';
 import { ApolloClient, InMemoryCache, ApolloProvider, createHttpLink } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
-import Allcat from '../Allcat.jsx';
+import Allcat from '../components/Category/Allcat.jsx';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import WishlistCard from '../components/HomeScreen/WishlistCard.jsx';
 import Notification from '../components/HomeScreen/Notification.jsx';
