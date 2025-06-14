@@ -22,21 +22,14 @@ import {
 } from '@expo-google-fonts/inter';
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import BottomNav from '../../components/HomeScreen/BottomNav';
+import { LOGIN_USER } from '../../graphql/queries';
 
 const client = new ApolloClient({
   uri: 'https://pincodekart.com/api/graphql',
   cache: new InMemoryCache(),
 });
 
-const LOGIN_USER = gql`
-  query Userlogin($email: String, $password: String) {
-    userlogin(email: $email, password: $password) {
-      id
-      email
-    }
-  }
-`;
+
 
 const LoginScreen = () => {
   const navigation = useNavigation();

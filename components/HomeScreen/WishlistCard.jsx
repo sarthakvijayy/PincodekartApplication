@@ -1,17 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import {
-  View,
-  FlatList,
-  StyleSheet,
-  Text,
-  ActivityIndicator,
-  Alert,
-  Dimensions,
-} from 'react-native';
+import {View,FlatList,StyleSheet,Text,ActivityIndicator,Alert,Dimensions,} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { useMutation, useQuery, useLazyQuery } from '@apollo/client';
-
 import ProductCard from '../../components/Productlist/ProductCard';
 import BottomNav from '../HomeScreen/BottomNav';
 import { GET_WISHLIST_QUERY, GET_PRODUCT } from '../../graphql/queries';
@@ -79,17 +70,18 @@ const WishlistCard = () => {
 
     return (
       <ProductCard
-        id={item.id}
-        image={imageUrl}
-        brand={item.brandId}
-        title={item.productName}
-        mrpPrice={item.price}
-        originalPrice={item.sellingPrice}
-        discount={item.discount}
-        rating={item.rating || 0}
-        isWishlisted={isWishlisted}
-        onWishlistToggle={() => toggleWishlist(item.id, isWishlisted)}
-      />
+  id={item.id}
+  image={imageUrl}
+  brand={item.brandId}
+  title={item.productName}
+  mrpPrice={item.variant?.[0]?.mrpPrice || 0}
+  originalPrice={item.variant?.[0]?.sellingPrice || 0}
+  discount={item.discount}
+  rating={item.rating || 0}
+  isWishlisted={isWishlisted}
+  onWishlistToggle={() => toggleWishlist(item.id, isWishlisted)}
+/>
+
     );
   };
 

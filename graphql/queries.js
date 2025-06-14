@@ -39,6 +39,15 @@ export const GET_ALL_CATEGORIES = gql`
   }
 `;
 
+export const LOGIN_USER = gql`
+  query Userlogin($email: String, $password: String) {
+    userlogin(email: $email, password: $password) {
+      id
+      email
+    }
+  }
+`;
+
 export const GET_PRODUCTS_BY_CATEGORY = gql`
   query GetProductsByCat($catId: ID, $sortOrder: String) {
     getProductsByCat(catId: $catId, sortOrder: $sortOrder) {

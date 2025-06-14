@@ -26,9 +26,14 @@ const Allcat = () => {
   const [categories, setCategories] = useState([]);
   const [selectedCat, setSelectedCat] = useState(null);
   const [products, setProducts] = useState([]);
-  const [fetchProductsByCat, { loading: loadingProducts }] = useLazyQuery(GET_PRODUCTS_BY_CATEGORY);
+  const [fetchProductsByCat, { loading: loadingProducts }] =
+    useLazyQuery(GET_PRODUCTS_BY_CATEGORY);
 
-  const { data: catData, loading: loadingCats, error: catError } = useQuery(GET_ALL_CATEGORIES, {
+  const {
+    data: catData,
+    loading: loadingCats,
+    error: catError,
+  } = useQuery(GET_ALL_CATEGORIES, {
     variables: { page: null, take: null },
   });
 
@@ -53,7 +58,10 @@ const Allcat = () => {
       style={styles.categoryItem}
       onPress={() => handleCategoryPress(item)}
     >
-      <Image source={{ uri: item.categoryIcon }} style={styles.categoryImage} />
+      <Image
+        source={{ uri: item.categoryIcon }}
+        style={styles.categoryImage}
+      />
       <Text style={styles.categoryText} numberOfLines={1}>
         {item.categoryName}
       </Text>
@@ -66,17 +74,30 @@ const Allcat = () => {
       onPress={() => navigation.navigate("ProductDetail", { id: item.id })}
     >
       {item.previewImage ? (
-        <Image source={{ uri: item.previewImage }} style={styles.productImage} />
+        <Image
+          source={{ uri: item.previewImage }}
+          style={styles.productImage}
+        />
       ) : (
-        <View style={styles.noImage}><Text>No Image</Text></View>
+        <View style={styles.noImage}>
+          <Text>No Image</Text>
+        </View>
       )}
       <Text style={styles.productText}>{item.productName}</Text>
-      <Text style={styles.productPrice}>₹{item.variant?.[0]?.mrpPrice ?? "N/A"}</Text>
+      <Text style={styles.productPrice}>
+        ₹{item.variant?.[0]?.mrpPrice ?? "N/A"}
+      </Text>
     </TouchableOpacity>
   );
 
-  if (loadingCats) return <ActivityIndicator style={{ flex: 1 }} size="large" />;
-  if (catError) return <View><Text>Error loading categories</Text></View>;
+  if (loadingCats)
+    return <ActivityIndicator style={{ flex: 1 }} size="large" />;
+  if (catError)
+    return (
+      <View>
+        <Text>Error loading categories</Text>
+      </View>
+    );
 
   return (
     <View style={{ flex: 1 }}>
@@ -88,11 +109,16 @@ const Allcat = () => {
           renderItem={renderCategory}
           keyExtractor={(item) => item.id}
           numColumns={2}
-          contentContainerStyle={styles.gridContainer}
+          contentContainerStyle={[styles.gridContainer, { paddingBottom: 100 }]}
         />
       ) : (
         <>
-          <TouchableOpacity onPress={() => { setSelectedCat(null); setProducts([]); }}>
+          <TouchableOpacity
+            onPress={() => {
+              setSelectedCat(null);
+              setProducts([]);
+            }}
+          >
             <Text style={styles.backText}>← Back to categories</Text>
           </TouchableOpacity>
           {loadingProducts ? (
@@ -103,10 +129,12 @@ const Allcat = () => {
               renderItem={renderProduct}
               keyExtractor={(item) => item.id}
               numColumns={2}
-              contentContainerStyle={styles.prodList}
+              contentContainerStyle={[styles.prodList, { paddingBottom: 100 }]}
             />
           ) : (
-            <Text style={styles.emptyText}>No products in {selectedCat.categoryName}</Text>
+            <Text style={styles.emptyText}>
+              No products in {selectedCat.categoryName}
+            </Text>
           )}
         </>
       )}
@@ -117,7 +145,9 @@ const Allcat = () => {
 };
 
 const styles = StyleSheet.create({
-  gridContainer: { padding: 16 },
+  gridContainer: {
+    padding: 16,
+  },
   categoryItem: {
     flex: 1,
     margin: 8,
@@ -145,7 +175,9 @@ const styles = StyleSheet.create({
     color: "#2A55E5",
     fontWeight: "600",
   },
-  prodList: { padding: 16 },
+  prodList: {
+    padding: 16,
+  },
   productCard: {
     flex: 1,
     margin: 8,

@@ -200,3 +200,25 @@ mutation CreateAddress($fullName: String, $mobileNo: String, $addressLine1: Stri
   }
 `;
 
+export const EDIT_PROFILE = gql`
+mutation UpdateUserProfile($firstName: String, $lastName: String, $mobileNo: String) {
+  updateUserProfile(firstName: $firstName, lastName: $lastName, mobileNo: $mobileNo) {
+    cartId
+    createdAt
+    email
+    firstName
+    id
+    isSellerPaid
+    lastName
+    mobileNo
+    profilePic
+    role
+    seller
+    updatePasswordToken
+    updatedAt
+    userInterest
+    wholeseller
+    wishlistId
+  }
+}`
+

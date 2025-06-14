@@ -20,6 +20,7 @@ import {
 } from "../../graphql/queries";
 import CategoryHeader from "./CategoryHeader";
 import BottomNav from "../HomeScreen/BottomNav";
+import ProductCard from "../Productlist/ProductCard";
 
 const { width } = Dimensions.get("window");
 const itemWidth = width / 2 - 24;
@@ -48,27 +49,19 @@ const CategoryScreen = ({ route }) => {
       const imageUrl = item?.previewImage?.trim();
 
       return (
-        <TouchableOpacity
-          style={styles.productCard}
-          onPress={() =>
-            navigation.navigate("ProductDetail", {
-              id: item.id,
-              productName: item.productName,
-            })
-          }
-        >
-          <Image
-            source={{ uri: imageUrl }}
-            style={styles.productImage}
-            resizeMode="cover"
-          />
-          <Text style={styles.productText}>{item.productName}</Text>
-          {variantName !== "" && (
-            <Text style={styles.productSubText}>{variantName}</Text>
-          )}
-          <Text style={styles.productPrice}>₹{price}</Text>
-        </TouchableOpacity>
-      );
+  <ProductCard
+    id={item.id}
+    image={imageUrl}
+    brand={item.brandName || "Pincodekart"}
+    title={item.productName}
+    mrpPrice={item?.variant?.[0]?.mrpPrice}
+    originalPrice={item?.variant?.[0]?.originalPrice || item?.variant?.[0]?.mrpPrice}
+    discount={item?.variant?.[0]?.discount || 0}
+    rating={item.avgRating || "4.0"} // fallback rating
+    initialWishlisted={item.isWishlisted || false}
+  />
+);
+
     },
     [navigation]
   );

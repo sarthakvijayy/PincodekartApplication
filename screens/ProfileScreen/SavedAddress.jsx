@@ -9,19 +9,26 @@ import {
   ActivityIndicator,
   Alert,
   Modal,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from "react-native";
 import { useQuery, useMutation } from "@apollo/client";
-import { GET_ALL_ADDRESS_QUERY } from "../graphql/queries";
+import { GET_ALL_ADDRESS_QUERY } from "../../graphql/queries";
 import {
   CREATE_ADDRESS,
   DELETE_ADDRESS,
   UPDATE_ADDRESS,
-} from "../graphql/mutations";
+} from "../../graphql/mutations";
 import { Ionicons } from "@expo/vector-icons";
-import { useRoute } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { LinearGradient } from "expo-linear-gradient";
 
-const AddressScreen = () => {
+const SavedAddress = () => {
   const route = useRoute();
+  const navigation = useNavigation();
   const [isEdit, setIsEdit] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [form, setForm] = useState({
@@ -35,7 +42,6 @@ const AddressScreen = () => {
     country: "",
   });
 
-  // Handle optional route params
   const [selectedAddressId, setSelectedAddressId] = useState(
     route?.params?.selectedAddressId || null
   );
@@ -185,8 +191,24 @@ const AddressScreen = () => {
 
   return (
     <View style={styles.container}>
+      {/* Header */}
+      <LinearGradient
+        colors={["#184977", "#459BEC", "#73BBFF", "#DFF0FF"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        style={styles.headerContainer}
+      >
+        <View style={styles.headerContent}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <Ionicons name="arrow-back" size={24} color="#fff" />
+          </TouchableOpacity>
+          <Text style={styles.headerText}>Saved Addresses</Text>
+        </View>
+      </LinearGradient>
+
+      {/* Address Section */}
       <View style={styles.headContainer}>
-        <Text style={styles.heading}>Your Addresses</Text>
+        <Text style={styles.heading}>Your Address</Text>
         <TouchableOpacity
           style={styles.createBTN}
           onPress={() => {
@@ -203,77 +225,117 @@ const AddressScreen = () => {
         keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
         renderItem={renderAddressItem}
         ListEmptyComponent={<Text>No addresses found.</Text>}
+        contentContainerStyle={{ paddingBottom: 80 }}
       />
 
+      {/* Bottom Save New Address Button */}
+      <TouchableOpacity
+        style={[styles.button, { margin: 16 }]}
+        onPress={() => {
+          resetForm();
+          setModalVisible(true);
+        }}
+      >
+        <Text style={styles.buttonText}>Save Address</Text>
+      </TouchableOpacity>
+
+      {/* Address Modal */}
       <Modal
         animationType="slide"
         transparent={true}
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalView}>
-            <Text style={styles.modalText}>
-              {isEdit ? "Edit Address" : "Add New Address"}
-            </Text>
-
-            {[
-              { label: "Full Name", key: "fullName" },
-              { label: "Mobile No.", key: "mobileNo" },
-              { label: "Address Line 1", key: "addressLine1" },
-              { label: "Address Line 2", key: "addressLine2" },
-              { label: "City", key: "city" },
-              { label: "Pincode", key: "pincode" },
-              { label: "State", key: "state" },
-              { label: "Country", key: "country" },
-            ].map((field) => (
-              <TextInput
-                key={field.key}
-                placeholder={field.label}
-                style={styles.input}
-                value={form[field.key]}
-                onChangeText={(text) => setForm({ ...form, [field.key]: text })}
-                keyboardType={["pincode", "mobileNo"].includes(field.key) ? "numeric" : "default"}
-              />
-            ))}
-
-            <TouchableOpacity
-              style={styles.button}
-              onPress={isEdit ? handleUpdate : handleCreate}
-              disabled={updating || creatingAddressLoading}
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.modalOverlay}>
+            <KeyboardAvoidingView
+              behavior={Platform.OS === "ios" ? "padding" : "height"}
+              style={{ flex: 1 }}
             >
-              <Text style={styles.buttonText}>
-                {isEdit
-                  ? updating
-                    ? "Updating..."
-                    : "Update Address"
-                  : creatingAddressLoading
-                  ? "Saving..."
-                  : "Save Address"}
-              </Text>
-            </TouchableOpacity>
+              <ScrollView contentContainerStyle={styles.modalView}>
+                <Text style={styles.modalText}>
+                  {isEdit ? "Edit Address" : "Add New Address"}
+                </Text>
 
-            <TouchableOpacity
-              onPress={() => setModalVisible(false)}
-              style={[styles.button, { backgroundColor: "gray", marginTop: 10 }]}
-            >
-              <Text style={styles.buttonText}>Cancel</Text>
-            </TouchableOpacity>
+                {[{ label: "Full Name", key: "fullName" },
+                  { label: "Mobile No.", key: "mobileNo" },
+                  { label: "Address Line 1", key: "addressLine1" },
+                  { label: "Address Line 2", key: "addressLine2" },
+                  { label: "City", key: "city" },
+                  { label: "Pincode", key: "pincode" },
+                  { label: "State", key: "state" },
+                  { label: "Country", key: "country" },
+                ].map((field) => (
+                  <TextInput
+                    key={field.key}
+                    placeholder={field.label}
+                    style={styles.input}
+                    value={form[field.key]}
+                    onChangeText={(text) =>
+                      setForm((prev) => ({ ...prev, [field.key]: text }))
+                    }
+                    keyboardType={["pincode", "mobileNo"].includes(field.key) ? "numeric" : "default"}
+                  />
+                ))}
+
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={isEdit ? handleUpdate : handleCreate}
+                  disabled={updating || creatingAddressLoading}
+                >
+                  <Text style={styles.buttonText}>
+                    {isEdit
+                      ? updating
+                        ? "Updating..."
+                        : "Update Address"
+                      : creatingAddressLoading
+                      ? "Saving..."
+                      : "Save Address"}
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => setModalVisible(false)}
+                  style={[styles.button, { backgroundColor: "gray", marginTop: 10 }]}
+                >
+                  <Text style={styles.buttonText}>Cancel</Text>
+                </TouchableOpacity>
+              </ScrollView>
+            </KeyboardAvoidingView>
           </View>
-        </View>
+        </TouchableWithoutFeedback>
       </Modal>
     </View>
   );
 };
 
-export default AddressScreen;
+export default SavedAddress;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: "#fff" },
+  container: { flex: 1, backgroundColor: "#fff" },
+  headerContainer: {
+    paddingVertical: 45,
+    paddingHorizontal: 10,
+    justifyContent: "center",
+  },
+  headerContent: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  backButton: {
+    marginRight: 10,
+  },
+  headerText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#fff",
+  },
   headContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    paddingHorizontal: 16,
+    marginTop: 12,
   },
   createBTN: {
     borderWidth: 2,
@@ -288,6 +350,7 @@ const styles = StyleSheet.create({
     borderColor: "#ddd",
     borderRadius: 8,
     marginBottom: 8,
+    marginHorizontal: 16,
   },
   selectedAddress: {
     borderColor: "#007BFF",
@@ -308,6 +371,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 20,
     elevation: 5,
+    flexGrow: 1,
   },
   modalText: {
     fontSize: 18,
@@ -324,11 +388,16 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   button: {
-    backgroundColor: "#007BFF",
+    backgroundColor: "#fff",
     padding: 14,
     borderRadius: 8,
     alignItems: "center",
     marginTop: 10,
+    borderColor: '#2A55E5',
+    borderWidth: 2,
   },
-  buttonText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
+  buttonText: { 
+    color: "#2A55E5", 
+    fontWeight: "bold", 
+    fontSize: 16 },
 });

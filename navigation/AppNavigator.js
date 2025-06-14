@@ -25,6 +25,9 @@ import OrderSummaryScreen from '../screens/OrderSummaryScreen.jsx';
 import MyOrdersProfile from '../screens/MyOrdersProfile.jsx';
 import OrderDetailScreen from '../screens/OrderDetailScreen.jsx';
 import OrderList from '../screens/OrderList.jsx';
+import EditProfile from '../screens/ProfileScreen/EditProfile.jsx';
+import SignUpScreen from '../screens/Auth/SignUpScreen.jsx';
+import SavedAddress from '../screens/ProfileScreen/SavedAddress.jsx';
 
 const httpLink = createHttpLink({
   uri: 'https://pincodekart.com/api/graphql',
@@ -36,7 +39,7 @@ const authLink = setContext(async (_, { headers }) => {
     
     headers: {
       ...headers,
-      email: email || 'naveen56dhaker@gmail.com',
+      email: email ,
     },
   };
   
@@ -74,6 +77,9 @@ const AppNavigator = () => {
         <Stack.Screen name="MyOrdersProfile" component={MyOrdersProfile} />
         <Stack.Screen name='OrderDetailScreen' component={OrderDetailScreen} />
         <Stack.Screen name='OrderList' component={OrderList} />
+        <Stack.Screen name='EditProfile' component={EditProfile} />
+        <Stack.Screen name='SignUpScreen' component={SignUpScreen} />
+        <Stack.Screen name='SavedAddress' component={SavedAddress} />
       </Stack.Navigator>
       </CartProvider>
     </ApolloProvider>

@@ -1,21 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions } from 'react-native';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import BottomNav from '../components/HomeScreen/BottomNav';
 import { GET_CURRENT_USER } from '../graphql/queries';
 import { useQuery } from '@apollo/client';
-import CategoryHeader from '../components/Category/CategoryHeader';
 
 const { width } = Dimensions.get('window');
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
+  const route = useRoute();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userName, setUserName] = useState();
   const [addressExpanded, setAddressExpanded] = useState(false);
   const [languageExpanded, setLanguageExpanded] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('English');
+  const [selectedAddressId, setSelectedAddressId] = useState(null); // 👈 for selected address
 
   const languages = ['Hindi', 'English', 'Marathi', 'Gujarati'];
   const recentlyViewed = [
@@ -24,6 +24,18 @@ const ProfileScreen = () => {
     { id: 3, title: 'Home', image: require('../assets/deals/Shirt.png'), rating: 3 },
     { id: 4, title: 'Shoes', image: require('../assets/deals/Shirt.png'), rating: 4.5 },
   ];
+
+  const { data: currentUser } = useQuery(GET_CURRENT_USER);
+
+  useEffect(() => {
+    setIsLoggedIn(true);
+  }, []);
+
+  useEffect(() => {
+    if (route.params?.selectedAddressId) {
+      setSelectedAddressId(route.params.selectedAddressId);
+    }
+  }, [route.params]);
 
   const renderRating = (rating) => {
     const fullStars = Math.floor(rating);
@@ -38,19 +50,6 @@ const ProfileScreen = () => {
     );
   };
 
-  const {data: currentUser } = useQuery(GET_CURRENT_USER);
-
- 
-  useEffect(() => {
-    const checkLoginStatus = () => {
-      setIsLoggedIn(true);
-      setUserName();
-    };
-    checkLoginStatus();
-  }, []);
-
- 
-
   return (
     <View style={{ flex: 1 }}>
       <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 100 }}>
@@ -59,12 +58,7 @@ const ProfileScreen = () => {
             style={styles.userSection}
             onPress={() => navigation.navigate(isLoggedIn ? 'EditProfile' : 'LoginScreen')}
           >
-            {/* <Ionicons name="person-circle" size={36} color="#ccc" />
-            {isLoggedIn ? (
-              <Text style={styles.userName}>{currentUser?.getCurrentUser?.firstName}</Text>
-            ) : (
-              <Text style={styles.userName}>Hello Guest</Text>
-            )} */}
+          
           </TouchableOpacity>
         </View>
 
@@ -141,12 +135,16 @@ const ProfileScreen = () => {
         )}
         {addressExpanded && isLoggedIn && (
           <View style={styles.expandContent}>
-            <Text style={styles.address}>123, Sector 8, Udaipur Rajasthan</Text>
+            {selectedAddressId ? (
+              <Text style={styles.address}>Selected Address ID: {selectedAddressId}</Text>
+            ) : (
+              <Text style={styles.address}>View Address</Text>
+            )}
             <TouchableOpacity
               style={styles.addAddressBtn}
-              onPress={() => navigation.navigate('SelectAddress')}
+              onPress={() => navigation.navigate('SavedAddress', { fromProfile: true })}
             >
-              <Text style={styles.addAddressText}>Add New Address</Text>
+              <Text style={styles.addAddressText}>View Your Address</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -201,16 +199,13 @@ const ProfileScreen = () => {
             style={styles.logoutBtn}
             onPress={() => {
               setIsLoggedIn(false);
-              setUserName(
-              
-              );
             }}
           >
             <Text style={styles.logoutText}>Log Out</Text>
           </TouchableOpacity>
         )}
 
-        {/* Login / Sign Up if not logged in */}
+        {/* Login / Sign Up */}
         {!isLoggedIn && (
           <View style={styles.authSection}>
             <TouchableOpacity
@@ -269,7 +264,10 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 10,
   },
-  cardText: { fontFamily: 'Poppins_500Medium', fontSize: 14 },
+  cardText: { 
+    fontFamily: 'Poppins_500Medium',
+    fontSize: 14 
+  },
   sectionTitle: {
     fontSize: 16,
     fontFamily: 'Poppins_600SemiBold',
