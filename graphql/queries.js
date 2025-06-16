@@ -286,39 +286,41 @@ query GetAllOrder($take: Int, $page: Int) {
 
 
   export const GET_ORDER = gql`
-  query GetOrder($getOrderId: ID) {
+query GetOrder($getOrderId: ID) {
   getOrder(id: $getOrderId) {
+    id
+    userId
+    paymentStatus
     addressLine1
     addressLine2
     city
-    country
-    createdAt
-    gst
-    id
-    orderProducts {
-      gst
-      previewName
-      price
-      productImages
-      productName
-      quantity
-      sellerCode
-      size
-      totalGst
-      variantName
-      wholeSellerId
-      discount
-    }
-    orderStatus
-    paymentMethod
-    paymentStatus
     pincode
     state
+    country
+    orderStatus
+    orderProducts {
+      productId
+      productName
+      productImages
+      variantName
+      size
+      previewName
+      price
+      discount
+      quantity
+      wholeSellerId
+      sellerCode
+      status
+      gst
+      totalGst
+    }
     totalAmount
-    totalGst
     totalQuantity
+    createdAt
     updatedAt
-    userId
+    gst
+    totalGst
+    paymentMethod
   }
 }
   `

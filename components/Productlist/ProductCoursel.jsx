@@ -1,101 +1,107 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet } from 'react-native';
 import ProductCard from './ProductCard';
+import { request, gql } from 'graphql-request';
 
-const Products = [
-    {
-        id: '101',
-        image: require('../../assets/deals/Shirt.png'),
-        brand: 'Fabindia',
-        title: 'Men Slim Fit Checked Shirt',
-        price: 899,
-        originalPrice: 1290,
-        discount: 30,
-        rating: 4.0,
-    },
-    {
-        id: '102',
-        image: require('../../assets/deals/Shirt.png'),
-        brand: 'H&M',
-        title: 'Men Slim Fit Checked Shirt',
-        price: 1110,
-        originalPrice: 1340,
-        discount: 30,
-        rating: 4.2,
-    },
-    {
-        id: '103',
-        image: require('../../assets/deals/Shirt.png'),
-        brand: 'Fabindia',
-        title: 'Men Slim Fit Checked Shirt',
-        price: 999,
-        originalPrice: 1290,
-        discount: 30,
-        rating: 4.1,
-    },
-];
+const GRAPHQL_ENDPOINT = 'https://pincodekart.com/api/graphql';
 
-const ProductCoursel = () => {
-    return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Similar Products</Text>
-            <FlatList
-                data={Products}
-                keyExtractor={item => item.id}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                renderItem={({ item }) => (
-                    <View style={styles.cardWrapper}>
-                        <ProductCard {...item} />
-                    </View>
-                )}
-            />
+const RECOMMENDED_PRODUCTS_QUERY = gql`
+  query RecommendedProducts($page: Int, $take: Int) {
+    getAllProducts(page: $page, take: $take) {
+      products {
+        id
+        productName
+        brandId
+        price
+        sellingPrice
+        discount
+        image
+        reviewId
+        variant {
+          images
+          variantName
+          mrpPrice
+        }
+      }
+    }
+  }
+`;
 
-            <View style={styles.hrLine} />
-            <View style={styles.container1}>
-                <Text style={styles.title}>Customers Also Liked</Text>
-                <FlatList
-                    data={Products}
-                    keyExtractor={item => item.id}
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    renderItem={({ item }) => (
-                        <View style={styles.cardWrapper}>
-                            <ProductCard {...item} />
-                        </View>
-                    )}
-                />
-                <View style={styles.hrLine} />
+const RecommendedCarousel = () => {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchRecommended = async () => {
+    try {
+      const variables = { page: 1, take: 10 };
+      const data = await request(GRAPHQL_ENDPOINT, RECOMMENDED_PRODUCTS_QUERY, variables);
+      const recommended = data?.getAllProducts?.products || [];
+      setProducts(recommended);
+    } catch (error) {
+      console.error('Error fetching recommended products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRecommended();
+  }, []);
+
+  const resolveImageUrl = (path) => {
+    if (!path) return null;
+    return path.startsWith('http') ? path : `https://pincodekart.com${path}`;
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Might you like</Text>
+      <FlatList
+        data={products}
+        keyExtractor={(item) => item.id}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        renderItem={({ item }) => {
+          const variant = item?.variant?.[0] || {};
+          const image = resolveImageUrl(variant.images?.[0] || item.image);
+
+          return (
+            <View style={styles.cardWrapper}>
+              <ProductCard
+                id={item.id}
+                image={image}
+                title={item.productName}
+                price={variant.mrpPrice || item.price}
+                originalPrice={item.sellingPrice}
+                discount={item.discount}
+                rating={item.reviewId ? 4.5 : 5}
+              />
             </View>
-        </View>
-    );
+          );
+        }}
+      />
+    </View>
+  );
 };
 
-export default ProductCoursel;
+export default RecommendedCarousel;
 
 const styles = StyleSheet.create({
-    container: {
-        paddingVertical: 10,
-        marginVertical: 10,
-    },
-    container1: {
-        paddingVertical: 10,
-        marginVertical: 10,
-    },
-    title: {
-        fontSize: 22,
-        fontWeight: '500',
-        fontFamily: 'Poppins-Bold',
-        marginBottom: 10,
-        color: '#000',
-    },
-    cardWrapper: {
-        width: 200,
-        marginRight: 12,
-    },
-    hrLine: {
-        height: 1,
-        backgroundColor: '#ccc',
-        marginVertical: 12,
-    },
+  container: {
+    paddingVertical: 10,
+    backgroundColor: '#DFFFE1',
+    marginVertical: 10,
+    paddingLeft: 10,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: '600',
+    fontFamily: 'Poppins-Medium',
+    marginBottom: 10,
+    color: '#2E7D32',
+  },
+  cardWrapper: {
+    width: 200,
+    marginRight: 12,
+  },
 });

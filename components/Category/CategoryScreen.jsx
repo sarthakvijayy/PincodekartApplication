@@ -4,7 +4,6 @@ import {
   Text,
   FlatList,
   TouchableOpacity,
-  Image,
   ActivityIndicator,
   StyleSheet,
   Dimensions,
@@ -21,6 +20,7 @@ import {
 import CategoryHeader from "./CategoryHeader";
 import BottomNav from "../HomeScreen/BottomNav";
 import ProductCard from "../Productlist/ProductCard";
+import FilterModal from "../Productlist/FilterModal";
 
 const { width } = Dimensions.get("window");
 const itemWidth = width / 2 - 24;
@@ -31,6 +31,8 @@ const CategoryScreen = ({ route }) => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [categoryName, setCategoryName] = useState("");
   const productSectionRef = useRef(null);
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [filters, setFilters] = useState({});
 
   const { data: categoryData, loading: loadingCategories } = useQuery(
     GET_ALL_CATEGORIES,
@@ -44,24 +46,23 @@ const CategoryScreen = ({ route }) => {
 
   const renderProduct = useCallback(
     ({ item }) => {
-      const price = item?.variant?.[0]?.mrpPrice ?? "N/A";
-      const variantName = item?.variant?.[0]?.variantName ?? "";
       const imageUrl = item?.previewImage?.trim();
 
       return (
-  <ProductCard
-    id={item.id}
-    image={imageUrl}
-    brand={item.brandName || "Pincodekart"}
-    title={item.productName}
-    mrpPrice={item?.variant?.[0]?.mrpPrice}
-    originalPrice={item?.variant?.[0]?.originalPrice || item?.variant?.[0]?.mrpPrice}
-    discount={item?.variant?.[0]?.discount || 0}
-    rating={item.avgRating || "4.0"} // fallback rating
-    initialWishlisted={item.isWishlisted || false}
-  />
-);
-
+        <ProductCard
+          id={item.id}
+          image={imageUrl}
+          brand={item.brandName || "Pincodekart"}
+          title={item.productName}
+          mrpPrice={item?.variant?.[0]?.mrpPrice}
+          originalPrice={
+            item?.variant?.[0]?.originalPrice || item?.variant?.[0]?.mrpPrice
+          }
+          discount={item?.variant?.[0]?.discount || 0}
+          rating={item.avgRating || "4.0"}
+          initialWishlisted={item.isWishlisted || false}
+        />
+      );
     },
     [navigation]
   );
@@ -71,10 +72,12 @@ const CategoryScreen = ({ route }) => {
       setSelectedCategory(categoryId);
       fetchProducts({ variables: { catId: categoryId, sortOrder: "asc" } });
 
-      const selected = categoryData?.getAllCategories?.categories.find(
-        (c) => c.id === categoryId
-      );
-      if (selected) setCategoryName(selected.categoryName);
+      if (categoryData?.getAllCategories?.categories) {
+        const selected = categoryData.getAllCategories.categories.find(
+          (c) => c.id === categoryId
+        );
+        if (selected) setCategoryName(selected.categoryName);
+      }
 
       setTimeout(() => {
         const node = findNodeHandle(productSectionRef.current);
@@ -89,6 +92,34 @@ const CategoryScreen = ({ route }) => {
     <View style={{ flex: 1 }}>
       <ScrollView style={styles.container}>
         <CategoryHeader />
+
+        {/* Filter Button */}
+      <View style={styles.filterWrapper}>
+  <TouchableOpacity
+    style={[
+      styles.radioButton,
+      showFilterModal && styles.radioButtonActive,
+    ]}
+    onPress={() => setShowFilterModal(true)}
+  >
+    <View style={styles.radioCircle} />
+    <Text style={styles.radioLabel}>Filter</Text>
+  </TouchableOpacity>
+</View>
+
+
+        {/* Filter Modal */}
+        <FilterModal
+          visible={showFilterModal}
+          onClose={(appliedFilters) => {
+            setShowFilterModal(false);
+            if (appliedFilters) {
+              setFilters(appliedFilters);
+              console.log("Selected Filters:", appliedFilters);
+              // Future: Use filters to fetch filtered data
+            }
+          }}
+        />
 
         <View ref={productSectionRef} accessible>
           <Text style={styles.sectionTitle}>
@@ -128,7 +159,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontFamily: "Poppins-Medium",
+    fontFamily: "Poppins_500Medium",
     marginTop: 20,
     marginBottom: 12,
     color: "#444",
@@ -136,52 +167,51 @@ const styles = StyleSheet.create({
   productList: {
     paddingBottom: 80,
   },
-  productCard: {
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-    margin: 8,
-    borderRadius: 12,
-    padding: 12,
-    width: itemWidth,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 3,
-  },
-  productImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 10,
-    marginBottom: 8,
-  },
-  productText: {
-    fontSize: 14,
-    fontFamily: "Poppins-Medium",
-    color: "#333",
-    textAlign: "center",
-  },
-  productSubText: {
-    fontSize: 12,
-    fontFamily: "Poppins-Regular",
-    color: "#777",
-    textAlign: "center",
-  },
-  productPrice: {
-    fontSize: 14,
-    fontFamily: "Poppins-SemiBold",
-    color: "#000",
-    textAlign: "center",
-    marginTop: 4,
-  },
   emptyText: {
-    fontFamily: "Poppins-Regular",
+    fontFamily: "Poppins_400Regular",
     fontSize: 14,
     textAlign: "center",
     marginTop: 20,
     color: "#999",
   },
+  filterWrapper: {
+  flexDirection: "row",
+  alignItems: "center",
+  marginTop: 10,
+  marginBottom: 6,
+},
+
+radioButton: {
+  flexDirection: "row",
+  alignItems: "center",
+  paddingHorizontal: 12,
+  paddingVertical: 6,
+  borderRadius: 8,
+  borderWidth: 1,
+  borderColor: "#ccc",
+  alignSelf: "flex-start",
+},
+
+radioButtonActive: {
+  borderColor: "#2A55E5",
+},
+
+radioCircle: {
+  height: 10,
+  width: 10,
+  borderRadius: 7,
+  borderWidth: 2,
+  borderColor: "#ccc",
+  marginRight: 8,
+  backgroundColor: "#fff",
+},
+
+radioLabel: {
+  fontSize: 14,
+  fontFamily: "Poppins_500Medium",
+  color: "#2A55E5",
+},
+
 });
 
 export default CategoryScreen;

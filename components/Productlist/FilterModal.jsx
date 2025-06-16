@@ -33,17 +33,19 @@ const FilterModal = ({ visible, onClose }) => {
     }));
   };
 
-  const clearAll = () => setSelectedOptions({});
+  const clearAll = () => {
+    setSelectedOptions({});
+  };
 
   const handleClose = () => {
     if (typeof onClose === 'function') {
-      onClose(); // just close modal
+      onClose(); 
     }
   };
 
   const handleDone = () => {
     if (typeof onClose === 'function') {
-      onClose(selectedOptions); // send selected filters to parent and close
+      onClose(selectedOptions); 
     }
   };
 
@@ -59,9 +61,9 @@ const FilterModal = ({ visible, onClose }) => {
             </TouchableOpacity>
           </View>
 
-          {/* Content */}
+          
           <View style={styles.contentRow}>
-            {/* Sidebar */}
+            
             <View style={styles.sidebar}>
               {Object.keys(filters).map((cat, idx) => (
                 <TouchableOpacity
@@ -84,7 +86,7 @@ const FilterModal = ({ visible, onClose }) => {
               ))}
             </View>
 
-            {/* Options */}
+            
             <View style={styles.optionsPane}>
               <ScrollView contentContainerStyle={styles.optionsWrapper}>
                 {filters[selectedCategory].map((option, index) => (
@@ -104,7 +106,7 @@ const FilterModal = ({ visible, onClose }) => {
             </View>
           </View>
 
-          {/* Footer */}
+          
           <View style={styles.footer}>
             <Text style={styles.productCount}>100 Products</Text>
             <TouchableOpacity style={styles.clearButton} onPress={clearAll}>
@@ -145,8 +147,8 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: '600',
     fontFamily: 'Poppins_500Medium',
+    color: '#000',
   },
   closeText: {
     fontSize: 18,
@@ -163,7 +165,8 @@ const styles = StyleSheet.create({
     borderRightColor: '#ddd',
   },
   tabButton: {
-    padding: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
   },
   activeTab: {
     backgroundColor: '#fff',
@@ -175,7 +178,7 @@ const styles = StyleSheet.create({
   },
   activeTabText: {
     color: '#2A55E5',
-    fontWeight: '600',
+    fontFamily: 'Poppins_500Medium',
   },
   optionsPane: {
     flex: 1,
@@ -184,7 +187,6 @@ const styles = StyleSheet.create({
   optionsWrapper: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
   },
   optionPill: {
     borderWidth: 1,

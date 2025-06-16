@@ -18,6 +18,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     backgroundColor: '#fff',
     marginBottom: 10,
+    
   },
   banner: {
     width: '100%',

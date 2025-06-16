@@ -259,6 +259,7 @@ const styles = StyleSheet.create({
     width: width,
     height: 360,
     resizeMode: "cover",
+    marginTop: 135,
   },
   sliderDots: {
     flexDirection: "row",

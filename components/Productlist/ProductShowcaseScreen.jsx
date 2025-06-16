@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import {View,FlatList,StyleSheet,Text,TouchableOpacity,ActivityIndicator,
+import {
+  View,
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import ProductHeader from '../../components/Productlist/ProductHeader';
 import PromoBanner from '../../components/Productlist/PromoBanner';
@@ -10,7 +16,7 @@ import { useNavigation } from '@react-navigation/native';
 import { request, gql } from 'graphql-request';
 
 const GRAPHQL_ENDPOINT = 'https://pincodekart.com/api/graphql';
-const IMAGE_BASE_URL = '';
+const IMAGE_BASE_URL = ''; // If you have a base URL for images, set it here
 
 const PRODUCTS_QUERY = gql`
   query Products($page: Int, $take: Int) {
@@ -78,14 +84,12 @@ const ProductShowcaseScreen = () => {
   const renderProductCard = ({ item }) => {
     const variant = item?.variant?.[0];
     let image = null;
-  
+
     if (variant?.images?.length > 0) {
       image = `${IMAGE_BASE_URL}${variant.images[0]}`;
     } else if (item.image) {
       image = `${IMAGE_BASE_URL}${item.image}`;
     }
-  
-    console.log('Image URL:', image);
 
     return (
       <View style={styles.cardWrapper}>
@@ -93,12 +97,11 @@ const ProductShowcaseScreen = () => {
           <ProductCard
             id={item.id}
             image={image}
-            // brand={item.brandId}
             title={item.productName}
-            mrpPrice={variant.mrpPrice || item.price}
+            mrpPrice={variant?.mrpPrice || item.price}
             originalPrice={item.sellingPrice}
             discount={item.discount}
-            rating={item.reviewId ? 5.0 : 0} 
+            rating={item.reviewId ? 5.0 : 0}
           />
         </TouchableOpacity>
       </View>
@@ -107,8 +110,13 @@ const ProductShowcaseScreen = () => {
 
   return (
     <View style={styles.container}>
+      {/* Fixed Header */}
+      <View style={styles.fixedHeader}>
+        <ProductHeader />
+      </View>
+
       {loading ? (
-        <ActivityIndicator size="large" color="#007AFF" style={{ marginTop: 100 }} />
+        <ActivityIndicator size="large" color="#007AFF" style={{ marginTop: 120 }} />
       ) : (
         <>
           <FlatList
@@ -117,9 +125,10 @@ const ProductShowcaseScreen = () => {
             numColumns={2}
             ListHeaderComponent={
               <>
-                <ProductHeader />
-                <PromoBanner />
-                <Text style={styles.sectionTitle}>Featured Products</Text>
+                <View style={{ marginTop: 120 }}>
+                  <PromoBanner />
+                  <Text style={styles.sectionTitle}>Featured Products</Text>
+                </View>
               </>
             }
             renderItem={renderProductCard}
@@ -133,7 +142,6 @@ const ProductShowcaseScreen = () => {
       )}
     </View>
   );
-  
 };
 
 export default ProductShowcaseScreen;
@@ -143,12 +151,27 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F5F6FA',
   },
+  fixedHeader: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
+    backgroundColor: '#fff',
+    elevation: 4, // Android shadow
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+  },
   listContent: {
-    paddingBottom: 60,
+    paddingTop: 20,   
+    paddingBottom: 80,
   },
   rowStyle: {
     justifyContent: 'space-between',
     marginBottom: 8,
+    paddingHorizontal: 10,
   },
   cardWrapper: {
     width: '48%',
@@ -161,19 +184,4 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     color: '#333',
   },
-  bottomNav: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: 60,
-    backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderTopColor: '#ccc',
-    zIndex: 100,
-  },
-  listContent: {
-    paddingBottom: 80, 
-  },
-  
 });

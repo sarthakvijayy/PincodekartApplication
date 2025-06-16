@@ -71,7 +71,8 @@ const MyOrdersProfile = ({route}) => {
               <TouchableOpacity
                 style={styles.trackBtn}
                 onPress={() =>
-                  navigation.navigate("OrderDetailScreen", { orderId: item.id })
+                  navigation.navigate('OrderDetailScreen', { orderId: data?.getOrder?.id, variantName: item?.variantName })
+
                 }
               >
                 <Text style={styles.trackText}>Track Order</Text>

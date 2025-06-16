@@ -172,10 +172,21 @@ export default ProductHeader;
 
 const styles = StyleSheet.create({
   headerGradient: {
-    paddingTop: 80,
-    paddingBottom: 16,
-    paddingHorizontal: 12,
-  },
+  position: "absolute",
+  top: 0,
+  left: 0,
+  right: 0,
+  zIndex: 100, // ensures it stays above scroll content
+  paddingTop: 80,
+  paddingBottom: 16,
+  paddingHorizontal: 12,
+  elevation: 10, // Android shadow
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.2,
+  shadowRadius: 4,
+},
+
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -287,6 +298,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     marginRight: 12,
     resizeMode: "cover",
+    
   },
   productInfo: {
     flex: 1,

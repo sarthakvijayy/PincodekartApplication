@@ -131,7 +131,7 @@ const OrderList = () => {
           You are not logged in.
         </Text>
         <TouchableOpacity
-          style={styles.detailsBtn}
+          style={styles.detailsBtn1}
           onPress={() => navigation.replace("LoginScreen")}
         >
           <Text style={styles.detailsText}>Go to Login</Text>
@@ -292,6 +292,14 @@ const styles = StyleSheet.create({
     color: "#3b49f4",
   },
   detailsBtn: {
+    marginTop: 10,
+    backgroundColor: "#3b49f4",
+    paddingVertical: 8,
+    borderRadius: 6,
+    alignItems: "center",
+    
+  },
+    detailsBtn1: {
     marginTop: 10,
     backgroundColor: "#3b49f4",
     paddingVertical: 8,

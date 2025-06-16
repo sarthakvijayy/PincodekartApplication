@@ -10,31 +10,10 @@ import { useQuery } from "@apollo/client";
 import { GET_CART } from "../graphql/queries";
 import { CartItemCard } from "./CartScreen";
 
-const OrderSummaryScreen = ({ selectedAddressId, route }) => {
+const OrderSummaryScreen = ({ route }) => {
   const addressId = route?.params?.addressId;
 
-  const {
-    data,
-    loading: cartLoading,
-    error: cartError,
-  } = useQuery(GET_CART);
-
-  const renderProductItem = ({ item }) => (
-    <View style={styles.productItem}>
-      <Text style={styles.productName}>
-        {item.quantity}x {item.productName} - ₹
-        {item.price * item.quantity}
-      </Text>
-      {item.variantName && (
-        <Text style={styles.variantName}>
-          Variant: {item.variantName}
-        </Text>
-      )}
-      {item.size && (
-        <Text style={styles.variantName}>Size: {item.size}</Text>
-      )}
-    </View>
-  );
+  const { data, loading: cartLoading, error: cartError } = useQuery(GET_CART);
 
   const cartItems = data?.getCart?.cartProducts || [];
 
@@ -57,6 +36,20 @@ const OrderSummaryScreen = ({ selectedAddressId, route }) => {
     );
   }
 
+  const renderItem = ({ item }) => (
+    <CartItemCard item={item} isSummary={true} />
+  );
+
+  // Calculations
+  const subtotal = cartItems.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0
+  );
+
+  const discount = 50; // Sample discount
+  const shippingFee = subtotal >= 500 ? 0 : 40;
+  const total = subtotal - discount + shippingFee;
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Order Summary</Text>
@@ -64,24 +57,35 @@ const OrderSummaryScreen = ({ selectedAddressId, route }) => {
       <FlatList
         data={cartItems}
         keyExtractor={(item, index) => index.toString()}
-        // renderItem={renderProductItem}
-         renderItem={({ item }) => (
-                  <CartItemCard
-                    item={item}
-                    // updateQuantity={updateQuantity}
-                    // removeFromCart={removeFromCart}
-                  />
-                )}
-        style={{ marginBottom: 10 }}
+        renderItem={renderItem}
+        contentContainerStyle={{ paddingBottom: 20 }}
       />
 
-      <Text style={styles.totalText}>
-        Total: ₹
-        {cartItems.reduce(
-          (total, item) => total + item.price * item.quantity,
-          0
-        )}
-      </Text>
+      <View style={styles.priceSection}>
+        <View style={styles.priceRow}>
+          <Text style={styles.label}>Subtotal</Text>
+          <Text style={styles.value}>₹{subtotal.toFixed(2)}</Text>
+        </View>
+
+        <View style={styles.priceRow}>
+          <Text style={styles.label}>Discount</Text>
+          <Text style={[styles.value, { color: "#2e7d32" }]}>
+            - ₹{discount.toFixed(2)}
+          </Text>
+        </View>
+
+        <View style={styles.priceRow}>
+          <Text style={styles.label}>Shipping Fee</Text>
+          <Text style={styles.value}>
+            {shippingFee === 0 ? "Free" : `₹${shippingFee.toFixed(2)}`}
+          </Text>
+        </View>
+
+        <View style={styles.totalWrapper}>
+          <Text style={styles.totalLabel}>Total Amount</Text>
+          <Text style={styles.totalAmount}>₹{total.toFixed(2)}</Text>
+        </View>
+      </View>
     </View>
   );
 };
@@ -89,26 +93,55 @@ const OrderSummaryScreen = ({ selectedAddressId, route }) => {
 export default OrderSummaryScreen;
 
 const styles = StyleSheet.create({
-  container: { padding: 16, backgroundColor: "#fff", flex: 1 },
-  title: { fontSize: 18, fontWeight: "600", marginBottom: 16 },
-  productItem: {
-    marginBottom: 10,
-    borderBottomWidth: 1,
+  container: {
+    padding: 16,
+    backgroundColor: "#fff",
+    flex: 1,
+  },
+  title: {
+    fontSize: 20,
+    fontFamily: "Poppins-SemiBold",
+    marginBottom: 16,
+    color: "#333",
+  },
+  priceSection: {
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
     borderColor: "#eee",
-    paddingBottom: 6,
   },
-  productName: {
-    fontSize: 14,
-    fontWeight: "500",
+  priceRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginVertical: 4,
   },
-  variantName: {
-    fontSize: 12,
+  label: {
+    fontSize: 15,
+    fontFamily: "Poppins-Regular",
     color: "#666",
   },
-  totalText: {
-    fontWeight: "700",
+  value: {
+    fontSize: 15,
+    fontFamily: "Poppins-Medium",
+    color: "#333",
+  },
+  totalWrapper: {
+    borderTopWidth: 1,
+    borderColor: "#ccc",
+    paddingTop: 10,
+    marginTop: 10,
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  totalLabel: {
     fontSize: 16,
-    marginVertical: 8,
+    fontFamily: "Poppins-SemiBold",
+    color: "#000",
+  },
+  totalAmount: {
+    fontSize: 18,
+    fontFamily: "Poppins-Bold",
+    color: "#000",
   },
   center: {
     flex: 1,
