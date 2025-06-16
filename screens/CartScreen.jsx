@@ -88,16 +88,28 @@ const CartScreen = () => {
 
   if (error) {
     return (
-      <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>
-          Failed to load cart items.
-        </Text>
-        <TouchableOpacity onPress={() => refetch()}>
-          <Text style={{ color: "#007bff", marginTop: 10 }}>
-            Try Again
-          </Text>
-        </TouchableOpacity>
-      </View>
+      // <View style={styles.emptyContainer}>
+      //   <Text style={styles.emptyText}>
+      //     Failed to load cart items.
+      //   </Text>
+      //   <TouchableOpacity onPress={() => refetch()}>
+      //     <Text style={{ color: "#007bff", marginTop: 10 }}>
+      //       Try Again
+      //     </Text>
+      //   </TouchableOpacity>
+      // </View>
+
+       <View style={styles.center}>
+              <Text style={{ color: "#333", fontSize: 16, marginBottom: 10 }}>
+                You are not logged in.
+              </Text>
+              <TouchableOpacity
+                style={styles.detailsBtn}
+                onPress={() => navigation.replace("LoginScreen")}
+              >
+                <Text style={styles.detailsText}>Go to Login</Text>
+              </TouchableOpacity>
+            </View>
     );
   }
 
@@ -336,6 +348,24 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginHorizontal: 12,
     fontFamily: "Poppins_500Medium",
+  },
+    center: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  detailsBtn: {
+    marginTop: 10,
+    backgroundColor: "#3b49f4",
+    paddingVertical: 8,
+    borderRadius: 6,
+    alignItems: "center",
+    width: 125,
+  },
+  detailsText: {
+    color: "#fff",
+    fontSize: 13,
+    fontFamily: "Poppins-Medium",
   },
 });
 

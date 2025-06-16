@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import {View,FlatList,StyleSheet,Text,ActivityIndicator,Alert,Dimensions,} from 'react-native';
+import {View,FlatList,StyleSheet,Text,ActivityIndicator,Alert,Dimensions, TouchableOpacity} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { useMutation, useQuery, useLazyQuery } from '@apollo/client';
@@ -95,10 +95,17 @@ const WishlistCard = () => {
 
   if (wishlistError) {
     return (
-      <View style={styles.centeredContainer}>
-        <Text style={styles.errorText}>Failed to load wishlist.</Text>
-        <Text style={styles.retryText} onPress={() => refetch()}>Tap to retry</Text>
-      </View>
+     <View style={styles.center}>
+                   <Text style={{ color: "#333", fontSize: 16, marginBottom: 10 }}>
+                     You are not logged in.
+                   </Text>
+                   <TouchableOpacity
+                     style={styles.detailsBtn}
+                     onPress={() => navigation.replace("LoginScreen")}
+                   >
+                     <Text style={styles.detailsText}>Go to Login</Text>
+                   </TouchableOpacity>
+                 </View>
     );
   }
 
@@ -186,6 +193,24 @@ const styles = StyleSheet.create({
     color: '#007AFF',
     textDecorationLine: 'underline',
     fontFamily: 'Poppins-Medium',
+  },
+  center: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  detailsBtn: {
+    marginTop: 10,
+    backgroundColor: "#3b49f4",
+    paddingVertical: 8,
+    borderRadius: 6,
+    alignItems: "center",
+    width: 125,
+  },
+  detailsText: {
+    color: "#fff",
+    fontSize: 13,
+    fontFamily: "Poppins-Medium",
   },
 });
 

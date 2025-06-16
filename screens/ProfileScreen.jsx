@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Dimensions,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -24,10 +25,13 @@ const ProfileScreen = () => {
   const client = useApolloClient();
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loadingLoginStatus, setLoadingLoginStatus] = useState(true);
   const [addressExpanded, setAddressExpanded] = useState(false);
   const [languageExpanded, setLanguageExpanded] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('English');
   const [selectedAddressId, setSelectedAddressId] = useState(null);
+
+  const { data: currentUser } = useQuery(GET_CURRENT_USER);
 
   const languages = ['Hindi', 'English', 'Marathi', 'Gujarati'];
   const recentlyViewed = [
@@ -37,10 +41,20 @@ const ProfileScreen = () => {
     { id: 4, title: 'Shoes', image: require('../assets/deals/Shirt.png'), rating: 4.5 },
   ];
 
-  const { data: currentUser } = useQuery(GET_CURRENT_USER);
-
   useEffect(() => {
-    setIsLoggedIn(true); // You can replace this with token check logic
+    const checkLoginStatus = async () => {
+      try {
+        const email = await AsyncStorage.getItem('email');
+        setIsLoggedIn(!!email);
+      } catch (error) {
+        console.error('Login check error:', error);
+        setIsLoggedIn(false);
+      } finally {
+        setLoadingLoginStatus(false);
+      }
+    };
+
+    checkLoginStatus();
   }, []);
 
   useEffect(() => {
@@ -88,6 +102,15 @@ const ProfileScreen = () => {
     );
   };
 
+  if (loadingLoginStatus) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#2A55E5" />
+        <Text style={{ fontFamily: 'Poppins_500Medium', marginTop: 10 }}>Loading profile...</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={{ flex: 1 }}>
       <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 100 }}>
@@ -98,7 +121,11 @@ const ProfileScreen = () => {
           />
         </View>
 
-        <Text style={styles.heading}>Hello {isLoggedIn ? currentUser?.getCurrentUser?.firstName : 'Guest'}</Text>
+        <Text style={styles.heading}>
+          Hello {isLoggedIn && currentUser?.getCurrentUser?.firstName
+            ? currentUser.getCurrentUser.firstName
+            : 'Guest'}
+        </Text>
 
         {isLoggedIn && (
           <View style={styles.quickActions}>
@@ -189,6 +216,7 @@ const ProfileScreen = () => {
             <Ionicons name={languageExpanded ? 'chevron-up' : 'chevron-down'} size={20} />
           </TouchableOpacity>
         )}
+
         {languageExpanded && isLoggedIn && (
           <View style={styles.expandContent}>
             {languages.map((lang) => (
@@ -249,19 +277,10 @@ const ProfileScreen = () => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff', padding: 16 },
-  headerBar: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
+  headerBar: { flexDirection: 'row', justifyContent: 'flex-end', marginBottom: 10 },
   userSection: { flexDirection: 'row', alignItems: 'center', padding: 8, marginTop: 16 },
   heading: { fontSize: 22, fontFamily: 'Poppins_700Medium', marginBottom: 15, marginTop: 15 },
-  quickActions: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
+  quickActions: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
   actionCard: {
     width: width / 2 - 24,
     padding: 12,
@@ -321,24 +340,18 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#2A55E5',
   },
-  logoutText: {
-    color: '#2A55E5',
-    fontFamily: 'Poppins_700Bold',
-    fontSize: 14,
-  },
+  logoutText: { color: '#2A55E5', fontFamily: 'Poppins_700Bold', fontSize: 14 },
   authSection: { marginTop: 20 },
   authButton: {
-    backgroundColor: '#F58220',
+    backgroundColor: '#fff',
+    borderWidth: 2,
+    borderColor: '#2A55E5',
     paddingVertical: 12,
     borderRadius: 8,
     marginBottom: 10,
     alignItems: 'center',
   },
-  authButtonText: {
-    color: '#fff',
-    fontFamily: 'Poppins_700Bold',
-    fontSize: 16,
-  },
+  authButtonText: { color: '#2A55E5', fontFamily: 'Poppins_700Bold', fontSize: 16 },
   bottomNav: {
     position: 'absolute',
     bottom: 0,
