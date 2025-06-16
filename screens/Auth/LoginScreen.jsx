@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -24,12 +24,11 @@ import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LOGIN_USER } from '../../graphql/queries';
 
+// Apollo client setup
 const client = new ApolloClient({
   uri: 'https://pincodekart.com/api/graphql',
   cache: new InMemoryCache(),
 });
-
-
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -45,13 +44,19 @@ const LoginScreen = () => {
     Inter_700Bold,
   });
 
-  if (!fontsLoaded) {
-    return (
-      <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color="#F58220" />
-      </View>
-    );
-  }
+  useEffect(() => {
+    const fetchEmail = async () => {
+      try {
+        const storedEmail = await AsyncStorage.getItem('email');
+        if (storedEmail) {
+          console.log('Stored Email:', storedEmail);
+        }
+      } catch (error) {
+        console.error('Error fetching email:', error);
+      }
+    };
+    fetchEmail();
+  }, []);
 
   const handleLogin = async () => {
     if (!email.trim() || !password) {
@@ -70,18 +75,17 @@ const LoginScreen = () => {
       });
 
       if (data?.userlogin?.id) {
-        await AsyncStorage.setItem('email', `${data?.userlogin?.email}`);
+        await AsyncStorage.setItem('email', data.userlogin.email);
         setAlertMessage(`Welcome back, ${data.userlogin.email}`);
         setShowModal(true);
 
-        
         setTimeout(() => {
           setShowModal(false);
           navigation.reset({
             index: 0,
             routes: [{ name: 'HomeScreen' }],
           });
-        }, 3000);
+        }, 1500);
       } else {
         setAlertMessage('Invalid credentials. Please try again.');
         setShowModal(true);
@@ -94,6 +98,21 @@ const LoginScreen = () => {
       setIsLoading(false);
     }
   };
+
+  const handleSkip = () => {
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'HomeScreen' }],
+    });
+  };
+
+  if (!fontsLoaded) {
+    return (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color="#F58220" />
+      </View>
+    );
+  }
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -116,7 +135,6 @@ const LoginScreen = () => {
             onChangeText={setEmail}
             keyboardType="email-address"
             autoCapitalize="none"
-            autoCorrect={false}
           />
           <TextInput
             placeholder="Password"
@@ -142,8 +160,7 @@ const LoginScreen = () => {
 
         <TouchableOpacity onPress={() => navigation.navigate('SignUpScreen')}>
           <Text style={styles.signUpText}>
-            Don't have an account?{' '}
-            <Text style={styles.bold}>Sign Up</Text>
+            Don't have an account? <Text style={styles.bold}>Sign Up</Text>
           </Text>
         </TouchableOpacity>
 
@@ -151,7 +168,11 @@ const LoginScreen = () => {
           <Text style={styles.forgotPassword}>Forgot Password? Click Here</Text>
         </TouchableOpacity>
 
-        {/* <Modal isVisible={showModal} onBackdropPress={() => setShowModal(false)}>
+        <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
+          <Text style={styles.skipText}>Skip & Continue</Text>
+        </TouchableOpacity>
+
+        <Modal isVisible={showModal} onBackdropPress={() => setShowModal(false)}>
           <View style={styles.modalContainer}>
             <Text style={styles.modalTitle}>Alert</Text>
             <Text style={styles.modalMessage}>{alertMessage}</Text>
@@ -162,14 +183,14 @@ const LoginScreen = () => {
               <Text style={styles.modalButtonText}>OK</Text>
             </TouchableOpacity>
           </View>
-        </Modal> */}
+        </Modal>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
-    
   );
 };
 
 export default LoginScreen;
+
 
 const styles = StyleSheet.create({
   innerContainer: {
@@ -236,6 +257,17 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 14,
     color: '#000',
+  },
+  skipButton: {
+    marginTop: 16,
+    alignSelf: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+  },
+  skipText: {
+    color: '#F58220',
+    fontSize: 14,
+    fontFamily: 'Inter_700Bold',
   },
   modalContainer: {
     backgroundColor: 'white',

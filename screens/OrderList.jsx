@@ -12,6 +12,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useQuery } from "@apollo/client";
 import { GET_ALL_ORDERS } from "../graphql/queries";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const PAGE_SIZE = 10;
 
@@ -20,13 +21,34 @@ const OrderList = () => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
   const [allOrders, setAllOrders] = useState([]);
+  const [email, setEmail] = useState(null);
+  const [loadingEmail, setLoadingEmail] = useState(true);
 
   const { data, loading, error, refetch, fetchMore } = useQuery(
     GET_ALL_ORDERS,
     {
       variables: { page: 0, take: PAGE_SIZE },
+      skip: !email, // Only fetch if email is present
     }
   );
+
+  // Fetch logged-in user email
+  useEffect(() => {
+    const fetchEmail = async () => {
+      try {
+        const storedEmail = await AsyncStorage.getItem("email");
+        if (storedEmail) {
+          setEmail(storedEmail);
+        }
+      } catch (err) {
+        console.error("Error reading email:", err);
+      } finally {
+        setLoadingEmail(false);
+      }
+    };
+
+    fetchEmail();
+  }, []);
 
   useEffect(() => {
     if (data?.getAllOrder?.orders) {
@@ -45,10 +67,10 @@ const OrderList = () => {
   );
 
   const handleLoadMore = () => {
-    if (data?.getAllOrder?.orders) {
+    if (data?.getAllOrder?.orders?.length >= PAGE_SIZE) {
       const nextPage = page + 1;
       setPage(nextPage);
-      fetchMore({ variables: { page: 0, take: 10 } });
+      fetchMore({ variables: { page: nextPage, take: PAGE_SIZE } });
     }
   };
 
@@ -63,9 +85,7 @@ const OrderList = () => {
 
     return (
       <View style={styles.card}>
-        <Text numberOfLines={2} style={styles.title}>
-          {productName}
-        </Text>
+        <Text numberOfLines={2} style={styles.title}>{productName}</Text>
         <Text style={styles.meta}>
           Order ID: <Text style={styles.highlight}>{item.id}</Text>
         </Text>
@@ -95,7 +115,32 @@ const OrderList = () => {
     );
   };
 
-  if (loading && page === 1) {
+  if (loadingEmail) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color="#3b49f4" />
+        <Text>Checking user session...</Text>
+      </View>
+    );
+  }
+
+  if (!email) {
+    return (
+      <View style={styles.center}>
+        <Text style={{ color: "#333", fontSize: 16, marginBottom: 10 }}>
+          You are not logged in.
+        </Text>
+        <TouchableOpacity
+          style={styles.detailsBtn}
+          onPress={() => navigation.replace("LoginScreen")}
+        >
+          <Text style={styles.detailsText}>Go to Login</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  if (loading && page === 0) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color="#3b49f4" />
@@ -151,7 +196,7 @@ const OrderList = () => {
       ) : (
         <FlatList
           data={filteredOrders}
-          keyExtractor={(item) => item.variantName}
+          keyExtractor={(item) => item.id.toString()}
           renderItem={renderOrderCard}
           contentContainerStyle={{ paddingBottom: 24 }}
           showsVerticalScrollIndicator={false}
@@ -252,6 +297,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 6,
     alignItems: "center",
+    width: 125,
   },
   detailsText: {
     color: "#fff",

@@ -17,7 +17,7 @@ import { EDIT_PROFILE } from '../../graphql/mutations';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 
-const { width } = Dimensions.get('window');
+// const { width } = Dimensions.get('window');
 
 const EditProfileScreen = () => {
   const navigation = useNavigation();

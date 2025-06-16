@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 5,
     height: 45,
-    width: 400,
+    width: 360,
     marginLeft: 10,
   },
   searchInput: {

@@ -1,21 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+  Dimensions,
+  Alert,
+} from 'react-native';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import BottomNav from '../components/HomeScreen/BottomNav';
 import { GET_CURRENT_USER } from '../graphql/queries';
-import { useQuery } from '@apollo/client';
+import { useQuery, useApolloClient } from '@apollo/client';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
+  const client = useApolloClient();
+
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [addressExpanded, setAddressExpanded] = useState(false);
   const [languageExpanded, setLanguageExpanded] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('English');
-  const [selectedAddressId, setSelectedAddressId] = useState(null); // 👈 for selected address
+  const [selectedAddressId, setSelectedAddressId] = useState(null);
 
   const languages = ['Hindi', 'English', 'Marathi', 'Gujarati'];
   const recentlyViewed = [
@@ -28,7 +40,7 @@ const ProfileScreen = () => {
   const { data: currentUser } = useQuery(GET_CURRENT_USER);
 
   useEffect(() => {
-    setIsLoggedIn(true);
+    setIsLoggedIn(true); // You can replace this with token check logic
   }, []);
 
   useEffect(() => {
@@ -50,6 +62,32 @@ const ProfileScreen = () => {
     );
   };
 
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('email');
+      await client.clearStore();
+      setIsLoggedIn(false);
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'LoginScreen' }],
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
+  const confirmLogout = () => {
+    Alert.alert(
+      'Confirm Logout',
+      'Are you sure you want to log out?',
+      [
+        { text: 'No', style: 'cancel' },
+        { text: 'Yes', onPress: handleLogout },
+      ],
+      { cancelable: true }
+    );
+  };
+
   return (
     <View style={{ flex: 1 }}>
       <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 100 }}>
@@ -57,14 +95,11 @@ const ProfileScreen = () => {
           <TouchableOpacity
             style={styles.userSection}
             onPress={() => navigation.navigate(isLoggedIn ? 'EditProfile' : 'LoginScreen')}
-          >
-          
-          </TouchableOpacity>
+          />
         </View>
 
         <Text style={styles.heading}>Hello {isLoggedIn ? currentUser?.getCurrentUser?.firstName : 'Guest'}</Text>
 
-        {/* Quick Actions */}
         {isLoggedIn && (
           <View style={styles.quickActions}>
             {['Your Orders', 'Wishlist', 'Offers', 'Help Center'].map((item, index) => {
@@ -82,8 +117,6 @@ const ProfileScreen = () => {
                   case 'Help Center':
                     navigation.navigate('HelpCenter');
                     break;
-                  default:
-                    break;
                 }
               };
 
@@ -96,7 +129,6 @@ const ProfileScreen = () => {
           </View>
         )}
 
-        {/* Recently Viewed */}
         {isLoggedIn && (
           <>
             <Text style={styles.sectionTitle}>Recently Viewed Products</Text>
@@ -112,7 +144,6 @@ const ProfileScreen = () => {
           </>
         )}
 
-        {/* Account Settings */}
         {isLoggedIn && (
           <>
             <Text style={styles.sectionTitle}>Account Settings</Text>
@@ -123,7 +154,6 @@ const ProfileScreen = () => {
           </>
         )}
 
-        {/* Saved Address */}
         {isLoggedIn && (
           <TouchableOpacity
             style={styles.settingRow}
@@ -133,6 +163,7 @@ const ProfileScreen = () => {
             <Ionicons name={addressExpanded ? 'chevron-up' : 'chevron-down'} size={20} />
           </TouchableOpacity>
         )}
+
         {addressExpanded && isLoggedIn && (
           <View style={styles.expandContent}>
             {selectedAddressId ? (
@@ -149,7 +180,6 @@ const ProfileScreen = () => {
           </View>
         )}
 
-        {/* Language Selector */}
         {isLoggedIn && (
           <TouchableOpacity
             style={styles.settingRow}
@@ -162,11 +192,7 @@ const ProfileScreen = () => {
         {languageExpanded && isLoggedIn && (
           <View style={styles.expandContent}>
             {languages.map((lang) => (
-              <TouchableOpacity
-                key={lang}
-                style={styles.radioRow}
-                onPress={() => setSelectedLanguage(lang)}
-              >
+              <TouchableOpacity key={lang} style={styles.radioRow} onPress={() => setSelectedLanguage(lang)}>
                 <Ionicons
                   name={selectedLanguage === lang ? 'radio-button-on' : 'radio-button-off'}
                   size={20}
@@ -178,7 +204,6 @@ const ProfileScreen = () => {
           </View>
         )}
 
-        {/* Information */}
         {isLoggedIn && (
           <>
             <Text style={styles.sectionTitle}>Information</Text>
@@ -193,20 +218,11 @@ const ProfileScreen = () => {
           </>
         )}
 
-        {/* Log Out */}
-        {isLoggedIn && (
-          <TouchableOpacity
-            style={styles.logoutBtn}
-            onPress={() => {
-              setIsLoggedIn(false);
-            }}
-          >
+        {isLoggedIn ? (
+          <TouchableOpacity style={styles.logoutBtn} onPress={confirmLogout}>
             <Text style={styles.logoutText}>Log Out</Text>
           </TouchableOpacity>
-        )}
-
-        {/* Login / Sign Up */}
-        {!isLoggedIn && (
+        ) : (
           <View style={styles.authSection}>
             <TouchableOpacity
               style={styles.authButton}
@@ -224,7 +240,6 @@ const ProfileScreen = () => {
         )}
       </ScrollView>
 
-      {/* Fixed Bottom Navigation */}
       <View style={styles.bottomNav}>
         <BottomNav />
       </View>
@@ -240,17 +255,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 10,
   },
-  userSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 8,
-    marginTop: 16,
-  },
-  userName: {
-    marginLeft: 6,
-    fontSize: 16,
-    fontFamily: 'Poppins_500Medium',
-  },
+  userSection: { flexDirection: 'row', alignItems: 'center', padding: 8, marginTop: 16 },
   heading: { fontSize: 22, fontFamily: 'Poppins_700Medium', marginBottom: 15, marginTop: 15 },
   quickActions: {
     flexDirection: 'row',
@@ -264,10 +269,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 10,
   },
-  cardText: { 
-    fontFamily: 'Poppins_500Medium',
-    fontSize: 14 
-  },
+  cardText: { fontFamily: 'Poppins_500Medium', fontSize: 14 },
   sectionTitle: {
     fontSize: 16,
     fontFamily: 'Poppins_600SemiBold',
@@ -308,16 +310,8 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   addAddressText: { color: '#2A55E5', fontFamily: 'Poppins_500Medium' },
-  radioRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  languageText: {
-    marginLeft: 10,
-    fontFamily: 'Poppins_400Regular',
-    fontSize: 14,
-  },
+  radioRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
+  languageText: { marginLeft: 10, fontFamily: 'Poppins_400Regular', fontSize: 14 },
   logoutBtn: {
     backgroundColor: '#fff',
     paddingVertical: 12,
@@ -332,9 +326,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_700Bold',
     fontSize: 14,
   },
-  authSection: {
-    marginTop: 20,
-  },
+  authSection: { marginTop: 20 },
   authButton: {
     backgroundColor: '#F58220',
     paddingVertical: 12,

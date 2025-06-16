@@ -26,7 +26,7 @@ const { width } = Dimensions.get("window");
 const ProductDetailScreen = ({ route }) => {
   const { id } = route.params;
 
-  // ✅ All hooks at the top
+  
   const { loading, error, data } = useQuery(GET_PRODUCT, {
     variables: { getProductId: id },
   });
@@ -83,11 +83,7 @@ const ProductDetailScreen = ({ route }) => {
     try {
       await addCart({
         variables: payload,
-        context: {
-          headers: {
-            email: "akshya@gmail.com",
-          },
-        },
+      
       });
       alert("Item Added successfully!!");
     } catch (error) {

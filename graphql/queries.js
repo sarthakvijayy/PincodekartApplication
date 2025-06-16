@@ -242,8 +242,8 @@ query GetAllReviews {
 `;
 
 export const GET_ALL_ORDERS = gql`
-query GetAllOrder($page: Int, $take: Int) {
-  getAllOrder(page: $page, take: $take) {
+query GetAllOrder($take: Int, $page: Int) {
+  getAllOrder(take: $take, page: $page) {
     orders {
       id
       userId
@@ -256,6 +256,7 @@ query GetAllOrder($page: Int, $take: Int) {
       country
       orderStatus
       orderProducts {
+        productId
         productName
         productImages
         variantName
@@ -266,6 +267,7 @@ query GetAllOrder($page: Int, $take: Int) {
         quantity
         wholeSellerId
         sellerCode
+        status
         gst
         totalGst
       }

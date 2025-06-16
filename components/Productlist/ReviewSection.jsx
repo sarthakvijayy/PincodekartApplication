@@ -14,14 +14,10 @@ import { GET_ALL_REVIEWS } from '../../graphql/queries';
 
 const ReviewSection = () => {
   const [showAll, setShowAll] = useState(false);
-  const email = "akshya@gmail.com";
+  
 
   const { loading, error, data } = useQuery(GET_ALL_REVIEWS, {
-    context: {
-      headers: {
-        email: email || 'akshya@gmail.com',
-      },
-    },
+  
     
   });
 
