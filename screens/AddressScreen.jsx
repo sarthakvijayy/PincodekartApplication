@@ -12,15 +12,11 @@ import {
 } from "react-native";
 import { useQuery, useMutation } from "@apollo/client";
 import { GET_ALL_ADDRESS_QUERY } from "../graphql/queries";
-import {
-  CREATE_ADDRESS,
-  DELETE_ADDRESS,
-  UPDATE_ADDRESS,
-} from "../graphql/mutations";
+import {CREATE_ADDRESS,DELETE_ADDRESS,UPDATE_ADDRESS,} from "../graphql/mutations";
 import { Ionicons } from "@expo/vector-icons";
 import { useRoute } from "@react-navigation/native";
 
-const AddressScreen = () => {
+const AddressScreen = ({selectedAddressId , setSelectedAddressId}) => {
   const route = useRoute();
   const [isEdit, setIsEdit] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -36,9 +32,11 @@ const AddressScreen = () => {
   });
 
   // Handle optional route params
-  const [selectedAddressId, setSelectedAddressId] = useState(
-    route?.params?.selectedAddressId || null
-  );
+  // const [selectedAddressId, setSelectedAddressId] = useState(
+  //   route?.params?.selectedAddressId || null
+  // );
+
+  
   const updateSelectedAddressId =
     route?.params?.setSelectedAddressId || setSelectedAddressId;
 

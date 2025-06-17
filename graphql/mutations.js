@@ -222,3 +222,17 @@ mutation UpdateUserProfile($firstName: String, $lastName: String, $mobileNo: Str
   }
 }`
 
+export const CREATE_COUPAN = gql`
+mutation Mutation($couponName: String, $couponCode: String, $discount: Float) {
+  createCoupon(couponName: $couponName, couponCode: $couponCode, discount: $discount) {
+    id
+    sellerId
+    couponName
+    couponCode
+    discount
+    active
+    createdAt
+    updatedAt
+  }
+}
+`

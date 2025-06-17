@@ -348,3 +348,12 @@ query GetOrder($getOrderId: ID) {
   }
 }
   `;
+
+
+  export const VARIFY_COUPAN =`
+  query VarifyCoupon($ushopId: String, $couponcode: String) {
+  varifyCoupon(ushopId: $ushopId, couponcode: $couponcode) {
+    msg
+  }
+}
+  `;

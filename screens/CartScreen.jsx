@@ -1,14 +1,5 @@
 import React from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  StyleSheet,
-  TouchableOpacity,
-  Alert,
-  ActivityIndicator,
-  Image,
-} from "react-native";
+import {View,Text,FlatList,StyleSheet,TouchableOpacity,Alert,ActivityIndicator,Image,} from "react-native";
 import { useNavigation, navigation} from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery, useMutation } from "@apollo/client";
@@ -33,7 +24,7 @@ const CartScreen = () => {
     if (newQty < 1) {
       Alert.alert(
         "Invalid Quantity",
-        "Quantity cannot be less than 1."
+        "Quantity cannot be less than 1"
       );
       return;
     }
@@ -151,21 +142,27 @@ const CartScreen = () => {
 
         <TouchableOpacity
           style={styles.clearButton}
-          onPress={() =>
-            Alert.alert(
-              "Place Order",
-              "Are you sure you want to place the order?",
-              [
-                { text: "Cancel", style: "cancel" },
-                {
-                  text: "OK",
-                  onPress: () => {
-                    navigation.navigate("MyOrdersScreen" )
-                  },
-                },
-              ]
-            )
-          }
+          onPress={() => {
+  if (cartItems.length === 0) {
+    Alert.alert("Cart Empty", "Please add a product to place order.");
+    return;
+  }
+
+  Alert.alert(
+    "Place Order",
+    "Are you sure you want to place the order?",
+    [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "OK",
+        onPress: () => {
+          navigation.navigate("MyOrdersScreen");
+        },
+      },
+    ]
+  );
+}}
+
         >
           <Text style={styles.clearButtonText}>Place Order</Text>
         </TouchableOpacity>
