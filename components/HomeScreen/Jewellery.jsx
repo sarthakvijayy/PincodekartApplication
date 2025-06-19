@@ -1,83 +1,145 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, Dimensions , TouchableOpacity} from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Dimensions,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
+import { useQuery } from '@apollo/client';
+import { GET_PRODUCTS_BY_CATEGORY, GET_CATEGORY_BY_ID } from '../../graphql/queries';
 
 const { width } = Dimensions.get('window');
+const BANNER_HEIGHT = 180;
 
-const wellnessDeals = [
-  { title: 'Deal Of The Day', discount: '30% OFF', image: require('../../assets/Jewellery/j1.png') },
-  { title: 'Deal Of The Day', discount: '15% OFF', image: require('../../assets/Jewellery/j2.png') },
-  { title: 'Deal Of The Day', discount: '25% OFF', image: require('../../assets/Jewellery/j3.png') },
-  { title: 'Deal Of The Day', discount: '30% OFF', image: require('../../assets/Jewellery/j4.png') },
-  { title: 'Deal Of The Day', discount: '15% OFF', image: require('../../assets/Jewellery/j5.png') },
-  { title: 'Deal Of The Day', discount: '25% OFF', image: require('../../assets/Jewellery/j6.png') },
-];
+const CATEGORY_ID = "67dd5ec886d19a479a725436";
 
-const Jewellery = () => {
+const Cosmatics = () => {
   const navigation = useNavigation();
-        
-          const handlePress = () => {
-            navigation.navigate('ProductShowcase');
-          };
+
+  const { data: catData, loading: catLoading, error: catError } = useQuery(GET_CATEGORY_BY_ID, {
+    variables: { getCategoryId: CATEGORY_ID },
+  });
+
+  const { data: productData, loading: productLoading, error: productError } = useQuery(
+    GET_PRODUCTS_BY_CATEGORY,
+    {
+      variables: { catId: CATEGORY_ID },
+    }
+  );
+
+  const handlePress = (id) => {
+    navigation.navigate('ProductDetailScreen', { id });
+  };
+
+  if (catLoading || productLoading) {
+    return (
+      <View style={styles.loader}>
+        <ActivityIndicator size="large" color="#FF3C3C" />
+      </View>
+    );
+  }
+
+  if (catError || productError) {
+    return (
+      <View style={styles.loader}>
+        <Text style={{ color: 'red' }}>
+          {catError?.message || productError?.message}
+        </Text>
+      </View>
+    );
+  }
+
+  const banner = catData?.getCategory?.categoryImage;
+  const bannerList = [banner, banner, banner]; // You can later replace with different images
+  const products = productData?.getProductsByCat || [];
 
   return (
-    <View style={styles.sectionWrapper}>
+    <View style={styles.dealsSection}>
       <LinearGradient colors={['#F3DCAF', '#FFB21B']} style={styles.gradientBackground}>
         
-        {/* Banner */}
-        <Image 
-          source={require('../../assets/Jewellery/Jewellery.png')} 
-          style={styles.bannerImage} 
-        />
-
-        {/* Grid of 6 Products */}
-        <View style={styles.dealsGrid}>
-          {wellnessDeals.map((item, index) => (
-            <TouchableOpacity key={index} style={styles.dealCard} onPress={handlePress}>
-                          <Image source={item.image} style={styles.dealImage} resizeMode="cover" />
-                          <View style={styles.dealInfo}>
-                            <Text style={styles.dealTitle}>{item.title}</Text>
-                            <Text style={styles.dealDiscount}>{item.discount}</Text>
-                          </View>
-                        </TouchableOpacity>
+        {/* Swipable Banner Images */}
+        <ScrollView
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.bannerScroll}
+        >
+          {bannerList.map((img, idx) => (
+            <Image
+              key={idx}
+              source={{ uri: img }}
+              style={styles.bannerImage}
+              resizeMode="cover"
+            />
           ))}
-        </View>
+        </ScrollView>
 
+        {/* Products Scroll */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.cardScrollContainer}
+          snapToInterval={160 + 16}
+          decelerationRate="fast"
+        >
+          {products.slice(0, 5).map((item) => (
+            <TouchableOpacity key={item.id} style={styles.dealCard} onPress={() => handlePress(item.id)}>
+              <Image
+                source={{ uri: item?.variant?.[0]?.images?.[0] || item.previewImage }}
+                style={styles.dealImage}
+                resizeMode="cover"
+              />
+              <View style={styles.dealInfo}>
+                <Text style={styles.dealTitle} numberOfLines={1}>
+                  {item.productName}
+                </Text>
+                <Text style={styles.dealDiscount}>
+                  {item.discount ? `UPTO ${item.discount}% OFF` : 'Special Deal'}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
       </LinearGradient>
     </View>
   );
 };
 
+export default Cosmatics;
+
 const styles = StyleSheet.create({
-  sectionWrapper: {
-    // paddingVertical: 20,
-    // marginBottom: 20,
-  },
+
   gradientBackground: {
-    paddingVertical: 20,
-    // borderRadius: 10,
-    // marginHorizontal: 10,
+    paddingTop: 10,
+    paddingBottom: 20,
+  },
+  bannerScroll: {
+    paddingLeft: 12,
   },
   bannerImage: {
     width: width - 32,
-    height: 180,
-    marginHorizontal: 16,
-    borderRadius: 10,
-    marginBottom: 20,
+    height: BANNER_HEIGHT,
+    marginRight: 16,
+    borderRadius: 12,
+    overflow: 'hidden',
   },
-  dealsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    paddingHorizontal: 10,
+  cardScrollContainer: {
+    paddingLeft: 12,
+    paddingTop: 20,
+    paddingRight: 4,
   },
   dealCard: {
-    width: (width - 50) / 3, // 3 cards per row
-    backgroundColor: '#E0E0E0',
+    width: 140,
+    marginRight: 16,
+    backgroundColor: '#ffffff',
     borderRadius: 10,
     overflow: 'hidden',
-    marginBottom: 15,
     elevation: 3,
     shadowColor: '#000',
     shadowOpacity: 0.1,
@@ -86,10 +148,10 @@ const styles = StyleSheet.create({
   },
   dealImage: {
     width: '100%',
-    height: 110,
+    height: 120,
   },
   dealInfo: {
-    padding: 8,
+    padding: 10,
     alignItems: 'center',
   },
   dealTitle: {
@@ -99,11 +161,23 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   dealDiscount: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#184977',
-    marginTop: 3,
+    marginTop: 4,
     fontWeight: 'bold',
+  },
+  loader: {
+    padding: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
-export default Jewellery;
+
+
+
+// '#C0F298', '#96FF43'
+
+
+
+// '#F3DCAF', '#FFB21B'

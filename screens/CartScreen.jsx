@@ -2,6 +2,7 @@ import React from "react";
 import {View,Text,FlatList,StyleSheet,TouchableOpacity,Alert,ActivityIndicator,Image,} from "react-native";
 import { useNavigation, navigation} from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
+import CartHeader from "./CartHeader";
 import { useQuery, useMutation } from "@apollo/client";
 import { GET_CART, GET_PRODUCT } from "../graphql/queries";
 import { UPDATE_CART, REMOVE_FROM_CART } from "../graphql/mutations";
@@ -54,6 +55,8 @@ const CartScreen = () => {
     }
   };
 
+  
+
   const cartItems = data?.getCart?.cartProducts || [];
 
   const getTotalItems = () =>
@@ -104,10 +107,13 @@ const CartScreen = () => {
     );
   }
 
+  
+
   const totalPrice = getTotalPrice();
 
   return (
     <View style={styles.container}>
+      <CartHeader />
       <FlatList
         data={cartItems}
         keyExtractor={(item, index) =>
@@ -206,6 +212,7 @@ export const CartItemCard = ({
   const imageUrl = variantImage || product?.previewImage;
 
   return (
+    
     <View style={styles.card}>
       <Image source={{ uri: imageUrl }} style={styles.image} />
       <View style={styles.details}>
@@ -221,6 +228,7 @@ export const CartItemCard = ({
             />
           </TouchableOpacity>
         )}
+        
 
         <Text numberOfLines={1} style={styles.title}>
           {product?.productName}
@@ -251,7 +259,9 @@ export const CartItemCard = ({
             </TouchableOpacity>
           </View>
         )}
+         
       </View>
+     
     </View>
   );
 };

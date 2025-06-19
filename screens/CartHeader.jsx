@@ -10,10 +10,10 @@ import { Feather, Ionicons } from '@expo/vector-icons';
 import { useNavigation } from "@react-navigation/native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { useQuery } from '@apollo/client';
-import { GET_WISHLIST_QUERY, GET_CART } from '../../graphql/queries';
-import FilterModal from '../Productlist/FilterModal';
+import { GET_WISHLIST_QUERY, GET_CART } from '../graphql/queries';
+import FilterModal from '.././components/Productlist/FilterModal';
 
-const CategoryHeader = () => {
+const CartHeader = () => {
   const navigation = useNavigation();
 
   // ✅ Move hooks INSIDE the component function
@@ -40,43 +40,16 @@ const CategoryHeader = () => {
       </TouchableOpacity>
     
 
-        <Text style={styles.title}>All Categories</Text>
+        <Text style={styles.title}>Your Cart</Text>
 
         <View style={styles.floatingIcons}>
 
-          {/* Wishlist */}
-          <TouchableOpacity onPress={() => navigation.navigate("WishlistCard")}>
-            <View style={styles.iconWithBadge}>
-              <Feather name="heart" size={22} color="#184977" style={styles.iconButton} />
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>{wishlistCount}</Text>
-              </View>
-            </View>
-          </TouchableOpacity>
-
-          {/* Cart */}
-          <TouchableOpacity onPress={() => navigation.navigate("CartScreen")}>
-            <View style={styles.iconWithBadge}>
-              <Ionicons name="bag-outline" size={24} color="#184977" style={styles.iconButton} />
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>{cartCount}</Text>
-              </View>
-            </View>
-          </TouchableOpacity>
+        
+        
         </View>
       </View>
 
-      {/* Search Bar */}
-      <View style={styles.searchBar}>
-        <Feather name="search" size={18} color="#888" />
-        <TextInput
-          placeholder="Search for products, brands and more"
-          placeholderTextColor="#888"
-          style={styles.searchInput}
-        />
-        <Ionicons name="mic-outline" size={18} color="#888" />
-        <Feather name="camera" size={18} color="#888" style={{ marginLeft: 10 }} />
-      </View>
+      
       
     </LinearGradient>
 
@@ -87,12 +60,12 @@ const CategoryHeader = () => {
 
 const styles = StyleSheet.create({
   headerContainer: {
-    paddingTop: 50,
+    paddingTop: 30,
     paddingHorizontal: 15,
     paddingBottom: 20,
     marginLeft: -20,
     marginRight: -20,
-    marginTop: -20,
+    marginTop: -30,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
   },
@@ -162,4 +135,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CategoryHeader;
+export default CartHeader;

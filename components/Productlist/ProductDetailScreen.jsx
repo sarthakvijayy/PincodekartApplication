@@ -26,7 +26,6 @@ const { width } = Dimensions.get("window");
 const ProductDetailScreen = ({ route }) => {
   const { id } = route.params;
 
-  
   const { loading, error, data } = useQuery(GET_PRODUCT, {
     variables: { getProductId: id },
   });
@@ -43,7 +42,8 @@ const ProductDetailScreen = ({ route }) => {
     setIsScrolledEnough(scrollY > 400);
   };
 
-  if (loading) return <ActivityIndicator size="large" style={{ marginTop: 50 }} />;
+  if (loading)
+    return <ActivityIndicator size="large" style={{ marginTop: 50 }} />;
   if (error) return <Text>Error loading product: {error.message}</Text>;
 
   const product = data?.getProduct;
@@ -81,11 +81,8 @@ const ProductDetailScreen = ({ route }) => {
     };
 
     try {
-      await addCart({
-        variables: payload,
-      
-      });
-      alert("Item Added successfully!!");
+      await addCart({ variables: payload });
+      alert("Item added successfully");
     } catch (error) {
       console.log("Error in add to cart", error);
       alert("Failed to add to cart");
@@ -94,14 +91,17 @@ const ProductDetailScreen = ({ route }) => {
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* Fixed Header */}
+      <View style={styles.fixedHeader}>
+        <ProductHeader />
+      </View>
+
       <ScrollView
-        contentContainerStyle={{ paddingBottom: 200 }}
+        contentContainerStyle={{ paddingBottom: 200, paddingTop: 60 }}
         showsVerticalScrollIndicator={false}
         onScroll={handleScroll}
         scrollEventThrottle={16}
       >
-        <ProductHeader />
-
         <FlatList
           data={images}
           keyExtractor={(_, i) => i.toString()}
@@ -160,7 +160,8 @@ const ProductDetailScreen = ({ route }) => {
                   }}
                   style={[
                     styles.variantBox,
-                    index === selectedColorIndex && styles.variantBoxSelected,
+                    index === selectedColorIndex &&
+                      styles.variantBoxSelected,
                   ]}
                 >
                   <Text style={styles.variantText}>
@@ -245,7 +246,23 @@ const ProductDetailScreen = ({ route }) => {
 export default ProductDetailScreen;
 
 
+
 const styles = StyleSheet.create({
+
+  fixedHeader: {
+  position: "absolute",
+  top: 0,
+  left: 0,
+  right: 0,
+  zIndex: 100,
+  backgroundColor: "#fff",
+  elevation: 4,
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.2,
+  shadowRadius: 2,
+},
+
   container: {
     flex: 1,
     backgroundColor: "#fff",

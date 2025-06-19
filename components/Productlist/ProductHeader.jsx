@@ -177,9 +177,9 @@ const styles = StyleSheet.create({
   left: 0,
   right: 0,
   zIndex: 100, // ensures it stays above scroll content
-  paddingTop: 80,
+  paddingTop: 50,
   paddingBottom: 16,
-  paddingHorizontal: 12,
+  paddingHorizontal: 9,
   elevation: 10, // Android shadow
   shadowColor: "#000",
   shadowOffset: { width: 0, height: 2 },

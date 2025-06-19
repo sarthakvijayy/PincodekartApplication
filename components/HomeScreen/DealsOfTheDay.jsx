@@ -1,202 +1,174 @@
 import React from 'react';
-import { View, Text, Image, ScrollView, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Dimensions,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
+import { useQuery } from '@apollo/client';
+import { GET_PRODUCTS_BY_CATEGORY, GET_CATEGORY_BY_ID } from '../../graphql/queries';
 
 const { width } = Dimensions.get('window');
 
-const deals = [
-  { title: 'Deal Of The Day', discount: '30% OFF', image: require('../../assets/DOD/dod1.png') },
-  { title: 'Deal Of The Day', discount: '15% OFF', image: require('../../assets/DOD/dod2.png') },
-  { title: 'Deal Of The Day', discount: '25% OFF', image: require('../../assets/DOD/dod3.png') },
-  { title: 'Deal Of The Day', discount: '25% OFF', image: require('../../assets/DOD/dod3.png') },
-];
 
-const categories = [
-  { title: 'Women Fashion', discount: 'Min 30% OFF', image: require('../../assets/DOD/dod4.png') },
-  { title: 'Books & Media', discount: 'Min 50% OFF', image: require('../../assets/DOD/dod5.png') },
-  { title: 'Sports', discount: 'Min 60% OFF', image: require('../../assets/DOD/dod6.png') },
-  { title: 'Men Fashion', discount: 'Min 30% OFF', image: require('../../assets/DOD/dod7.png') },
-];
+const CATEGORY_ID = "6703c999a24ddf9a40b16c40";
 
 const DealsOfDaySection = () => {
   const navigation = useNavigation();
-  
-    const handlePress = () => {
-      navigation.navigate('ProductShowcase');
-    };
-  return (
-    <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
-      
-      {/* Top Deals Section */}
-      <LinearGradient colors={['#C8F2D4', '#D8C8F2']} style={styles.gradientContainer}>
-        <Image source={require('../../assets/DOD/dodbanner.png')} style={styles.bannerImage} resizeMode="cover" />
 
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.dealsRow}>
-          {deals.map((item, index) => (
-            <TouchableOpacity key={index} style={styles.dealCard} onPress={handlePress}>
-              <Image source={item.image} style={styles.dealImage} resizeMode="contain" />
-              <Text style={styles.dealTitle}>{item.title}</Text>
-              <Text style={styles.dealDiscount}>{item.discount}</Text>
+  const { data: catData, loading: catLoading, error: catError } = useQuery(GET_CATEGORY_BY_ID, {
+    variables: { getCategoryId: CATEGORY_ID },
+  });
+
+  const { data: productData, loading: productLoading, error: productError } = useQuery(
+    GET_PRODUCTS_BY_CATEGORY,
+    {
+      variables: { catId: CATEGORY_ID },
+    }
+  );
+
+  const handlePress = (id) => {
+    navigation.navigate('ProductDetailScreen', { id });
+  };
+
+  if (catLoading || productLoading) {
+    return (
+      <View style={styles.loader}>
+        <ActivityIndicator size="large" color="#FF3C3C" />
+      </View>
+    );
+  }
+
+  if (catError || productError) {
+    return (
+      <View style={styles.loader}>
+        <Text style={{ color: 'red' }}>{catError?.message || productError?.message}</Text>
+      </View>
+    );
+  }
+
+  const bannerImage = catData?.getCategory?.categoryImage;
+  const products = productData?.getProductsByCat?.slice(0, 5) || [];
+
+  return (
+    <View style={styles.sectionWrapper}>
+      <LinearGradient colors={['#F3C2C2', '#FF3C3C']} style={styles.gradientBackground}>
+
+        {/* Swipable Banner */}
+        <ScrollView
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          style={styles.bannerScroll}
+        >
+          {[1, 2, 3].map((_, index) => (
+            <Image
+              key={index}
+              source={{ uri: bannerImage }}
+              style={styles.bannerImage}
+              resizeMode="cover"
+            />
+          ))}
+        </ScrollView>
+
+        {/* Horizontal Products Scroll */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.productScroll}
+          snapToInterval={160 + 16}
+          decelerationRate="fast"
+        >
+          {products.map((item) => (
+            <TouchableOpacity
+              key={item.id}
+              style={styles.productCard}
+              onPress={() => handlePress(item.id)}
+            >
+              <Image
+                source={{ uri: item?.variant?.[0]?.images?.[0] || item.previewImage }}
+                style={styles.productImage}
+                resizeMode="cover"
+              />
+              <View style={styles.productInfo}>
+                <Text style={styles.productTitle} numberOfLines={1}>
+                  {item.productName}
+                </Text>
+                <Text style={styles.productDiscount}>
+                  {item.discount ? `UPTO ${item.discount}% OFF` : 'Special Deal'}
+                </Text>
+              </View>
             </TouchableOpacity>
           ))}
         </ScrollView>
       </LinearGradient>
-
-      {/* Middle Banner with Shop Now */}
-      <View style={styles.styleBannerContainer}>
-        <Image source={require('../../assets/DOD/dodbanner2.png')} style={styles.styleBannerImage} resizeMode="cover" />
-      </View>
-
-      {/* Categories Grid */}
-      <LinearGradient colors={['#C4D0F9', '#2E5CFF']} style={styles.gridContainer}>
-        <View style={styles.gridWrapper}>
-          {categories.map((item, index) => (
-            <View key={index} style={styles.categoryCard}>
-              <Image source={item.image} style={styles.categoryImage} resizeMode="cover" />
-              
-              {/* Discount badge */}
-              <View style={styles.discountBadge}>
-                <Text style={styles.discountBadgeText}>{item.discount}</Text>
-                <Text style={styles.categoryTitle}>{item.title}</Text>
-              </View>
-
-              {/* Title */}
-              {/* <View style={styles.categoryInfo}>
-                <Text style={styles.categoryTitle}>{item.title}</Text>
-              </View> */}
-            </View>
-          ))}
-        </View>
-      </LinearGradient>
-
-    </ScrollView>
+    </View>
   );
 };
 
+export default DealsOfDaySection;
+
 const styles = StyleSheet.create({
-  gradientContainer: {
-    paddingBottom: 20,
-    // borderBottomLeftRadius: 20,
-    // borderBottomRightRadius: 20,
+  sectionWrapper: {
     overflow: 'hidden',
+    marginBottom: 0,
+  },
+  gradientBackground: {
+    paddingVertical: 15,
+  },
+  bannerScroll: {
+    marginBottom: 10,
   },
   bannerImage: {
-    width: width,
-    height: 180,
-  },
-  dealsRow: {
-    flexDirection: 'row',
-    marginTop: 15,
-    paddingHorizontal: 16,
-  },
-  dealCard: {
-    backgroundColor: '#E0E0E0',
+    width: width - 24,
+    height: (width - 32) * 0.5,
+    marginHorizontal: 12,
     borderRadius: 12,
-    padding: 12,
-    marginRight: 12,
-    alignItems: 'center',
-    width: 120,
+  },
+  productScroll: {
+    paddingHorizontal: 10,
+  },
+  productCard: {
+    width: 160,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    marginHorizontal: 6,
+    overflow: 'hidden',
+    elevation: 3,
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 5,
-    elevation: 3,
+    shadowRadius: 4,
   },
-  dealImage: {
+  productImage: {
     width: '100%',
     height: 120,
-    marginBottom: 8,
   },
-  dealTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#222',
-    textAlign: 'center',
-  },
-  dealDiscount: {
-    fontSize: 13,
-    color: '#184977',
-    fontWeight: 'bold',
-    marginTop: 4,
-    textAlign: 'center',
-  },
-  styleBannerContainer: {
-    // marginTop: 20,
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    backgroundColor: '#C4D0F9',
-  },
-  styleBannerImage: {
-    width: width - 32,
-    height: 180,
-    // borderRadius: 16,
-    marginTop: 20,
-    marginBottom: 20,
-  },
-  shopNowText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 14,
-  },
-  gridContainer: {
-    paddingVertical: 24,
-    paddingBottom: 7,
-    marginTop: -10,
-    // borderBottomLeftRadius: 20,
-    // borderBottomRightRadius: 20,
-  },
-  gridWrapper: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-  },
-  categoryCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    marginBottom: 20,
-    width: (width / 2) - 24,
-    overflow: 'hidden',
-    elevation: 4,
-    position: 'relative',
-  },
-  categoryImage: {
-    width: '100%',
-    height: 180,
-  },
-  discountBadge: {
-    position: 'absolute',
-    bottom: 10,
-    alignSelf: 'center',
-    backgroundColor: '#2A55E5CC',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 11,
-    zIndex: 1,
-    width: 153.88636779785156,
-    height: 49.90909194946289,
-    top: 120,
-    left: 18,
-    borderRadius: 3.83,
-
-  },
-  discountBadgeText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: 'bold',
-    left: 18,
-  },
-  categoryInfo: {
-    padding: 10,
+  productInfo: {
+    padding: 8,
     alignItems: 'center',
   },
-  categoryTitle: {
+  productTitle: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#fff',
+    color: '#333',
     textAlign: 'center',
   },
+  productDiscount: {
+    fontSize: 13,
+    color: '#184977',
+    marginTop: 4,
+    fontWeight: 'bold',
+  },
+  loader: {
+    padding: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
-
-export default DealsOfDaySection;

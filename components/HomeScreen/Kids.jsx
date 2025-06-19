@@ -1,65 +1,136 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Dimensions,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
-
+import { useQuery } from '@apollo/client';
+import { GET_CATEGORY_BY_ID, GET_PRODUCTS_BY_CATEGORY } from '../../graphql/queries';
 
 const { width } = Dimensions.get('window');
-
-const kidsDeals = [
-  { title: 'Kids T-shirt', discount: 'Flat 20% OFF', image: require('../../assets/kids/k1.png') },
-  { title: 'Kids Shorts', discount: 'Flat 25% OFF', image: require('../../assets/kids/k2.png') },
-  { title: 'Kids Shoes', discount: 'Flat 30% OFF', image: require('../../assets/kids/k3.png') },
-  { title: 'Kids Jacket', discount: 'Flat 35% OFF', image: require('../../assets/kids/k4.png') },
-];
+const CATEGORY_ID = '6703ca4da24ddf9a40b16c45'; // ⚠️ Update with actual Kids category ID
 
 const Kids = () => {
   const navigation = useNavigation();
-      
-        const handlePress = () => {
-          navigation.navigate('ProductShowcase');
-        };
+
+  const {
+    data: catData,
+    loading: catLoading,
+    error: catError,
+  } = useQuery(GET_CATEGORY_BY_ID, {
+    variables: { getCategoryId: CATEGORY_ID },
+    fetchPolicy: 'network-only',
+  });
+
+  const {
+    data: productData,
+    loading: productLoading,
+    error: productError,
+  } = useQuery(GET_PRODUCTS_BY_CATEGORY, {
+    variables: { catId: CATEGORY_ID },
+    fetchPolicy: 'network-only',
+  });
+
+  const handlePress = (id) => {
+    navigation.navigate('ProductDetailScreen', { id });
+  };
+
+  if (catLoading || productLoading) {
+    return (
+      <View style={styles.loader}>
+        <ActivityIndicator size="large" color="#FFAF14" />
+      </View>
+    );
+  }
+
+  if (catError || productError) {
+    return (
+      <View style={styles.loader}>
+        <Text style={{ color: 'red' }}>
+          {catError?.message || productError?.message}
+        </Text>
+      </View>
+    );
+  }
+
+  const bannerImage = catData?.getCategory?.categoryImage;
+  const bannerList = bannerImage ? [bannerImage, bannerImage] : [];
+
+  const products = productData?.getProductsByCat?.slice(0, 4) || [];
+
+
+
+
   return (
     <View style={styles.sectionWrapper}>
       <LinearGradient colors={['#FED68A', '#FFAF14']} style={styles.gradientBackground}>
-        
-        {/* Banner */}
-        <Image 
-          source={require('../../assets/kids/kidsbanner.png')} 
-          style={styles.bannerImage} 
-        />
 
-        {/* Four Deal Cards in Single Row */}
-        <View style={styles.dealsRow}>
-          {kidsDeals.map((item, index) => (
-            <TouchableOpacity key={index} style={styles.dealCard} onPress={handlePress}>
-              <Image source={item.image} style={styles.dealImage} resizeMode="cover" />
-              <View style={styles.dealInfo}>
-                <Text style={styles.dealTitle}>{item.title}</Text>
-                <Text style={styles.dealDiscount}>{item.discount}</Text>
-              </View>
-            </TouchableOpacity>
+        {/* Banner Carousel */}
+        <ScrollView
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.bannerWrapper}
+        >
+          {bannerList.map((img, idx) => (
+            <Image
+              key={idx}
+              source={{ uri: img }}
+              style={styles.bannerImage}
+              resizeMode="cover"
+            />
           ))}
-        </View>
+        </ScrollView>
 
+        
+
+        {/* Four Products in Row */}
+        <View style={styles.dealsRow}>
+          {products.map((item) => {
+            const imageUri = item?.variant?.[0]?.images?.[0] || item.previewImage;
+            return (
+              <TouchableOpacity key={item.id} style={styles.dealCard} onPress={() => handlePress(item.id)}>
+                <Image source={{ uri: imageUri }} style={styles.dealImage} resizeMode="cover" />
+                <View style={styles.dealInfo}>
+                  <Text style={styles.dealTitle} numberOfLines={1}>
+                    {item.productName}
+                  </Text>
+                  <Text style={styles.dealDiscount}>
+                    {item.discount ? `Flat ${item.discount}% OFF` : 'Top Deal'}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
       </LinearGradient>
     </View>
   );
 };
 
+export default Kids;
+
 const styles = StyleSheet.create({
-  sectionWrapper: {
-    
-  },
+ 
   gradientBackground: {
     paddingVertical: 20,
+  },
+  bannerWrapper: {
+    paddingLeft: 16,
+    marginBottom: 20,
   },
   bannerImage: {
     width: width - 32,
     height: 180,
-    marginHorizontal: 16,
-    // borderRadius: 10,
-    marginBottom: 20,
+    marginRight: 16,
+    borderRadius: 10,
   },
   dealsRow: {
     flexDirection: 'row',
@@ -99,6 +170,9 @@ const styles = StyleSheet.create({
     marginTop: 2,
     fontWeight: 'bold',
   },
+  loader: {
+    padding: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
-
-export default Kids;

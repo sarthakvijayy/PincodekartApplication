@@ -191,6 +191,7 @@ const styles = StyleSheet.create({
   },
   nextBtn: {
     marginTop: 24,
+    marginBottom: 24,
     backgroundColor: "#3D5AFE",
     paddingVertical: 12,
     borderRadius: 8,

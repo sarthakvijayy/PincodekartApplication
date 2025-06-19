@@ -17,6 +17,7 @@ import {
 } from "../../graphql/queries";
 import CategoryHeader from "./CategoryHeader";
 import BottomNav from "../HomeScreen/BottomNav";
+import ProductCard from "../Productlist/ProductCard";
 
 const { width } = Dimensions.get("window");
 const itemWidth = width / 2 - 24;
@@ -68,27 +69,26 @@ const Allcat = () => {
     </TouchableOpacity>
   );
 
-  const renderProduct = ({ item }) => (
-    <TouchableOpacity
-      style={styles.productCard}
-      onPress={() => navigation.navigate("ProductDetail", { id: item.id })}
-    >
-      {item.previewImage ? (
-        <Image
-          source={{ uri: item.previewImage }}
-          style={styles.productImage}
+  const renderProduct = ({ item }) => {
+      const imageUrl = item?.previewImage?.trim();
+
+      return (
+        <ProductCard
+          id={item.id}
+          image={imageUrl}
+          brand={item.brandName || "Pincodekart"}
+          title={item.productName}
+          mrpPrice={item?.variant?.[0]?.mrpPrice}
+          originalPrice={
+            item?.variant?.[0]?.originalPrice || item?.variant?.[0]?.mrpPrice
+          }
+          discount={item?.variant?.[0]?.discount || 0}
+          rating={item.avgRating || "4.0"}
+          initialWishlisted={item.isWishlisted || false}
         />
-      ) : (
-        <View style={styles.noImage}>
-          <Text>No Image</Text>
-        </View>
-      )}
-      <Text style={styles.productText}>{item.productName}</Text>
-      <Text style={styles.productPrice}>
-        ₹{item.variant?.[0]?.mrpPrice ?? "N/A"}
-      </Text>
-    </TouchableOpacity>
-  );
+      );
+    }
+    
 
   if (loadingCats)
     return <ActivityIndicator style={{ flex: 1 }} size="large" />;

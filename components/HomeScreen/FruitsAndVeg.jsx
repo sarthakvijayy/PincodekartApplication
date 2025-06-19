@@ -1,88 +1,195 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, Dimensions , TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Dimensions,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
+import { useQuery } from '@apollo/client';
+import { GET_PRODUCTS_BY_CATEGORY, GET_CATEGORY_BY_ID } from '../../graphql/queries';
 
 const { width } = Dimensions.get('window');
+const BANNER_HEIGHT = 180;
+const CATEGORY_ID = "6703ca3ca24ddf9a40b16c44"; 
 
-const products = [
-  { image: require('../../assets/vegetables/veg1.png') },
-  { image: require('../../assets/vegetables/chips.png') },
-  { image: require('../../assets/vegetables/colddrinks.png') },
-];
+const DealsSection = () => {
+  const navigation = useNavigation();
 
-const FruitsAndVeg = () => {
-   const navigation = useNavigation();
-    
-      const handlePress = () => {
-        navigation.navigate('ProductShowcase');
-      };
+  // Fetch category for banner
+  const { data: catData, loading: catLoading, error: catError } = useQuery(GET_CATEGORY_BY_ID, {
+    variables: { getCategoryId: CATEGORY_ID },
+    fetchPolicy: 'network-only',
+  });
+
+  // Fetch products in category
+  const { data: productData, loading: productLoading, error: productError } = useQuery(
+    GET_PRODUCTS_BY_CATEGORY,
+    {
+      variables: { catId: CATEGORY_ID },
+      fetchPolicy: 'network-only',
+    }
+  );
+
+  const handlePress = (id) => {
+    navigation.navigate('ProductDetailScreen', { id });
+  };
+
+  if (catLoading || productLoading) {
+    return (
+      <View style={styles.loader}>
+        <ActivityIndicator size="large" color="#FF3C3C" />
+      </View>
+    );
+  }
+
+  if (catError || productError) {
+    return (
+      <View style={styles.loader}>
+        <Text style={{ color: 'red' }}>
+          {catError?.message || productError?.message}
+        </Text>
+      </View>
+    );
+  }
+
+  const bannerImage = catData?.getCategory?.categoryImage;
+  const bannerList = bannerImage ? [bannerImage, bannerImage] : []; // Placeholder duplication
+  const products = productData?.getProductsByCat || [];
+
+  if (!bannerImage && products.length === 0) {
+    return (
+      <View style={styles.loader}>
+        <Text style={{ color: '#333' }}>No data found for this category.</Text>
+      </View>
+    );
+  }
+
   return (
-    <View style={styles.sectionWrapper}>
-      <LinearGradient
-        colors={['#C4F9E0', '#B2FFFE']}
-        style={styles.gradientBackground}
-      >
-        {/* Banner Image */}
-        <Image 
-          source={require('../../assets/vegetables/VegetableBanner.png')} 
-          style={styles.bannerImage} 
-        />
+    <View style={styles.dealsSection}>
+      <LinearGradient colors={['#F3C2C2', '#FF3C3C']} style={styles.gradientBackground}>
+        {/* Swipable Banners */}
+        {bannerList.length > 0 && (
+          <ScrollView
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.bannerScroll}
+          >
+            {bannerList.map((img, idx) => (
+              <Image
+                key={idx}
+                source={{ uri: img }}
+                style={styles.bannerImage}
+                resizeMode="cover"
+              />
+            ))}
+          </ScrollView>
+        )}
 
-        {/* 3 Static Product Cards */}
-        <View style={styles.productRow}>
-          {products.map((item, index) => (
-            <TouchableOpacity key={index} style={styles.productCard} onPress={handlePress}>
-              <Image source={item.image} style={styles.productImage} resizeMode="cover" />
-              <Text style={styles.productTitle}>{item.title}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+        {/* Product Scroll */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.cardScrollContainer}
+          snapToInterval={160 + 16}
+          decelerationRate="fast"
+        >
+          {products.slice(0, 5).map((item) => {
+            const imageUri = item?.variant?.[0]?.images?.[0] || item?.previewImage;
+            return (
+              <TouchableOpacity key={item.id} style={styles.dealCard} onPress={() => handlePress(item.id)}>
+                {imageUri ? (
+                  <Image source={{ uri: imageUri }} style={styles.dealImage} resizeMode="cover" />
+                ) : (
+                  <View style={[styles.dealImage, { justifyContent: 'center', alignItems: 'center' }]}>
+                    <Text>No Image</Text>
+                  </View>
+                )}
+                <View style={styles.dealInfo}>
+                  <Text style={styles.dealTitle} numberOfLines={1}>
+                    {item.productName}
+                  </Text>
+                  <Text style={styles.dealDiscount}>
+                    {item.discount ? `UPTO ${item.discount}% OFF` : 'Special Deal'}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
       </LinearGradient>
     </View>
   );
 };
 
+export default DealsSection;
+
 const styles = StyleSheet.create({
-  sectionWrapper: {
-    // paddingVertical: 20,
-    // marginBottom: 20,
+  dealsSection: {
+    backgroundColor: '#F3C2C2',
+    // paddingBottom: 20,
   },
   gradientBackground: {
-    // paddingVertical: 20,
-    // borderRadius: 10,
-    // marginHorizontal: 10,
-    // marginBottom: 10,
+    paddingTop: 10,
+    paddingBottom: 20,
+  },
+  bannerScroll: {
+    paddingLeft: 12,
   },
   bannerImage: {
     width: width - 32,
-    height: 180,
-    marginHorizontal: 16,
-    // borderRadius: 10,
-    marginBottom: 20,
-    marginTop: 10,
+    height: BANNER_HEIGHT,
+    marginRight: 16,
+    borderRadius: 12,
+    overflow: 'hidden',
   },
-  productRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingHorizontal: 10,
+  cardScrollContainer: {
+    paddingLeft: 12,
+    paddingTop: 20,
+    paddingRight: 4,
   },
-  productCard: {
-    width: 100,
+  dealCard: {
+    width: 140,
+    marginRight: 16,
+    backgroundColor: '#ffffff',
+    borderRadius: 10,
+    overflow: 'hidden',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+  },
+  dealImage: {
+    width: '100%',
+    height: 120,
+    backgroundColor: '#f2f2f2',
+  },
+  dealInfo: {
+    padding: 10,
     alignItems: 'center',
   },
-  productImage: {
-    width: 110,
-    height: 120,
-    // borderRadius: 10,
-    marginBottom: 8,
-  },
-  productTitle: {
-    fontSize: 14,
+  dealTitle: {
+    fontSize: 15,
     fontWeight: '600',
-    color: '#ccc',
+    color: '#333',
     textAlign: 'center',
   },
+  dealDiscount: {
+    fontSize: 13,
+    color: '#184977',
+    marginTop: 4,
+    fontWeight: 'bold',
+  },
+  loader: {
+    padding: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
-
-export default FruitsAndVeg;

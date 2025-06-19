@@ -40,13 +40,13 @@ const OrderSummaryScreen = ({ route }) => {
     <CartItemCard item={item} isSummary={true} />
   );
 
-  // Calculations
+  
   const subtotal = cartItems.reduce(
     (total, item) => total + item.price * item.quantity,
     0
   );
 
-  const discount = 50; // Sample discount
+  const discount = 50; 
   const shippingFee = subtotal >= 500 ? 0 : 40;
   const total = subtotal - discount + shippingFee;
 

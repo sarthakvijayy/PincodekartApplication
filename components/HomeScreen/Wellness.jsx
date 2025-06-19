@@ -1,84 +1,147 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, Dimensions , TouchableOpacity} from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Dimensions,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
-
+import { useQuery } from '@apollo/client';
+import { GET_CATEGORY_BY_ID, GET_PRODUCTS_BY_CATEGORY } from '../../graphql/queries';
 
 const { width } = Dimensions.get('window');
+const CATEGORY_ID = '6703ca5ba24ddf9a40b16c46'; // ⚠️ Update with actual Kids category ID
 
-const wellnessDeals = [
-  { title: 'Deal Of The Day', discount: '30% OFF', image: require('../../assets/wellness/m1.png') },
-  { title: 'Deal Of The Day', discount: '15% OFF', image: require('../../assets/wellness/m1.png') },
-  { title: 'Deal Of The Day', discount: '25% OFF', image: require('../../assets/wellness/m1.png') },
-  { title: 'Deal Of The Day', discount: '30% OFF', image: require('../../assets/wellness/m1.png') },
-  { title: 'Deal Of The Day', discount: '15% OFF', image: require('../../assets/wellness/m1.png') },
-  { title: 'Deal Of The Day', discount: '25% OFF', image: require('../../assets/wellness/m1.png') },
-];
-
-const Wellness = () => {
+const Kids = () => {
   const navigation = useNavigation();
-        
-          const handlePress = () => {
-            navigation.navigate('ProductShowcase');
-          };
-          
+
+  const {
+    data: catData,
+    loading: catLoading,
+    error: catError,
+  } = useQuery(GET_CATEGORY_BY_ID, {
+    variables: { getCategoryId: CATEGORY_ID },
+    fetchPolicy: 'network-only',
+  });
+
+  const {
+    data: productData,
+    loading: productLoading,
+    error: productError,
+  } = useQuery(GET_PRODUCTS_BY_CATEGORY, {
+    variables: { catId: CATEGORY_ID },
+    fetchPolicy: 'network-only',
+  });
+
+  const handlePress = (id) => {
+    navigation.navigate('ProductDetailScreen', { id });
+  };
+
+  if (catLoading || productLoading) {
+    return (
+      <View style={styles.loader}>
+        <ActivityIndicator size="large" color="#FFAF14" />
+      </View>
+    );
+  }
+
+  if (catError || productError) {
+    return (
+      <View style={styles.loader}>
+        <Text style={{ color: 'red' }}>
+          {catError?.message || productError?.message}
+        </Text>
+      </View>
+    );
+  }
+
+  const bannerImage = catData?.getCategory?.categoryImage;
+  const bannerList = bannerImage ? [bannerImage, bannerImage] : [];
+
+  const products = productData?.getProductsByCat?.slice(0, 7) || [];
+
+
+
+
   return (
     <View style={styles.sectionWrapper}>
       <LinearGradient colors={['#D28AFE', '#6B00AD']} style={styles.gradientBackground}>
-        
-        {/* Banner */}
-        <Image 
-          source={require('../../assets/wellness/wellbanner.png')} 
-          style={styles.bannerImage} 
-        />
 
-        {/* Grid of 6 Products */}
-        <View style={styles.dealsGrid}>
-          {wellnessDeals.map((item, index) => (
-               <TouchableOpacity key={index} style={styles.dealCard} onPress={handlePress}>
-                          <Image source={item.image} style={styles.dealImage} resizeMode="cover" />
-                          <View style={styles.dealInfo}>
-                            <Text style={styles.dealTitle}>{item.title}</Text>
-                            <Text style={styles.dealDiscount}>{item.discount}</Text>
-                          </View>
-                        </TouchableOpacity>
+        {/* Banner Carousel */}
+        <ScrollView
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.bannerWrapper}
+        >
+          {bannerList.map((img, idx) => (
+            <Image
+              key={idx}
+              source={{ uri: img }}
+              style={styles.bannerImage}
+              resizeMode="cover"
+            />
           ))}
-        </View>
+        </ScrollView>
 
+        
+
+        {/* Four Products in Row */}
+        <View style={styles.dealsRow}>
+          {products.map((item) => {
+            const imageUri = item?.variant?.[0]?.images?.[0] || item.previewImage;
+            return (
+              <TouchableOpacity key={item.id} style={styles.dealCard} onPress={() => handlePress(item.id)}>
+                <Image source={{ uri: imageUri }} style={styles.dealImage} resizeMode="cover" />
+                <View style={styles.dealInfo}>
+                  <Text style={styles.dealTitle} numberOfLines={1}>
+                    {item.productName}
+                  </Text>
+                  <Text style={styles.dealDiscount}>
+                    {item.discount ? `Flat ${item.discount}% OFF` : 'Top Deal'}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
       </LinearGradient>
     </View>
   );
 };
 
+export default Kids;
+
 const styles = StyleSheet.create({
-  sectionWrapper: {
-    // paddingVertical: 20,
-    // marginBottom: 20,
-  },
+ 
   gradientBackground: {
     paddingVertical: 20,
-    // borderRadius: 10,
-    // marginHorizontal: 10,
+  },
+  bannerWrapper: {
+    paddingLeft: 16,
+    marginBottom: 20,
   },
   bannerImage: {
     width: width - 32,
     height: 180,
-    marginHorizontal: 16,
+    marginRight: 16,
     borderRadius: 10,
-    marginBottom: 20,
   },
-  dealsGrid: {
+  dealsRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     justifyContent: 'space-between',
     paddingHorizontal: 10,
   },
   dealCard: {
-    width: (width - 50) / 3, // 3 cards per row
-    backgroundColor: '#E0E0E0',
+    width: (width - 60) / 4,
+    backgroundColor: '#FFF',
     borderRadius: 10,
     overflow: 'hidden',
-    marginBottom: 15,
     elevation: 3,
     shadowColor: '#000',
     shadowOpacity: 0.1,
@@ -87,10 +150,12 @@ const styles = StyleSheet.create({
   },
   dealImage: {
     width: '100%',
-    height: 110,
+    height: 90,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
   },
   dealInfo: {
-    padding: 8,
+    padding: 5,
     alignItems: 'center',
   },
   dealTitle: {
@@ -100,11 +165,25 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   dealDiscount: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#184977',
-    marginTop: 3,
+    marginTop: 2,
     fontWeight: 'bold',
+  },
+  loader: {
+    padding: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
-export default Wellness;
+
+
+
+
+
+
+
+
+
+// '#D28AFE', '#6B00AD'

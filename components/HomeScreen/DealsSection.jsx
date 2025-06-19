@@ -1,45 +1,107 @@
 import React from 'react';
-import {View,Text,Image,ScrollView,StyleSheet,Dimensions,TouchableOpacity,} from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Dimensions,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
+import { useQuery } from '@apollo/client';
+import { GET_PRODUCTS_BY_CATEGORY, GET_CATEGORY_BY_ID } from '../../graphql/queries';
 
 const { width } = Dimensions.get('window');
+const BANNER_HEIGHT = 180;
 
-const deals = [
-  { title: 'Deal on Blazer', discount: 'UPTO 30% OFF', image: require('../../assets/deals/blazzer.png') },
-  { title: 'Deal on Jeans', discount: 'UPTO 30% OFF', image: require('../../assets/deals/jeans.png') },
-  { title: 'Deal on Shirts', discount: 'UPTO 30% OFF', image: require('../../assets/deals/Shirt.png') },
-  { title: 'Deal on Dresses', discount: 'UPTO 30% OFF', image: require('../../assets/images/laptop.jpg') },
-  { title: 'Deal on Kurtis', discount: 'UPTO 30% OFF', image: require('../../assets/images/laptop.jpg') },
-];
+const CATEGORY_ID = "6703c845a24ddf9a40b16c37";
 
 const DealsSection = () => {
   const navigation = useNavigation();
 
-  const handlePress = () => {
-    navigation.navigate('ProductShowcase');
+  const { data: catData, loading: catLoading, error: catError } = useQuery(GET_CATEGORY_BY_ID, {
+    variables: { getCategoryId: CATEGORY_ID },
+  });
+
+  const { data: productData, loading: productLoading, error: productError } = useQuery(
+    GET_PRODUCTS_BY_CATEGORY,
+    {
+      variables: { catId: CATEGORY_ID },
+    }
+  );
+
+  const handlePress = (id) => {
+    navigation.navigate('ProductDetailScreen', { id });
   };
+
+  if (catLoading || productLoading) {
+    return (
+      <View style={styles.loader}>
+        <ActivityIndicator size="large" color="#FF3C3C" />
+      </View>
+    );
+  }
+
+  if (catError || productError) {
+    return (
+      <View style={styles.loader}>
+        <Text style={{ color: 'red' }}>
+          {catError?.message || productError?.message}
+        </Text>
+      </View>
+    );
+  }
+
+  const banner = catData?.getCategory?.categoryImage;
+  const bannerList = [banner, banner, banner]; // You can later replace with different images
+  const products = productData?.getProductsByCat || [];
 
   return (
     <View style={styles.dealsSection}>
-      <LinearGradient
-        colors={['#F3C2C2', '#FF3C3C']}
-        style={styles.gradientBackground}
-      >
-        <ScrollView>
-          <Image
-            source={require('../../assets/images/deals.png')}
-            style={styles.bannerImage1}
-          />
+      <LinearGradient colors={['#F3C2C2', '#FF3C3C']} style={styles.gradientBackground}>
+        
+        {/* Swipable Banner Images */}
+        <ScrollView
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.bannerScroll}
+        >
+          {bannerList.map((img, idx) => (
+            <Image
+              key={idx}
+              source={{ uri: img }}
+              style={styles.bannerImage}
+              resizeMode="cover"
+            />
+          ))}
         </ScrollView>
 
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {deals.map((item, index) => (
-            <TouchableOpacity key={index} style={styles.dealCard} onPress={handlePress}>
-              <Image source={item.image} style={styles.dealImage} resizeMode="cover" />
+        {/* Products Scroll */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.cardScrollContainer}
+          snapToInterval={160 + 16}
+          decelerationRate="fast"
+        >
+          {products.slice(0, 5).map((item) => (
+            <TouchableOpacity key={item.id} style={styles.dealCard} onPress={() => handlePress(item.id)}>
+              <Image
+                source={{ uri: item?.variant?.[0]?.images?.[0] || item.previewImage }}
+                style={styles.dealImage}
+                resizeMode="cover"
+              />
               <View style={styles.dealInfo}>
-                <Text style={styles.dealTitle}>{item.title}</Text>
-                <Text style={styles.dealDiscount}>{item.discount}</Text>
+                <Text style={styles.dealTitle} numberOfLines={1}>
+                  {item.productName}
+                </Text>
+                <Text style={styles.dealDiscount}>
+                  {item.discount ? `UPTO ${item.discount}% OFF` : 'Special Deal'}
+                </Text>
               </View>
             </TouchableOpacity>
           ))}
@@ -49,27 +111,37 @@ const DealsSection = () => {
   );
 };
 
+export default DealsSection;
+
 const styles = StyleSheet.create({
-  bannerImage1: {
-    width: width - 32,
-    height: 180,
-    marginHorizontal: 'auto',
-  },
   dealsSection: {
     backgroundColor: '#F3C2C2',
-    paddingVertical: 20,
+    paddingBottom: 20,
   },
   gradientBackground: {
-    paddingVertical: 10,
-    // borderRadius: 10,
-    // marginHorizontal: 10,
+    paddingTop: 10,
+    paddingBottom: 20,
+  },
+  bannerScroll: {
+    paddingLeft: 12,
+  },
+  bannerImage: {
+    width: width - 32,
+    height: BANNER_HEIGHT,
+    marginRight: 16,
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  cardScrollContainer: {
+    paddingLeft: 12,
+    paddingTop: 20,
+    paddingRight: 4,
   },
   dealCard: {
     width: 140,
-    backgroundColor: '#E0E0E0',
+    marginRight: 16,
+    backgroundColor: '#ffffff',
     borderRadius: 10,
-    marginHorizontal: 10,
-    marginTop: 20,
     overflow: 'hidden',
     elevation: 3,
     shadowColor: '#000',
@@ -82,21 +154,24 @@ const styles = StyleSheet.create({
     height: 120,
   },
   dealInfo: {
-    padding: 8,
+    padding: 10,
     alignItems: 'center',
   },
   dealTitle: {
-    fontSize: 17,
+    fontSize: 15,
     fontWeight: '600',
     color: '#333',
     textAlign: 'center',
   },
   dealDiscount: {
-    fontSize: 15,
+    fontSize: 13,
     color: '#184977',
-    marginTop: 5,
+    marginTop: 4,
     fontWeight: 'bold',
   },
+  loader: {
+    padding: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
-
-export default DealsSection;

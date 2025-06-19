@@ -1,31 +1,105 @@
 import React from 'react';
-import { View, Text, Image, ScrollView, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Dimensions,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
+import { useQuery } from '@apollo/client';
+import { GET_PRODUCTS_BY_CATEGORY, GET_CATEGORY_BY_ID } from '../../graphql/queries';
 
 const { width } = Dimensions.get('window');
+const BANNER_HEIGHT = (width - 32) * 0.5;
+
+const CATEGORY_ID = "6703c958a24ddf9a40b16c3e";
 
 const FashionTalkSection = () => {
-   const navigation = useNavigation();
-  
-    const handlePress = () => {
-      navigation.navigate('ProductShowcase');
-    };
-  
+  const navigation = useNavigation();
+
+  const { data: catData, loading: catLoading, error: catError } = useQuery(GET_CATEGORY_BY_ID, {
+    variables: { getCategoryId: CATEGORY_ID },
+  });
+
+  const { data: productData, loading: productLoading, error: productError } = useQuery(
+    GET_PRODUCTS_BY_CATEGORY,
+    {
+      variables: { catId: CATEGORY_ID },
+    }
+  );
+
+  const handlePress = (id) => {
+    navigation.navigate('ProductDetailScreen', { id });
+  };
+
+  if (catLoading || productLoading) {
+    return (
+      <View style={styles.loader}>
+        <ActivityIndicator size="large" color="#FFB320" />
+      </View>
+    );
+  }
+
+  if (catError || productError) {
+    return (
+      <View style={styles.loader}>
+        <Text style={{ color: 'red' }}>{catError?.message || productError?.message}</Text>
+      </View>
+    );
+  }
+
+  const banner = catData?.getCategory?.categoryImage;
+  const bannerList = [banner, banner, banner]; // You can replace this with 3 different images if available
+  const products = productData?.getProductsByCat || [];
+
   return (
     <View style={styles.sectionWrapper}>
       <LinearGradient colors={['#F3DCAF', '#FFB320']} style={styles.gradientBackground}>
-        <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false}>
-          <Image source={require('../../assets/fashiontalks/fashiontalksbanner.png')} style={styles.bannerImage} />
+
+        {/* Swipable Banner Section */}
+        <ScrollView
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.bannerScroll}
+        >
+          {bannerList.map((img, idx) => (
+            <Image
+              key={idx}
+              source={{ uri: img }}
+              style={styles.bannerImage}
+              resizeMode="cover"
+            />
+          ))}
         </ScrollView>
 
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.dealsRow}>
-          {deals.map((item, index) => (
-            <TouchableOpacity key={index} style={styles.dealCard} onPress={handlePress}>
-              <Image source={item.image} style={styles.dealImage} resizeMode="cover" />
+        {/* Product Cards */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.dealsRow}
+          snapToInterval={140 + 12}
+          decelerationRate="fast"
+        >
+          {products.slice(0, 5).map((item) => (
+            <TouchableOpacity key={item.id} style={styles.dealCard} onPress={() => handlePress(item.id)}>
+              <Image
+                source={{ uri: item?.variant?.[0]?.images?.[0] || item.previewImage }}
+                style={styles.dealImage}
+                resizeMode="cover"
+              />
               <View style={styles.dealInfo}>
-                <Text style={styles.dealTitle}>{item.title}</Text>
-                <Text style={styles.dealDiscount}>{item.discount}</Text>
+                <Text style={styles.dealTitle} numberOfLines={1}>
+                  {item.productName}
+                </Text>
+                <Text style={styles.dealDiscount}>
+                  {item.discount ? `UPTO ${item.discount}% OFF` : 'Special Deal'}
+                </Text>
               </View>
             </TouchableOpacity>
           ))}
@@ -35,28 +109,24 @@ const FashionTalkSection = () => {
   );
 };
 
-const deals = [
-  { title: 'Deal On Blazer', discount: 'UPTO 30% OFF', image: require('../../assets/deals/blazzer.png') },
-  { title: 'Deal On Dresses', discount: 'UPTO 30% OFF', image: require('../../assets/deals/Shirt.png') },
-  { title: 'Deal On Shirts', discount: 'UPTO 30% OFF', image: require('../../assets/deals/Shirt.png') },
-  { title: 'Deal On Jeans', discount: 'UPTO 30% OFF', image: require('../../assets/deals/jeans.png') },
-];
+export default FashionTalkSection;
 
 const styles = StyleSheet.create({
   sectionWrapper: {
     overflow: 'hidden',
-    // marginBottom: 30,
-    // paddingBottom: 10,
   },
   gradientBackground: {
     paddingVertical: 15,
-    // borderRadius: 10,
+  },
+  bannerScroll: {
+    paddingLeft: 16,
   },
   bannerImage: {
     width: width - 32,
-    height: 180,
-    marginHorizontal: 16,
-    // borderRadius: 10,
+    height: BANNER_HEIGHT,
+    marginRight: 16,
+    borderRadius: 12,
+    overflow: 'hidden',
   },
   dealsRow: {
     paddingHorizontal: 10,
@@ -94,6 +164,9 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontWeight: 'bold',
   },
+  loader: {
+    padding: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
-
-export default FashionTalkSection;
