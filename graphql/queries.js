@@ -225,26 +225,67 @@ export const GET_ALL_ADDRESS_QUERY = gql`
   }
 `;
 
-
 export const GET_ALL_REVIEWS = gql`
-query GetAllReviews {
-  getAllReviews {
-    id
-    userId
-    productId
-    image
-    rating
-    review
-    createdAt
-    updatedAt
+  query GetAllReviews {
+    getAllReviews {
+      id
+      userId
+      productId
+      image
+      rating
+      review
+      createdAt
+      updatedAt
+    }
   }
-}
 `;
 
 export const GET_ALL_ORDERS = gql`
-query GetAllOrder($take: Int, $page: Int) {
-  getAllOrder(take: $take, page: $page) {
-    orders {
+  query GetAllOrder($take: Int, $page: Int) {
+    getAllOrder(take: $take, page: $page) {
+      orders {
+        id
+        userId
+        paymentStatus
+        addressLine1
+        addressLine2
+        city
+        pincode
+        state
+        country
+        orderStatus
+        orderProducts {
+          productId
+          productName
+          productImages
+          variantName
+          size
+          previewName
+          price
+          discount
+          quantity
+          wholeSellerId
+          sellerCode
+          status
+          gst
+          totalGst
+        }
+        totalAmount
+        totalQuantity
+        createdAt
+        updatedAt
+        gst
+        totalGst
+        paymentMethod
+      }
+      totalCount
+    }
+  }
+`;
+
+export const GET_ORDER = gql`
+  query GetOrder($getOrderId: ID) {
+    getOrder(id: $getOrderId) {
       id
       userId
       paymentStatus
@@ -279,81 +320,36 @@ query GetAllOrder($take: Int, $page: Int) {
       totalGst
       paymentMethod
     }
-    totalCount
   }
-}
-  `;
+`;
 
-
-  export const GET_ORDER = gql`
-query GetOrder($getOrderId: ID) {
-  getOrder(id: $getOrderId) {
-    id
-    userId
-    paymentStatus
-    addressLine1
-    addressLine2
-    city
-    pincode
-    state
-    country
-    orderStatus
-    orderProducts {
-      productId
-      productName
-      productImages
-      variantName
-      size
-      previewName
-      price
-      discount
-      quantity
-      wholeSellerId
-      sellerCode
-      status
-      gst
-      totalGst
-    }
-    totalAmount
-    totalQuantity
-    createdAt
-    updatedAt
-    gst
-    totalGst
-    paymentMethod
-  }
-}
-  `
-
-
-  export const GET_CURRENT_USER = gql`
+export const GET_CURRENT_USER = gql`
   query GetCurrentUser {
-  getCurrentUser {
-    id
-    email
-    updatePasswordToken
-    firstName
-    lastName
-    mobileNo
-    cartId
-    role
-    seller
-    wishlistId
-    wholeseller
-    createdAt
-    updatedAt
-    profilePic
-    userInterest
-    isSellerPaid
+    getCurrentUser {
+      id
+      email
+      updatePasswordToken
+      firstName
+      lastName
+      mobileNo
+      cartId
+      role
+      seller
+      wishlistId
+      wholeseller
+      createdAt
+      updatedAt
+      profilePic
+      userInterest
+      isSellerPaid
+    }
   }
-}
-  `;
+`;
 
-
-  export const VARIFY_COUPAN =`
+export const VERIFY_COUPON = gql`
   query VarifyCoupon($ushopId: String, $couponcode: String) {
-  varifyCoupon(ushopId: $ushopId, couponcode: $couponcode) {
-    msg
+    varifyCoupon(ushopId: $ushopId, couponcode: $couponcode) {
+      msg
+    }
   }
-}
-  `;
+`;

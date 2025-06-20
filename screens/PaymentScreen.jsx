@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { useMutation, useQuery } from "@apollo/client";
 import { CREATE_ORDER, CREATE_COUPAN } from "../graphql/mutations";
-import { GET_CART , VARIFY_COUPAN } from "../graphql/queries";
+import { GET_CART, VERIFY_COUPON } from "../graphql/queries";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { CartItemCard } from "./CartScreen";
 
@@ -21,34 +21,46 @@ const PaymentScreen = ({ addressId }) => {
   const [couponModalVisible, setCouponModalVisible] = useState(false);
   const [couponCodeInput, setCouponCodeInput] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState(0);
-
-  const navigation = useNavigation();
-  const route = useRoute();
-
-  const { data, loading: cartLoading, error: cartError } = useQuery(GET_CART);
-  const cartItems = data?.getCart?.cartProducts || [];
-
-  const [createOrder, { loading: placingOrder }] = useMutation(CREATE_ORDER, {
-    onCompleted: (data) => {
-      Alert.alert("Success", "Order placed successfully!");
-      navigation.replace("OrderConfirmedScreen", {
-        orderData: data.createOrder,
-      });
-    },
-    onError: (err) => {
-      Alert.alert("Error", err.message);
-    },
+  const [ushopId, setUshopId] = useState("");
+  const [couponError, setCouponError] = useState("Invalid Coupon!");
+  const [couponData, setCouponData] = useState({
+    ushopId: "",
+    couponcode: "",
   });
 
-  const [createCoupon, { loading: couponLoading }] = useMutation(CREATE_COUPAN, {
-    onCompleted: (data) => {
-      const discountValue = data.createCoupon.discount;
-      setAppliedDiscount(discountValue);
-      setCouponModalVisible(false);
-      Alert.alert("Coupon Applied", `Discount ₹${discountValue} applied.`);
-    },
-    onError: (err) => {
-      Alert.alert("Invalid Coupon", err.message);
+  const navigation = useNavigation();
+
+  const {
+    data,
+    loading: cartLoading,
+    error: cartError,
+  } = useQuery(GET_CART);
+  const cartItems = data?.getCart?.cartProducts || [];
+
+  const [createOrder, { loading: placingOrder }] = useMutation(
+    CREATE_ORDER,
+    {
+      onCompleted: (data) => {
+        Alert.alert("Success", "Order placed successfully!");
+        navigation.replace("OrderConfirmedScreen", {
+          orderData: data.createOrder,
+        });
+      },
+      onError: (err) => {
+        Alert.alert("Error", err.message);
+      },
+    }
+  );
+
+  const {
+    data: verifyCouponData,
+    loading: verifyCouponLoading,
+    refetch: verifyCouponRefetch,
+  } = useQuery(VERIFY_COUPON, {
+    skip: !ushopId || !couponCodeInput,
+    variables: {
+      ushopId,
+      couponCodeInput,
     },
   });
 
@@ -66,11 +78,28 @@ const PaymentScreen = ({ addressId }) => {
       return;
     }
 
+    if (couponError == "Invalid Coupon!") {
+      setCouponData({
+        ushopId: "",
+        couponcode: "",
+      });
+      setCouponCodeInput("");
+      setCouponError("");
+    }
+
     try {
       await createOrder({
         variables: {
           addressId,
           paymentMethod: "Cash on Delivery",
+          ushopId:
+            couponError === "Valid Coupon!"
+              ? couponData?.ushopId
+              : "",
+          couponCode:
+            couponError === "Valid Coupon!"
+              ? couponData?.couponcode
+              : "",
         },
       });
     } catch (error) {
@@ -117,7 +146,9 @@ const PaymentScreen = ({ addressId }) => {
 
       <Text style={styles.total}>Subtotal: ₹{total}</Text>
       {appliedDiscount > 0 && (
-        <Text style={styles.discount}>Discount: ₹{appliedDiscount}</Text>
+        <Text style={styles.discount}>
+          Discount: ₹{appliedDiscount}
+        </Text>
       )}
       <Text style={styles.totalFinal}>Total: ₹{discountedTotal}</Text>
 
@@ -145,32 +176,89 @@ const PaymentScreen = ({ addressId }) => {
               value={couponCodeInput}
               onChangeText={setCouponCodeInput}
             />
+            <TextInput
+              style={styles.input}
+              placeholder="Ushop Id"
+              value={ushopId}
+              onChangeText={setUshopId}
+            />
+            {verifyCouponLoading ? (
+              <ActivityIndicator
+                size="small"
+                color="#3D5AFE"
+                style={{ marginBottom: 8 }}
+              />
+            ) : couponError ? (
+              <Text
+                style={{
+                  color:
+                    couponError === "Valid Coupon!" ? "green" : "red",
+                  marginBottom: 8,
+                }}
+              >
+                {couponError}
+              </Text>
+            ) : null}
             <TouchableOpacity
-              style={styles.applyBtn}
-              onPress={() => {
-                if (!couponCodeInput) {
-                  Alert.alert("Please enter a code.");
-                  return;
+              style={[
+                styles.applyBtn,
+                (ushopId === "" ||
+                  couponCodeInput === "" ||
+                  verifyCouponLoading) && { opacity: 0.6 },
+              ]}
+              onPress={async () => {
+                try {
+                  const { data: refetchResult } =
+                    await verifyCouponRefetch({
+                      ushopId: ushopId,
+                      couponcode: couponCodeInput,
+                    });
+                  const msg = refetchResult?.varifyCoupon?.msg;
+
+                  if (msg === "Invalid Coupon!") {
+                    Alert.alert(
+                      "Invalid Coupon",
+                      "Please enter a valid coupon code"
+                    );
+                    setCouponError("Invalid Coupon!");
+                    setAppliedDiscount(0);
+                  } else {
+                    setCouponError("Valid Coupon!");
+                    setAppliedDiscount(
+                      refetchResult?.varifyCoupon?.discountAmount || 0
+                    );
+                  }
+                } catch (error) {
+                  Alert.alert(
+                    "Error",
+                    "Please enter valid coupon code."
+                  );
+                  console.error(error);
                 }
-                createCoupon({
-                  variables: {
-                    couponName: couponCodeInput,
-                    couponCode: couponCodeInput,
-                    discount: 0,
-                  },
-                });
               }}
-              disabled={couponLoading}
+              disabled={
+                ushopId === "" ||
+                couponCodeInput === "" ||
+                verifyCouponLoading
+              }
             >
-              {couponLoading ? (
+              {verifyCouponLoading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
                 <Text style={styles.applyBtnText}>Apply</Text>
               )}
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => setCouponModalVisible(false)}>
-              <Text style={{ color: "red", marginTop: 12, textAlign: "center" }}>
+            <TouchableOpacity
+              onPress={() => setCouponModalVisible(false)}
+            >
+              <Text
+                style={{
+                  color: "red",
+                  marginTop: 12,
+                  textAlign: "center",
+                }}
+              >
                 Cancel
               </Text>
             </TouchableOpacity>
@@ -198,7 +286,9 @@ const PaymentScreen = ({ addressId }) => {
               selectedMethod === method && styles.activeOuterCircle,
             ]}
           >
-            {selectedMethod === method && <View style={styles.innerCircle} />}
+            {selectedMethod === method && (
+              <View style={styles.innerCircle} />
+            )}
           </View>
           <Text style={styles.radioLabel}>{method}</Text>
         </TouchableOpacity>
