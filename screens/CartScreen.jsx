@@ -145,6 +145,13 @@ const CartScreen = () => {
           Total Price: ₹{totalPrice.toFixed(2)}
         </Text>
 
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+          }}
+        ></View>
+
         <TouchableOpacity
           style={styles.clearButton}
           onPress={() => {
@@ -157,18 +164,6 @@ const CartScreen = () => {
             } else {
               navigation.navigate("MyOrdersScreen");
             }
-
-            // navigation.navigate("PaymentScreen");
-
-            // Alert.alert("Place Order", "Are you sure you want to place the order?", [
-            //   { text: "Cancel", style: "cancel" },
-            //   {
-            //     text: "OK",
-            // onPress: () => {
-            //   navigation.navigate("MyOrdersScreen");
-            // },
-            //   },
-            // ]);
           }}
         >
           <Text style={styles.clearButtonText}>Place Order</Text>
@@ -213,11 +208,17 @@ export const CartItemCard = ({
             style={styles.trashIcon}
             onPress={() => removeFromCart(item)}
           >
-            <Ionicons name="trash-outline" size={20} color="#FF3E3E" />
+            <Ionicons
+              name="trash-outline"
+              size={20}
+              color="#FF3E3E"
+            />
           </TouchableOpacity>
         )}
 
-        <Text style={styles.brandName}>{product?.brand || "Brand"}</Text>
+        <Text style={styles.brandName}>
+          {product?.brand || "Brand"}
+        </Text>
         <Text numberOfLines={2} style={styles.productTitle}>
           {product?.productName}
         </Text>
@@ -228,7 +229,9 @@ export const CartItemCard = ({
         <View style={styles.bottomRow}>
           <View style={styles.priceRow}>
             <Text style={styles.sellingPrice}>₹{price}</Text>
-            <Text style={styles.mrp}>₹{product?.price || price + 400}</Text>
+            <Text style={styles.mrp}>
+              ₹{product?.price || price + 400}
+            </Text>
             <Text style={styles.discount}>30% OFF</Text>
           </View>
         </View>
@@ -260,10 +263,6 @@ export const CartItemCard = ({
     </View>
   );
 };
-
-
-
-
 
 const styles = StyleSheet.create({
   container: {
@@ -414,39 +413,35 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontFamily: "Poppins-Medium",
   },
-   qtyWrapper: {
-  flexDirection: "row",
-  alignItems: "center",
-  gap: 10,
-  // backgroundColor: "#f0f0f0",
-  // borderRadius: 20,
-  paddingHorizontal: 10,
-  paddingVertical: 4,
-},
+  qtyWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    // backgroundColor: "#f0f0f0",
+    // borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
 
-qtyBtn: {
-  backgroundColor: "#f0f0f0",
-  padding: 5,
-  borderRadius: 20,
-  color: "#000",
-  
-},
+  qtyBtn: {
+    backgroundColor: "#f0f0f0",
+    padding: 5,
+    borderRadius: 20,
+    color: "#000",
+  },
 
-qtyNumber: {
-  fontSize: 14,
-  color: "#000",
-  fontFamily: "Poppins-SemiBold",
-  paddingHorizontal: 6,
-},
-bottomRow: {
-  flexDirection: "row",
-  justifyContent: "space-between",
-  alignItems: "center",
-  marginTop: 10,
-},
-
-
+  qtyNumber: {
+    fontSize: 14,
+    color: "#000",
+    fontFamily: "Poppins-SemiBold",
+    paddingHorizontal: 6,
+  },
+  bottomRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 10,
+  },
 });
-
 
 export default CartScreen;

@@ -85,7 +85,7 @@ const MyOrdersScreen = () => {
               )}
               <TouchableOpacity
                 style={styles.stepWrapper}
-                onPress={() => handleStepClick(index)}
+                // onPress={() => handleStepClick(index)}
                 activeOpacity={0.7}
               >
                 <View
