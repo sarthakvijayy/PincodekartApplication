@@ -12,15 +12,27 @@ import { useQuery } from "@apollo/client";
 import { GET_CART, GET_ADDRESS_QUERY } from "../graphql/queries";
 import { CartItemCard } from "./CartScreen";
 
-const OrderSummaryScreen = ({ selectedAddressId, onProceed }) => {
-  const [selectedSlot, setSelectedSlot] = useState("09AM - 10AM");
+const OrderSummaryScreen = ({
+  selectedAddressId,
+  onProceed,
+  setSelectedSlot,
+  selectedSlot,
+}) => {
+  // const [selectedSlot, setSelectedSlot] = useState("09AM - 10AM");
 
   const deliverySlots = [
-    { label: "09AM - 10AM", value: "09AM - 10AM" },
-    { label: "10AM - 11AM", value: "10AM - 11AM" },
-    { label: "11AM - 12PM", value: "11AM - 12PM" },
-    { label: "12PM - 01PM", value: "12PM - 01PM" },
-    { label: "04PM - 06PM", value: "04PM - 06PM" },
+    { id: 1, label: "09AM - 10AM", value: "09AM - 10AM" },
+    { id: 2, label: "10AM - 11AM", value: "10AM - 11AM" },
+    { id: 3, label: "11AM - 12PM", value: "11AM - 12PM" },
+    { id: 4, label: "12PM - 01PM", value: "12PM - 01PM" },
+    { id: 5, label: "01PM - 02PM", label: "01PM - 02PM" },
+    { id: 6, label: "02PM - 03PM", label: "02PM - 03PM" },
+    { id: 7, label: "03PM - 04PM", label: "03PM - 04PM" },
+    { id: 8, label: "04PM - 05PM", label: "04PM - 05PM" },
+    { id: 9, label: "05PM - 06PM", label: "05PM - 06PM" },
+    { id: 10, label: "06PM - 07PM", label: "06PM - 07PM" },
+    { id: 11, label: "07PM - 08PM", label: "07PM - 08PM" },
+    { id: 12, label: "08PM - 09PM", label: "08PM - 09PM" },
   ];
 
   const {
@@ -77,7 +89,9 @@ const OrderSummaryScreen = ({ selectedAddressId, onProceed }) => {
           <Text style={styles.deliverLabel}>Deliver to</Text>
           <Text style={styles.addressName}>
             {address?.fullName || "No Name"}{" "}
-            {address?.tag && <Text style={styles.addressTag}>{address?.tag}</Text>}
+            {address?.tag && (
+              <Text style={styles.addressTag}>{address?.tag}</Text>
+            )}
           </Text>
           <Text style={styles.addressText}>
             {address?.addressLine1}, {address?.addressLine2}
@@ -95,7 +109,7 @@ const OrderSummaryScreen = ({ selectedAddressId, onProceed }) => {
           ))}
         </View>
 
-          <View style={styles.priceSection}>
+        <View style={styles.priceSection}>
           <View style={styles.priceRow}>
             <Text style={styles.label}>Price</Text>
             <Text style={styles.value}>₹{subtotal.toFixed(2)}</Text>
@@ -111,19 +125,25 @@ const OrderSummaryScreen = ({ selectedAddressId, onProceed }) => {
           <View style={styles.priceRow}>
             <Text style={styles.label}>Delivery Fee</Text>
             <Text style={styles.value}>
-              {shippingFee === 0 ? "Free" : `₹${shippingFee.toFixed(2)}`}
+              {shippingFee === 0
+                ? "Free"
+                : `₹${shippingFee.toFixed(2)}`}
             </Text>
           </View>
 
           <View style={styles.totalWrapper}>
             <Text style={styles.totalLabel}>Total Amount</Text>
-            <Text style={styles.totalAmount}>₹{total.toFixed(2)}</Text>
+            <Text style={styles.totalAmount}>
+              ₹{total.toFixed(2)}
+            </Text>
           </View>
         </View>
 
         {/* 📦 Delivery Slot */}
         <View style={styles.slotContainer}>
-          <Text style={styles.slotLabel}>Choose the delivery time slot</Text>
+          <Text style={styles.slotLabel}>
+            Choose the delivery time slot
+          </Text>
           <View style={styles.slotPicker}>
             <RNPickerSelect
               onValueChange={(value) => setSelectedSlot(value)}
@@ -137,7 +157,6 @@ const OrderSummaryScreen = ({ selectedAddressId, onProceed }) => {
         </View>
 
         {/* 💵 Price Breakdown */}
-      
       </ScrollView>
 
       {/* 🔵 Proceed Button */}

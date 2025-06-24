@@ -19,6 +19,7 @@ const stepWidth = (width - 32) / steps.length;
 const MyOrdersScreen = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
+  const [selectedSlot, setSelectedSlot] = useState(null);
 
   const renderStepContent = () => {
     switch (currentStep) {
@@ -32,16 +33,19 @@ const MyOrdersScreen = () => {
         );
       case 1:
         return (
-          <OrderSummaryScreen 
-          selectedAddressId={selectedAddressId}
-          onProceed={() => setCurrentStep(2)}
-         />
+          <OrderSummaryScreen
+            selectedAddressId={selectedAddressId}
+            setSelectedSlot={setSelectedSlot}
+            selectedSlot={selectedSlot}
+            onProceed={() => setCurrentStep(2)}
+          />
         );
       case 2:
         return (
           <PaymentScreen
             addressId={selectedAddressId}
             setCurrentStep={setCurrentStep}
+            selectedSlot={selectedSlot}
           />
         );
       case 3:

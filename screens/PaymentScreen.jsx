@@ -15,7 +15,7 @@ import { CREATE_ORDER } from "../graphql/mutations";
 import { GET_CART, VERIFY_COUPON } from "../graphql/queries";
 import { useNavigation } from "@react-navigation/native";
 
-const PaymentScreen = ({ addressId }) => {
+const PaymentScreen = ({ addressId, selectedSlot }) => {
   const [selectedMethod, setSelectedMethod] = useState(null);
   const [couponModalVisible, setCouponModalVisible] = useState(false);
   const [couponCodeInput, setCouponCodeInput] = useState("");
@@ -26,21 +26,33 @@ const PaymentScreen = ({ addressId }) => {
 
   const navigation = useNavigation();
 
-  const { data, loading: cartLoading, error: cartError } = useQuery(GET_CART);
+  const {
+    data,
+    loading: cartLoading,
+    error: cartError,
+  } = useQuery(GET_CART);
   const cartItems = data?.getCart?.cartProducts || [];
 
-  const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const total = cartItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
   const discountedTotal = Math.max(0, total - appliedDiscount);
 
-  const [createOrder, { loading: placingOrder }] = useMutation(CREATE_ORDER, {
-    onCompleted: (data) => {
-      Alert.alert("Success", "Order placed successfully!");
-      navigation.replace("OrderConfirmedScreen", { orderData: data.createOrder });
-    },
-    onError: (err) => {
-      Alert.alert("Error", err.message);
-    },
-  });
+  const [createOrder, { loading: placingOrder }] = useMutation(
+    CREATE_ORDER,
+    {
+      onCompleted: (data) => {
+        Alert.alert("Success", "Order placed successfully!");
+        navigation.replace("OrderConfirmedScreen", {
+          orderData: data.createOrder,
+        });
+      },
+      onError: (err) => {
+        Alert.alert("Error", err.message);
+      },
+    }
+  );
 
   const {
     data: verifyCouponData,
@@ -49,8 +61,6 @@ const PaymentScreen = ({ addressId }) => {
   } = useQuery(VERIFY_COUPON, {
     skip: true,
   });
-
-  console.log("verifyCouponRefetch", verifyCouponData);
 
   const handlePlaceOrder = async () => {
     if (!selectedMethod) {
@@ -74,6 +84,7 @@ const PaymentScreen = ({ addressId }) => {
           paymentMethod: "Cash on Delivery",
           ushopId: couponApplied ? ushopId : "",
           couponCode: couponApplied ? couponCodeInput : "",
+          timeSlot: selectedSlot,
         },
       });
     } catch (error) {
@@ -136,11 +147,15 @@ const PaymentScreen = ({ addressId }) => {
         </View>
         <View style={styles.row}>
           <Text style={styles.label}>Discount</Text>
-          <Text style={[styles.value, { color: "green" }]}>- ₹{appliedDiscount.toFixed(2)}</Text>
+          <Text style={[styles.value, { color: "green" }]}>
+            - ₹{appliedDiscount.toFixed(2)}
+          </Text>
         </View>
         <View style={styles.row}>
           <Text style={styles.totalLabel}>Grand Total</Text>
-          <Text style={styles.totalValue}>₹{discountedTotal.toFixed(2)}</Text>
+          <Text style={styles.totalValue}>
+            ₹{discountedTotal.toFixed(2)}
+          </Text>
         </View>
       </View>
 
@@ -163,7 +178,9 @@ const PaymentScreen = ({ addressId }) => {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Enter Coupon Details</Text>
+            <Text style={styles.modalTitle}>
+              Enter Coupon Details
+            </Text>
             <TextInput
               style={styles.input}
               placeholder="Coupon Code"
@@ -179,22 +196,34 @@ const PaymentScreen = ({ addressId }) => {
             {couponError ? (
               <Text
                 style={{
-                  color: couponError === "Valid Coupon!" ? "green" : "red",
+                  color:
+                    couponError === "Valid Coupon!" ? "green" : "red",
                   marginBottom: 10,
                 }}
               >
                 {couponError}
               </Text>
             ) : null}
-            <TouchableOpacity style={styles.applyBtn} onPress={applyCoupon}>
+            <TouchableOpacity
+              style={styles.applyBtn}
+              onPress={applyCoupon}
+            >
               {verifyCouponLoading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
                 <Text style={styles.applyBtnText}>Apply Coupon</Text>
               )}
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => setCouponModalVisible(false)}>
-              <Text style={{ color: "red", marginTop: 12, textAlign: "center" }}>
+            <TouchableOpacity
+              onPress={() => setCouponModalVisible(false)}
+            >
+              <Text
+                style={{
+                  color: "red",
+                  marginTop: 12,
+                  textAlign: "center",
+                }}
+              >
                 Cancel
               </Text>
             </TouchableOpacity>
@@ -203,7 +232,9 @@ const PaymentScreen = ({ addressId }) => {
       </Modal>
 
       {/* Payment Methods */}
-      <Text style={[styles.sectionTitle, { marginTop: 24 }]}>Payment Method</Text>
+      <Text style={[styles.sectionTitle, { marginTop: 24 }]}>
+        Payment Method
+      </Text>
       {["Online", "Cash on Delivery"].map((method) => (
         <TouchableOpacity
           key={method}
@@ -219,7 +250,9 @@ const PaymentScreen = ({ addressId }) => {
               selectedMethod === method && styles.radioCircleSelected,
             ]}
           >
-            {selectedMethod === method && <View style={styles.innerCircle} />}
+            {selectedMethod === method && (
+              <View style={styles.innerCircle} />
+            )}
           </View>
           <Text style={styles.radioText}>{method}</Text>
         </TouchableOpacity>
@@ -227,7 +260,10 @@ const PaymentScreen = ({ addressId }) => {
 
       {/* Place Order */}
       <TouchableOpacity
-        style={[styles.placeOrderBtn, (!selectedMethod || placingOrder) && { opacity: 0.6 }]}
+        style={[
+          styles.placeOrderBtn,
+          (!selectedMethod || placingOrder) && { opacity: 0.6 },
+        ]}
         onPress={handlePlaceOrder}
         disabled={!selectedMethod || placingOrder}
       >
