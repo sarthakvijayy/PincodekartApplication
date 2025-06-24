@@ -93,6 +93,11 @@ const OrderSummaryScreen = ({
               <Text style={styles.addressTag}>{address?.tag}</Text>
             )}
           </Text>
+
+          <Text style={styles.addressText}>
+            {address?.mobileNo}
+          </Text>
+          
           <Text style={styles.addressText}>
             {address?.addressLine1}, {address?.addressLine2}
           </Text>
