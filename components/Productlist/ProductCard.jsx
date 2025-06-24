@@ -41,16 +41,16 @@ const ProductCard = ({
       onCompleted: (data) => {
         if (data?.removeFromWishlist?.success) {
           setIsWishlisted(false);
-          Alert.alert("Removed from Wishlist");
+          // Alert.alert("Removed from Wishlist");
         } else {
-          Alert.alert(
-            "Error",
-            data?.removeFromWishlist?.message || "Could not remove"
-          );
+          // Alert.alert(
+          //   "Error",
+          //   data?.removeFromWishlist?.message || "Could not remove"
+          // );
         }
       },
       onError: () => {
-        Alert.alert("Error", "Could not remove from wishlist");
+        // Alert.alert("Error", "Could not remove from wishlist");
       },
     }
   );
@@ -58,7 +58,7 @@ const ProductCard = ({
   const handleWishlistToggle = async () => {
     const email = await AsyncStorage.getItem("email");
     if (!email) {
-      Alert.alert("Login Required", "Please login to manage wishlist");
+      // Alert.alert("Login Required", "Please login to manage wishlist");
       return;
     }
 

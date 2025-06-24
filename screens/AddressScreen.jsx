@@ -1,15 +1,5 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  FlatList,
-  TouchableOpacity,
-  StyleSheet,
-  ActivityIndicator,
-  Modal,
-  ScrollView,
-} from "react-native";
+import {View,Text,TextInput,FlatList,TouchableOpacity,StyleSheet,ActivityIndicator,Modal,ScrollView,} from "react-native";
 import { useQuery, useMutation } from "@apollo/client";
 import { GET_ALL_ADDRESS_QUERY } from "../graphql/queries";
 import {
@@ -213,7 +203,15 @@ const AddressScreen = ({
           </View>
         </View>
 
+
+              <Text style={styles.addressText}>
+                 {"Mobile No."}{item?.mobileNo},
+              </Text>
+
         <Text style={styles.addressText}>
+          
+         
+
           {item?.addressLine1}, {item?.addressLine2}, {item?.city},{" "}
           {item?.state}, {item?.country} - {item?.pincode}
         </Text>

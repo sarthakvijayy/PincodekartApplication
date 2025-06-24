@@ -18,12 +18,12 @@ const WishlistCard = () => {
 
   const [addToWishlist] = useMutation(ADD_TO_WISHLIST, {
     onCompleted: () => refetch(),
-    onError: () => Alert.alert('Error', 'Failed to add to wishlist'),
+    // onError: () => Alert.alert('Error', 'Failed to add to wishlist'),
   });
 
   const [removeFromWishlist] = useMutation(REMOVE_FROM_WISHLIST, {
     onCompleted: () => refetch(),
-    onError: () => Alert.alert('Error', 'Failed to remove from wishlist'),
+    // onError: () => Alert.alert('Error', 'Failed to remove from wishlist'),
   });
 
   const fetchAllProductDetails = useCallback(async (ids) => {
@@ -53,13 +53,14 @@ const WishlistCard = () => {
   const toggleWishlist = async (productId, currentlyWishlisted) => {
     try {
       const email = await AsyncStorage.getItem('email');
-      if (!email) return Alert.alert('Error', 'User email not found.');
+      if (!email) return 
+      Alert.alert('Error', 'User email not found.');
       currentlyWishlisted
         ? await removeFromWishlist({ variables: { email, productId } })
         : await addToWishlist({ variables: { email, productId } });
     } catch (error) {
       console.error('Wishlist mutation error:', error);
-      Alert.alert('Error', 'Failed to update wishlist');
+      // Alert.alert('Error', 'Failed to update wishlist');
     }
   };
 

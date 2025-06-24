@@ -20,6 +20,7 @@ import ProductCoursel from "./ProductCoursel";
 import BottomNav from "../HomeScreen/BottomNav";
 import { ADD_TO_CART } from "../../graphql/mutations";
 import ImageViewing from "react-native-image-viewing";
+import Toast from 'react-native-root-toast';
 
 const { width } = Dimensions.get("window");
 
@@ -83,10 +84,18 @@ const ProductDetailScreen = ({ route }) => {
 
     try {
       await addCart({ variables: payload });
-      alert("Item added successfully");
-    } catch (error) {
+      Toast.show("Added to cart successfully", {
+        duration: Toast.durations.SHORT,
+        position: Toast.positions.BOTTOM,
+        shadow: true,
+        animation: true,
+        hideOnPress: true,
+        message: "Added to cart successfully",
+      });
+    }
+     catch (error) {
       console.log("Error in add to cart", error);
-      alert("Failed to add to cart");
+      
     }
   };
 

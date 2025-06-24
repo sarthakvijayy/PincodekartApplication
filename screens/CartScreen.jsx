@@ -5,7 +5,6 @@ import {
   FlatList,
   StyleSheet,
   TouchableOpacity,
-  Alert,
   ActivityIndicator,
   Image,
 } from "react-native";
@@ -31,13 +30,7 @@ const CartScreen = () => {
   });
 
   const updateQuantity = async (item, newQty) => {
-    if (newQty < 1) {
-      Alert.alert(
-        "Invalid Quantity",
-        "Quantity cannot be less than 1"
-      );
-      return;
-    }
+    if (newQty < 1) return;
     try {
       await updateCartMutation({
         variables: {
@@ -46,7 +39,7 @@ const CartScreen = () => {
         },
       });
     } catch (err) {
-      Alert.alert("Error", "Failed to update quantity.");
+      console.error("Failed to update quantity.");
     }
   };
 
@@ -60,17 +53,14 @@ const CartScreen = () => {
         },
       });
     } catch (err) {
-      Alert.alert("Error", "Failed to remove item.");
+      console.error("Failed to remove item.");
     }
   };
 
   const cartItems = data?.getCart?.cartProducts || [];
 
   const getTotalItems = () =>
-    cartItems.reduce(
-      (total, item) => total + (item.quantity ?? 1),
-      0
-    );
+    cartItems.reduce((total, item) => total + (item.quantity ?? 1), 0);
 
   const getTotalPrice = () =>
     cartItems.reduce((total, item) => {
@@ -90,9 +80,7 @@ const CartScreen = () => {
   if (error) {
     return (
       <View style={styles.center}>
-        <Text
-          style={{ color: "#333", fontSize: 16, marginBottom: 10 }}
-        >
+        <Text style={{ color: "#333", fontSize: 16, marginBottom: 10 }}>
           You are not logged in.
         </Text>
         <TouchableOpacity
@@ -116,9 +104,7 @@ const CartScreen = () => {
       <FlatList
         data={cartItems}
         keyExtractor={(item, index) =>
-          `${item.productId}_${item.size ?? ""}_${
-            item.variantName ?? ""
-          }_${index}`
+          `${item.productId}_${item.size ?? ""}_${item.variantName ?? ""}_${index}`
         }
         renderItem={({ item }) => (
           <CartItemCard
@@ -130,17 +116,13 @@ const CartScreen = () => {
         contentContainerStyle={{ paddingBottom: 130 }}
         ListEmptyComponent={
           <View style={styles.center}>
-            <Text style={styles.emptyText}>
-              🛒 Your cart is empty.
-            </Text>
+            <Text style={styles.emptyText}>🛒 Your cart is empty.</Text>
           </View>
         }
       />
 
       <View style={styles.summaryContainer}>
-        <Text style={styles.summaryText}>
-          Total Items: {getTotalItems()}
-        </Text>
+        <Text style={styles.summaryText}>Total Items: {getTotalItems()}</Text>
         <Text style={styles.summaryText}>
           Total Price: ₹{totalPrice.toFixed(2)}
         </Text>
@@ -153,6 +135,7 @@ const CartScreen = () => {
         ></View>
 
         <TouchableOpacity
+<<<<<<< Updated upstream
           style={styles.clearButton}
           onPress={() => {
             if (cartItems.length === 0) {
@@ -165,6 +148,14 @@ const CartScreen = () => {
               navigation.navigate("MyOrdersScreen");
             }
           }}
+=======
+          style={[
+            styles.clearButton,
+            cartItems.length === 0 && { opacity: 0.4 },
+          ]}
+          disabled={cartItems.length === 0}
+          onPress={() => navigation.navigate("MyOrdersScreen")}
+>>>>>>> Stashed changes
         >
           <Text style={styles.clearButtonText}>Place Order</Text>
         </TouchableOpacity>
@@ -177,7 +168,7 @@ export const CartItemCard = ({
   item,
   updateQuantity,
   removeFromCart,
-  isSummary = false, // 👈 default false
+  isSummary = false,
 }) => {
   const { data, loading, error } = useQuery(GET_PRODUCT, {
     variables: { getProductId: item.productId },
@@ -239,7 +230,6 @@ export const CartItemCard = ({
         <Text style={styles.greenDelivery}>Open Box Delivery</Text>
         <Text style={styles.deliveryBy}>Delivery by 24 Oct 2024</Text>
 
-        {/* ✅ Show quantity buttons only if not in summary */}
         {!isSummary && (
           <View style={styles.qtyWrapper}>
             <TouchableOpacity
@@ -308,7 +298,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: "Poppins_500Medium",
   },
-
   cardContainer: {
     flexDirection: "row",
     marginBottom: 16,
@@ -348,19 +337,8 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins-Regular",
     marginVertical: 2,
   },
-  sellerText: {
-    fontSize: 11,
-    color: "#777",
-    fontFamily: "Poppins-Regular",
-  },
-  badgeRow: {
-    flexDirection: "row",
-    gap: 8,
-    marginVertical: 4,
-  },
   badge: {
     backgroundColor: "#FFF",
-    // paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 4,
     fontSize: 12,
@@ -371,7 +349,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-    // marginTop: 4,
   },
   sellingPrice: {
     fontSize: 14,
@@ -417,19 +394,29 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
+<<<<<<< Updated upstream
     // backgroundColor: "#f0f0f0",
     // borderRadius: 20,
     paddingHorizontal: 10,
     paddingVertical: 4,
   },
 
+=======
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+>>>>>>> Stashed changes
   qtyBtn: {
     backgroundColor: "#f0f0f0",
     padding: 5,
     borderRadius: 20,
+<<<<<<< Updated upstream
     color: "#000",
   },
 
+=======
+  },
+>>>>>>> Stashed changes
   qtyNumber: {
     fontSize: 14,
     color: "#000",

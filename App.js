@@ -11,6 +11,7 @@ import {
   ApolloProvider,
   createHttpLink,
 } from "@apollo/client";
+import Toast from "react-native-toast-message";
 
 const httpLink = createHttpLink({
   uri: "https://pincodekart.com/api/graphql",
@@ -78,6 +79,7 @@ export default function App() {
   return (
       <NavigationContainer>
         <AppNavigator />
+        
       </NavigationContainer>
   );
 }

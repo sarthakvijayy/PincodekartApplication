@@ -39,20 +39,15 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
   );
   const discountedTotal = Math.max(0, total - appliedDiscount);
 
-  const [createOrder, { loading: placingOrder }] = useMutation(
-    CREATE_ORDER,
-    {
-      onCompleted: (data) => {
-        Alert.alert("Success", "Order placed successfully!");
-        navigation.replace("OrderConfirmedScreen", {
-          orderData: data.createOrder,
-        });
-      },
-      onError: (err) => {
-        Alert.alert("Error", err.message);
-      },
-    }
-  );
+  const [createOrder, { loading: placingOrder }] = useMutation(CREATE_ORDER, {
+    onCompleted: (data) => {
+      // Alert.alert("Success", "Order placed successfully!");
+      navigation.replace("OrderConfirmedScreen", { orderData: data.createOrder });
+    },
+    onError: (err) => {
+      // Alert.alert("Error", err.message);
+    },
+  });
 
   const {
     data: verifyCouponData,
@@ -64,11 +59,11 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
 
   const handlePlaceOrder = async () => {
     if (!selectedMethod) {
-      Alert.alert("Error", "Please select a payment method.");
+      // Alert.alert("Error", "Please select a payment method.");
       return;
     }
     if (!addressId) {
-      Alert.alert("Error", "Address is missing");
+      // Alert.alert("Error", "Address is missing");
       return;
     }
 
@@ -88,7 +83,7 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
         },
       });
     } catch (error) {
-      Alert.alert("Error", error.message);
+      // Alert.alert("Error", error.message);
     }
   };
 
@@ -104,7 +99,7 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
         setCouponError("Invalid Coupon!");
         setAppliedDiscount(response?.discountAmount || 0);
         setCouponApplied(false);
-        Alert.alert("Invalid", "Please enter a valid coupon code.");
+        // Alert.alert("Invalid", "Please enter a valid coupon code.");
       } else {
         setCouponError("Valid Coupon!");
         setAppliedDiscount(response?.discountAmount || 0);
@@ -113,7 +108,7 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
       }
     } catch (err) {
       setCouponError("Error verifying coupon.");
-      Alert.alert("Error", "Please try again.");
+      // Alert.alert("Error", "Please try again.");
     }
   };
 
