@@ -1,17 +1,28 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  FlatList,
+  ScrollView,
   ActivityIndicator,
   TouchableOpacity,
 } from "react-native";
+import RNPickerSelect from "react-native-picker-select";
 import { useQuery } from "@apollo/client";
 import { GET_CART, GET_ADDRESS_QUERY } from "../graphql/queries";
 import { CartItemCard } from "./CartScreen";
 
 const OrderSummaryScreen = ({ selectedAddressId, onProceed }) => {
+  const [selectedSlot, setSelectedSlot] = useState("09AM - 10AM");
+
+  const deliverySlots = [
+    { label: "09AM - 10AM", value: "09AM - 10AM" },
+    { label: "10AM - 11AM", value: "10AM - 11AM" },
+    { label: "11AM - 12PM", value: "11AM - 12PM" },
+    { label: "12PM - 01PM", value: "12PM - 01PM" },
+    { label: "04PM - 06PM", value: "04PM - 06PM" },
+  ];
+
   const {
     data: addressData,
     loading: addressLoading,
@@ -37,10 +48,6 @@ const OrderSummaryScreen = ({ selectedAddressId, onProceed }) => {
   const shippingFee = subtotal >= 500 ? 0 : 40;
   const total = subtotal - discount + shippingFee;
 
-  const renderItem = ({ item }) => (
-    <CartItemCard item={item} isSummary={true} />
-  );
-
   if (cartLoading || addressLoading) {
     return (
       <View style={styles.center}>
@@ -64,63 +71,74 @@ const OrderSummaryScreen = ({ selectedAddressId, onProceed }) => {
 
   return (
     <View style={styles.container}>
-      {/* ✅ Deliver To Section */}
-      <View style={styles.addressCard}>
-        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+      <ScrollView contentContainerStyle={{ paddingBottom: 120 }}>
+        {/* ✅ Deliver To Section */}
+        <View style={styles.addressCard}>
           <Text style={styles.deliverLabel}>Deliver to</Text>
-          {/* <TouchableOpacity onPress={() => onProceed?.(0)}>
-            <Text style={styles.editBtn}>Change Address</Text>
-          </TouchableOpacity> */}
-        </View>
-        <Text style={styles.addressName}>
-          {address?.fullName || "No Name"}{" "}
-          {address?.tag && (
-            <Text style={styles.addressTag}>{address?.tag}</Text>
-          )}
-        </Text>
-        <Text style={styles.addressText}>
-          {address?.addressLine1}, {address?.addressLine2}
-        </Text>
-        <Text style={styles.addressText}>
-          {address?.city}, {address?.state} - {address?.pincode}
-        </Text>
-        <Text style={styles.addressText}>{address?.country}</Text>
-      </View>
-
-      {/* 🛒 Cart Products */}
-      <FlatList
-        data={cartItems}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={renderItem}
-        contentContainerStyle={{ paddingBottom: 100 }}
-      />
-
-      {/* 💵 Order Price Breakdown */}
-      <View style={styles.priceSection}>
-        <View style={styles.priceRow}>
-          <Text style={styles.label}>Price</Text>
-          <Text style={styles.value}>₹{subtotal.toFixed(2)}</Text>
-        </View>
-
-        <View style={styles.priceRow}>
-          <Text style={styles.label}>Discount</Text>
-          <Text style={[styles.value, { color: "green" }]}>
-            - ₹{discount.toFixed(2)}
+          <Text style={styles.addressName}>
+            {address?.fullName || "No Name"}{" "}
+            {address?.tag && <Text style={styles.addressTag}>{address?.tag}</Text>}
           </Text>
-        </View>
-
-        <View style={styles.priceRow}>
-          <Text style={styles.label}>Delivery Fee</Text>
-          <Text style={styles.value}>
-            {shippingFee === 0 ? "Free" : `₹${shippingFee.toFixed(2)}`}
+          <Text style={styles.addressText}>
+            {address?.addressLine1}, {address?.addressLine2}
           </Text>
+          <Text style={styles.addressText}>
+            {address?.city}, {address?.state} - {address?.pincode}
+          </Text>
+          <Text style={styles.addressText}>{address?.country}</Text>
         </View>
 
-        <View style={styles.totalWrapper}>
-          <Text style={styles.totalLabel}>Total Amount</Text>
-          <Text style={styles.totalAmount}>₹{total.toFixed(2)}</Text>
+        {/* 🛒 Cart Products */}
+        <View style={styles.cartItemsWrapper}>
+          {cartItems.map((item, index) => (
+            <CartItemCard key={index} item={item} isSummary={true} />
+          ))}
         </View>
-      </View>
+
+          <View style={styles.priceSection}>
+          <View style={styles.priceRow}>
+            <Text style={styles.label}>Price</Text>
+            <Text style={styles.value}>₹{subtotal.toFixed(2)}</Text>
+          </View>
+
+          <View style={styles.priceRow}>
+            <Text style={styles.label}>Discount</Text>
+            <Text style={[styles.value, { color: "green" }]}>
+              - ₹{discount.toFixed(2)}
+            </Text>
+          </View>
+
+          <View style={styles.priceRow}>
+            <Text style={styles.label}>Delivery Fee</Text>
+            <Text style={styles.value}>
+              {shippingFee === 0 ? "Free" : `₹${shippingFee.toFixed(2)}`}
+            </Text>
+          </View>
+
+          <View style={styles.totalWrapper}>
+            <Text style={styles.totalLabel}>Total Amount</Text>
+            <Text style={styles.totalAmount}>₹{total.toFixed(2)}</Text>
+          </View>
+        </View>
+
+        {/* 📦 Delivery Slot */}
+        <View style={styles.slotContainer}>
+          <Text style={styles.slotLabel}>Choose the delivery time slot</Text>
+          <View style={styles.slotPicker}>
+            <RNPickerSelect
+              onValueChange={(value) => setSelectedSlot(value)}
+              items={deliverySlots}
+              value={selectedSlot}
+              useNativeAndroidPickerStyle={true} // ✅ This ensures native dropdown, not modal
+              placeholder={{}}
+              style={pickerSelectStyles}
+            />
+          </View>
+        </View>
+
+        {/* 💵 Price Breakdown */}
+      
+      </ScrollView>
 
       {/* 🔵 Proceed Button */}
       <TouchableOpacity style={styles.button} onPress={onProceed}>
@@ -135,26 +153,20 @@ export default OrderSummaryScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
     backgroundColor: "#fff",
   },
   addressCard: {
     padding: 14,
+    margin: 16,
     borderRadius: 10,
     backgroundColor: "#fff",
     borderWidth: 1,
     borderColor: "#ccc",
-    marginBottom: 16,
   },
   deliverLabel: {
     fontSize: 14,
     color: "#444",
     fontFamily: "Poppins-Medium",
-  },
-  editBtn: {
-    fontSize: 13,
-    color: "#3D5AFE",
-    fontFamily: "Poppins-SemiBold",
   },
   addressName: {
     fontSize: 13,
@@ -175,12 +187,36 @@ const styles = StyleSheet.create({
     marginTop: 2,
     fontFamily: "Poppins-Regular",
   },
+  cartItemsWrapper: {
+    paddingHorizontal: 16,
+    marginBottom: 10,
+  },
+  slotContainer: {
+    padding: 10,
+    margin: 10,
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    borderColor: "#ccc",
+    borderWidth: 1,
+  },
+  slotLabel: {
+    fontFamily: "Poppins-SemiBold",
+    fontSize: 15,
+    marginBottom: 10,
+  },
+  slotPicker: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 10,
+    // paddingHorizontal: 10,
+  },
   priceSection: {
+    marginHorizontal: 16,
     marginTop: 10,
-    marginBottom: 60,
     borderTopWidth: 1,
     borderColor: "#eee",
     paddingTop: 16,
+    marginBottom: 20,
   },
   priceRow: {
     flexDirection: "row",
@@ -235,3 +271,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
+
+const pickerSelectStyles = {
+  inputIOS: {
+    fontSize: 14,
+    fontFamily: "Poppins-Regular",
+    color: "#333",
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    width: "100%",
+  },
+  inputAndroid: {
+    fontSize: 14,
+    fontFamily: "Poppins-Regular",
+    color: "#333",
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    width: "100%",
+  },
+};

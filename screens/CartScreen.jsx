@@ -10,7 +10,7 @@ import {
   Image,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, AntDesign } from "@expo/vector-icons";
 import { useQuery, useMutation } from "@apollo/client";
 import { GET_CART, GET_PRODUCT } from "../graphql/queries";
 import { UPDATE_CART, REMOVE_FROM_CART } from "../graphql/mutations";
@@ -111,6 +111,8 @@ const CartScreen = () => {
     <View style={styles.container}>
       <CartHeader />
 
+      <View style={{ height: 10 }} />
+
       <FlatList
         data={cartItems}
         keyExtractor={(item, index) =>
@@ -125,7 +127,7 @@ const CartScreen = () => {
             removeFromCart={removeFromCart}
           />
         )}
-        contentContainerStyle={{ paddingBottom: 120 }}
+        contentContainerStyle={{ paddingBottom: 130 }}
         ListEmptyComponent={
           <View style={styles.center}>
             <Text style={styles.emptyText}>
@@ -186,7 +188,6 @@ export const CartItemCard = ({
   });
 
   if (loading) return <ActivityIndicator style={{ padding: 16 }} />;
-
   if (error) return <Text>Error loading product</Text>;
 
   const product = data?.getProduct;
@@ -202,46 +203,73 @@ export const CartItemCard = ({
   const imageUrl = variantImage || product?.previewImage;
 
   return (
-    <View style={styles.cardContainer}>
-      <Image source={{ uri: imageUrl }} style={styles.productImage} />
+ <View style={styles.cardContainer}>
+  <Image source={{ uri: imageUrl }} style={styles.productImage} />
 
-      <View style={styles.productDetails}>
+  <View style={styles.productDetails}>
+    <TouchableOpacity
+      style={styles.trashIcon}
+      onPress={() => removeFromCart(item)}
+    >
+      <Ionicons name="trash-outline" size={20} color="#FF3E3E" />
+    </TouchableOpacity>
+
+    <Text style={styles.brandName}>{product?.brand || "Brand"}</Text>
+    <Text numberOfLines={2} style={styles.productTitle}>
+      {product?.productName}
+    </Text>
+    {/* <Text style={styles.sellerText}>Selling by: LuxeDazzle</Text> */}
+
+    <Text style={styles.badge}>
+      Size: {item.size}    
+      </Text>
+
+     <Text style={styles.badge}>
+           Qty: {item.quantity}
+      </Text>
+
+    <View style={styles.bottomRow}>
+      <View style={styles.priceRow}>
+        <Text style={styles.sellingPrice}>₹{price}</Text>
+        <Text style={styles.mrp}>₹{product?.price || price + 400}</Text>
+        <Text style={styles.discount}>30% OFF</Text>
+      </View>
+
+    
+    </View>
+
+    <Text style={styles.greenDelivery}>Open Box Delivery</Text>
+    <Text style={styles.deliveryBy}>Delivery by 24 Oct 2024</Text>
+      <View style={styles.qtyWrapper}>
         <TouchableOpacity
-          style={styles.trashIcon}
-          onPress={() => removeFromCart(item)}
+          onPress={() => updateQuantity(item, qty - 1)}
+          style={styles.qtyBtn}
         >
-          <Ionicons name="trash-outline" size={20} color="#FF3E3E" />
+          <AntDesign name="minus" size={14} color="#000" />
+      </TouchableOpacity>
+       <Text style={styles.qtyNumber}>{qty}</Text>
+
+      <TouchableOpacity
+          onPress={() => updateQuantity(item, qty + 1)}
+          style={styles.qtyBtn}
+        >
+         
+          <AntDesign name="plus" size={14} color="#000" />
         </TouchableOpacity>
 
-        <Text style={styles.brandName}>
-          {product?.brand || "Brand"}
-        </Text>
+               
 
-        <Text numberOfLines={2} style={styles.productTitle}>
-          {product?.productName}
-        </Text>
-
-        <Text style={styles.sellerText}>Selling by : LuxeDazzle</Text>
-
-        <View style={styles.badgeRow}>
-          <Text style={styles.badge}>Size: {item.size}</Text>
-          <Text style={styles.badge}>Qty: {qty}</Text>
-        </View>
-
-        <View style={styles.priceRow}>
-          <Text style={styles.sellingPrice}>₹{price}</Text>
-          <Text style={styles.mrp}>
-            ₹{product?.price || price + 400}
-          </Text>
-          <Text style={styles.discount}>30% OFF</Text>
-        </View>
-
-        <Text style={styles.greenDelivery}>Open Box Delivery</Text>
-        <Text style={styles.deliveryBy}>Delivery by 24 Oct 2024</Text>
+        
       </View>
-    </View>
+  </View>
+</View>
+
   );
 };
+
+
+
+
 
 const styles = StyleSheet.create({
   container: {
@@ -338,11 +366,11 @@ const styles = StyleSheet.create({
     marginVertical: 4,
   },
   badge: {
-    backgroundColor: "#F1F1F1",
-    paddingHorizontal: 8,
+    backgroundColor: "#FFF",
+    // paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 4,
-    fontSize: 11,
+    fontSize: 12,
     fontFamily: "Poppins-Regular",
     color: "#333",
   },
@@ -350,7 +378,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-    marginTop: 4,
+    // marginTop: 4,
   },
   sellingPrice: {
     fontSize: 14,
@@ -392,6 +420,39 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontFamily: "Poppins-Medium",
   },
+   qtyWrapper: {
+  flexDirection: "row",
+  alignItems: "center",
+  gap: 10,
+  // backgroundColor: "#f0f0f0",
+  // borderRadius: 20,
+  paddingHorizontal: 10,
+  paddingVertical: 4,
+},
+
+qtyBtn: {
+  backgroundColor: "#f0f0f0",
+  padding: 5,
+  borderRadius: 20,
+  color: "#000",
+  
+},
+
+qtyNumber: {
+  fontSize: 14,
+  color: "#000",
+  fontFamily: "Poppins-SemiBold",
+  paddingHorizontal: 6,
+},
+bottomRow: {
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginTop: 10,
+},
+
+
 });
+
 
 export default CartScreen;
