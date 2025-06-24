@@ -32,7 +32,10 @@ const CartScreen = () => {
 
   const updateQuantity = async (item, newQty) => {
     if (newQty < 1) {
-      Alert.alert("Invalid Quantity", "Quantity cannot be less than 1");
+      Alert.alert(
+        "Invalid Quantity",
+        "Quantity cannot be less than 1"
+      );
       return;
     }
     try {
@@ -64,7 +67,10 @@ const CartScreen = () => {
   const cartItems = data?.getCart?.cartProducts || [];
 
   const getTotalItems = () =>
-    cartItems.reduce((total, item) => total + (item.quantity ?? 1), 0);
+    cartItems.reduce(
+      (total, item) => total + (item.quantity ?? 1),
+      0
+    );
 
   const getTotalPrice = () =>
     cartItems.reduce((total, item) => {
@@ -84,7 +90,9 @@ const CartScreen = () => {
   if (error) {
     return (
       <View style={styles.center}>
-        <Text style={{ color: "#333", fontSize: 16, marginBottom: 10 }}>
+        <Text
+          style={{ color: "#333", fontSize: 16, marginBottom: 10 }}
+        >
           You are not logged in.
         </Text>
         <TouchableOpacity
@@ -106,7 +114,9 @@ const CartScreen = () => {
       <FlatList
         data={cartItems}
         keyExtractor={(item, index) =>
-          `${item.productId}_${item.size ?? ""}_${item.variantName ?? ""}_${index}`
+          `${item.productId}_${item.size ?? ""}_${
+            item.variantName ?? ""
+          }_${index}`
         }
         renderItem={({ item }) => (
           <CartItemCard
@@ -118,13 +128,17 @@ const CartScreen = () => {
         contentContainerStyle={{ paddingBottom: 120 }}
         ListEmptyComponent={
           <View style={styles.center}>
-            <Text style={styles.emptyText}>🛒 Your cart is empty.</Text>
+            <Text style={styles.emptyText}>
+              🛒 Your cart is empty.
+            </Text>
           </View>
         }
       />
 
       <View style={styles.summaryContainer}>
-        <Text style={styles.summaryText}>Total Items: {getTotalItems()}</Text>
+        <Text style={styles.summaryText}>
+          Total Items: {getTotalItems()}
+        </Text>
         <Text style={styles.summaryText}>
           Total Price: ₹{totalPrice.toFixed(2)}
         </Text>
@@ -133,19 +147,26 @@ const CartScreen = () => {
           style={styles.clearButton}
           onPress={() => {
             if (cartItems.length === 0) {
-              Alert.alert("Cart Empty", "Please add a product to place order.");
+              Alert.alert(
+                "Cart Empty",
+                "Please add a product to place order."
+              );
               return;
+            } else {
+              navigation.navigate("MyOrdersScreen");
             }
 
-            Alert.alert("Place Order", "Are you sure you want to place the order?", [
-              { text: "Cancel", style: "cancel" },
-              {
-                text: "OK",
-                onPress: () => {
-                  navigation.navigate("MyOrdersScreen");
-                },
-              },
-            ]);
+            // navigation.navigate("PaymentScreen");
+
+            // Alert.alert("Place Order", "Are you sure you want to place the order?", [
+            //   { text: "Cancel", style: "cancel" },
+            //   {
+            //     text: "OK",
+            // onPress: () => {
+            //   navigation.navigate("MyOrdersScreen");
+            // },
+            //   },
+            // ]);
           }}
         >
           <Text style={styles.clearButtonText}>Place Order</Text>
@@ -155,7 +176,11 @@ const CartScreen = () => {
   );
 };
 
-export const CartItemCard = ({ item, updateQuantity, removeFromCart }) => {
+export const CartItemCard = ({
+  item,
+  updateQuantity,
+  removeFromCart,
+}) => {
   const { data, loading, error } = useQuery(GET_PRODUCT, {
     variables: { getProductId: item.productId },
   });
@@ -188,7 +213,9 @@ export const CartItemCard = ({ item, updateQuantity, removeFromCart }) => {
           <Ionicons name="trash-outline" size={20} color="#FF3E3E" />
         </TouchableOpacity>
 
-        <Text style={styles.brandName}>{product?.brand || "Brand"}</Text>
+        <Text style={styles.brandName}>
+          {product?.brand || "Brand"}
+        </Text>
 
         <Text numberOfLines={2} style={styles.productTitle}>
           {product?.productName}
@@ -203,7 +230,9 @@ export const CartItemCard = ({ item, updateQuantity, removeFromCart }) => {
 
         <View style={styles.priceRow}>
           <Text style={styles.sellingPrice}>₹{price}</Text>
-          <Text style={styles.mrp}>₹{product?.price || price + 400}</Text>
+          <Text style={styles.mrp}>
+            ₹{product?.price || price + 400}
+          </Text>
           <Text style={styles.discount}>30% OFF</Text>
         </View>
 

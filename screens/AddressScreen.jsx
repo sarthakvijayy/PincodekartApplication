@@ -20,11 +20,16 @@ import {
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useRoute } from "@react-navigation/native";
 
-const AddressScreen = ({ selectedAddressId, setSelectedAddressId, onProceed }) => {
+const AddressScreen = ({
+  selectedAddressId,
+  setSelectedAddressId,
+  onProceed,
+}) => {
   const route = useRoute();
   const [isEdit, setIsEdit] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const [addressValidationError, setAddressValidationError] = useState(false);
+  const [addressValidationError, setAddressValidationError] =
+    useState(false);
   const [formErrors, setFormErrors] = useState({});
   const [form, setForm] = useState({
     fullName: "",
@@ -41,9 +46,12 @@ const AddressScreen = ({ selectedAddressId, setSelectedAddressId, onProceed }) =
   const updateSelectedAddressId =
     route?.params?.setSelectedAddressId || setSelectedAddressId;
 
-  const { data, loading, error, refetch } = useQuery(GET_ALL_ADDRESS_QUERY, {
-    variables: { page: 0, take: 10 },
-  });
+  const { data, loading, error, refetch } = useQuery(
+    GET_ALL_ADDRESS_QUERY,
+    {
+      variables: { page: 0, take: 10 },
+    }
+  );
 
   const [updateAddress] = useMutation(UPDATE_ADDRESS, {
     onCompleted: () => {
@@ -61,7 +69,10 @@ const AddressScreen = ({ selectedAddressId, setSelectedAddressId, onProceed }) =
     const newErrors = {};
     Object.keys(form).forEach((key) => {
       if (!form[key]) {
-        newErrors[key] = `* ${key.replace(/([A-Z])/g, " $1")} is required`;
+        newErrors[key] = `* ${key.replace(
+          /([A-Z])/g,
+          " $1"
+        )} is required`;
       }
     });
     setFormErrors(newErrors);
@@ -141,7 +152,10 @@ const AddressScreen = ({ selectedAddressId, setSelectedAddressId, onProceed }) =
     const isSelected = selectedAddressId === item?.id;
     return (
       <TouchableOpacity
-        style={[styles.cardContainer, isSelected && styles.selectedCard]}
+        style={[
+          styles.cardContainer,
+          isSelected && styles.selectedCard,
+        ]}
         onPress={() => {
           setSelectedAddressId(item?.id);
           updateSelectedAddressId(item?.id);
@@ -151,14 +165,18 @@ const AddressScreen = ({ selectedAddressId, setSelectedAddressId, onProceed }) =
         <View style={styles.cardHeader}>
           <View style={styles.radioNameWrapper}>
             <Ionicons
-              name={isSelected ? "radio-button-on" : "radio-button-off"}
+              name={
+                isSelected ? "radio-button-on" : "radio-button-off"
+              }
               size={20}
               color="#007BFF"
             />
             <Text style={styles.nameText}>{item?.fullName}</Text>
-            <View style={styles.tag}>
-              <Text style={styles.tagText}>{item?.tag || "Home"}</Text>
-            </View>
+            {/* <View style={styles.tag}>
+              <Text style={styles.tagText}>
+                {item?.tag || "Home"}
+              </Text>
+            </View> */}
           </View>
 
           <View style={{ flexDirection: "row", gap: 12 }}>
@@ -175,29 +193,37 @@ const AddressScreen = ({ selectedAddressId, setSelectedAddressId, onProceed }) =
                   pincode: item?.pincode?.toString() || "",
                   state: item?.state || "",
                   country: item?.country || "",
-                  tag: item?.tag || "Home",
+                  // tag: item?.tag || "Home",
                 });
                 setIsEdit(true);
                 setModalVisible(true);
               }}
             >
-              <Ionicons name="pencil-outline" size={20} color="#007BFF" />
+              <Ionicons
+                name="pencil-outline"
+                size={20}
+                color="#007BFF"
+              />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => handleAddressDelete(item?.id)}>
+            <TouchableOpacity
+              onPress={() => handleAddressDelete(item?.id)}
+            >
               <Ionicons name="trash" size={20} color="red" />
             </TouchableOpacity>
           </View>
         </View>
 
         <Text style={styles.addressText}>
-          {item?.addressLine1}, {item?.addressLine2}, {item?.city}, {item?.state}, {item?.country} - {item?.pincode}
+          {item?.addressLine1}, {item?.addressLine2}, {item?.city},{" "}
+          {item?.state}, {item?.country} - {item?.pincode}
         </Text>
       </TouchableOpacity>
     );
   };
 
   if (loading) return <ActivityIndicator style={{ marginTop: 20 }} />;
-  if (error) return <Text style={{ color: "red" }}>{error.message}</Text>;
+  if (error)
+    return <Text style={{ color: "red" }}>{error.message}</Text>;
 
   return (
     <View style={styles.container}>
@@ -241,24 +267,48 @@ const AddressScreen = ({ selectedAddressId, setSelectedAddressId, onProceed }) =
                 {isEdit ? "Edit Address" : "Add New Address"}
               </Text>
 
-              <View style={{ flexDirection: "row", justifyContent: "space-around", marginVertical: 12 }}>
-                {["Home", "Office", "Work"].map((tagOption) => (
+              {/* <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-around",
+                  marginVertical: 12,
+                }}
+              >
+                {["Home"].map((tagOption) => (
                   <TouchableOpacity
                     key={tagOption}
-                    onPress={() => setForm({ ...form, tag: tagOption })}
-                    style={{ flexDirection: "row", alignItems: "center" }}
+                    onPress={() =>
+                      setForm({ ...form, tag: tagOption })
+                    }
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                    }}
                   >
                     <Ionicons
-                      name={form.tag === tagOption ? "radio-button-on" : "radio-button-off"}
+                      name={
+                        form.tag === tagOption
+                          ? "radio-button-on"
+                          : "radio-button-off"
+                      }
                       size={18}
                       color="#007BFF"
                     />
                     <Text style={{ marginLeft: 6 }}>{tagOption}</Text>
                   </TouchableOpacity>
                 ))}
-              </View>
+              </View> */}
 
-              {["fullName", "mobileNo", "addressLine1", "addressLine2", "city", "pincode", "state", "country"].map((key) => (
+              {[
+                "fullName",
+                "mobileNo",
+                "addressLine1",
+                "addressLine2",
+                "city",
+                "pincode",
+                "state",
+                "country",
+              ].map((key) => (
                 <View key={key} style={{ marginBottom: 12 }}>
                   <TextInput
                     placeholder={key.replace(/([A-Z])/g)}
@@ -269,11 +319,15 @@ const AddressScreen = ({ selectedAddressId, setSelectedAddressId, onProceed }) =
                       setFormErrors({ ...formErrors, [key]: "" });
                     }}
                     keyboardType={
-                      ["pincode", "mobileNo"].includes(key) ? "numeric" : "default"
+                      ["pincode", "mobileNo"].includes(key)
+                        ? "numeric"
+                        : "default"
                     }
                   />
                   {formErrors[key] && (
-                    <Text style={styles.errorText}>{formErrors[key]}</Text>
+                    <Text style={styles.errorText}>
+                      {formErrors[key]}
+                    </Text>
                   )}
                 </View>
               ))}

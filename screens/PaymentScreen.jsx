@@ -227,6 +227,7 @@ const PaymentScreen = ({ addressId }) => {
                     setAppliedDiscount(
                       refetchResult?.varifyCoupon?.discountAmount || 0
                     );
+                    setCouponModalVisible(false);
                   }
                 } catch (error) {
                   Alert.alert(
