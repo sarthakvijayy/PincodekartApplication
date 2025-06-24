@@ -60,7 +60,10 @@ const CartScreen = () => {
   const cartItems = data?.getCart?.cartProducts || [];
 
   const getTotalItems = () =>
-    cartItems.reduce((total, item) => total + (item.quantity ?? 1), 0);
+    cartItems.reduce(
+      (total, item) => total + (item.quantity ?? 1),
+      0
+    );
 
   const getTotalPrice = () =>
     cartItems.reduce((total, item) => {
@@ -80,7 +83,9 @@ const CartScreen = () => {
   if (error) {
     return (
       <View style={styles.center}>
-        <Text style={{ color: "#333", fontSize: 16, marginBottom: 10 }}>
+        <Text
+          style={{ color: "#333", fontSize: 16, marginBottom: 10 }}
+        >
           You are not logged in.
         </Text>
         <TouchableOpacity
@@ -104,7 +109,9 @@ const CartScreen = () => {
       <FlatList
         data={cartItems}
         keyExtractor={(item, index) =>
-          `${item.productId}_${item.size ?? ""}_${item.variantName ?? ""}_${index}`
+          `${item.productId}_${item.size ?? ""}_${
+            item.variantName ?? ""
+          }_${index}`
         }
         renderItem={({ item }) => (
           <CartItemCard
@@ -116,39 +123,28 @@ const CartScreen = () => {
         contentContainerStyle={{ paddingBottom: 130 }}
         ListEmptyComponent={
           <View style={styles.center}>
-            <Text style={styles.emptyText}>🛒 Your cart is empty.</Text>
+            <Text style={styles.emptyText}>
+              🛒 Your cart is empty.
+            </Text>
           </View>
         }
       />
 
       <View style={styles.summaryContainer}>
-        <Text style={styles.summaryText}>Total Items: {getTotalItems()}</Text>
+        <Text style={styles.summaryText}>
+          Total Items: {getTotalItems()}
+        </Text>
         <Text style={styles.summaryText}>
           Total Price: ₹{totalPrice.toFixed(2)}
         </Text>
 
         <TouchableOpacity
-<<<<<<< Updated upstream
-          style={styles.clearButton}
-          onPress={() => {
-            if (cartItems.length === 0) {
-              Alert.alert(
-                "Cart Empty",
-                "Please add a product to place order."
-              );
-              return;
-            } else {
-              navigation.navigate("MyOrdersScreen");
-            }
-          }}
-=======
           style={[
             styles.clearButton,
             cartItems.length === 0 && { opacity: 0.4 },
           ]}
           disabled={cartItems.length === 0}
           onPress={() => navigation.navigate("MyOrdersScreen")}
->>>>>>> Stashed changes
         >
           <Text style={styles.clearButtonText}>Place Order</Text>
         </TouchableOpacity>
@@ -387,29 +383,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-<<<<<<< Updated upstream
-    // backgroundColor: "#f0f0f0",
-    // borderRadius: 20,
     paddingHorizontal: 10,
     paddingVertical: 4,
   },
-
-=======
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-  },
->>>>>>> Stashed changes
   qtyBtn: {
     backgroundColor: "#f0f0f0",
     padding: 5,
     borderRadius: 20,
-<<<<<<< Updated upstream
-    color: "#000",
   },
-
-=======
-  },
->>>>>>> Stashed changes
   qtyNumber: {
     fontSize: 14,
     color: "#000",
