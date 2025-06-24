@@ -1,21 +1,22 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ScrollView, Image, Dimensions, StyleSheet, View } from 'react-native';
+import { ScrollView, Image, Dimensions, StyleSheet, View, ActivityIndicator } from 'react-native';
+import { useQuery } from '@apollo/client';
+import { GET_ALL_HOME_PAGE_SLIDERS } from '../../graphql/queries';
 
 const { width } = Dimensions.get('window');
-
-const banners = [
-  require('../../assets/banners/banner.png'),
-  require('../../assets/Gifts/Gbanner.png'),
-  require('../../assets/DOD/dodbanner.png'),
-  require('../../assets/Bike/bikebanner.png'),
-];
 
 const HomeBanner = () => {
   const scrollViewRef = useRef(null);
   const currentIndexRef = useRef(0);
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  const { data, loading, error } = useQuery(GET_ALL_HOME_PAGE_SLIDERS);
+
+  const banners = data?.getAllHomePageSlider || [];
+
   useEffect(() => {
+    if (!banners.length) return;
+
     const interval = setInterval(() => {
       const nextIndex = (currentIndexRef.current + 1) % banners.length;
       scrollViewRef.current?.scrollTo({ x: nextIndex * width, animated: true });
@@ -24,13 +25,29 @@ const HomeBanner = () => {
     }, 3000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [banners]);
 
   const handleScroll = (event) => {
     const newIndex = Math.round(event.nativeEvent.contentOffset.x / width);
     currentIndexRef.current = newIndex;
     setCurrentIndex(newIndex);
   };
+
+  if (loading) {
+    return (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color="#2A55E5" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>Failed to load banners.</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -43,8 +60,12 @@ const HomeBanner = () => {
         scrollEventThrottle={16}
       >
         {banners.map((item, index) => (
-          <View key={index} style={styles.bannerWrapper}>
-            <Image source={item} style={styles.bannerImage} resizeMode="cover" />
+          <View key={item.id || index} style={styles.bannerWrapper}>
+            <Image
+              source={{ uri: item.image }}
+              style={styles.bannerImage}
+              resizeMode="cover"
+            />
             <View style={styles.pagination}>
               {banners.map((_, i) => (
                 <View
@@ -63,8 +84,24 @@ const HomeBanner = () => {
   );
 };
 
+export default HomeBanner;
+
 const styles = StyleSheet.create({
   container: {},
+  loaderContainer: {
+    height: 200,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {
+    height: 200,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    fontSize: 14,
+    color: '#888',
+  },
   bannerWrapper: {
     width,
     height: 190,
@@ -95,5 +132,3 @@ const styles = StyleSheet.create({
     height: 8,
   },
 });
-
-export default HomeBanner;

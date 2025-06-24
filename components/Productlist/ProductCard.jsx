@@ -6,7 +6,6 @@ import {
   Image,
   TouchableOpacity,
   Share,
-  Alert,
   ActivityIndicator,
   useWindowDimensions,
 } from "react-native";
@@ -41,26 +40,14 @@ const ProductCard = ({
       onCompleted: (data) => {
         if (data?.removeFromWishlist?.success) {
           setIsWishlisted(false);
-          // Alert.alert("Removed from Wishlist");
-        } else {
-          // Alert.alert(
-          //   "Error",
-          //   data?.removeFromWishlist?.message || "Could not remove"
-          // );
         }
-      },
-      onError: () => {
-        // Alert.alert("Error", "Could not remove from wishlist");
       },
     }
   );
 
   const handleWishlistToggle = async () => {
     const email = await AsyncStorage.getItem("email");
-    if (!email) {
-      // Alert.alert("Login Required", "Please login to manage wishlist");
-      return;
-    }
+    if (!email) return;
 
     if (isWishlisted) {
       removeFromWishlist({ variables: { productId: id } });
@@ -77,7 +64,7 @@ const ProductCard = ({
     <TouchableOpacity
       onPress={() => navigation.navigate("ProductDetail", { id })}
       activeOpacity={0.9}
-      style={[styles.cardContainer, { maxWidth: width / 2 - 18 }]}
+      style={[styles.cardContainer, { width: width / 2 - 14 }]} // Responsive
     >
       <View style={styles.card}>
         <Text style={styles.sponsored}>Pincodekart</Text>
@@ -107,7 +94,6 @@ const ProductCard = ({
         </View>
 
         <Image source={imageSource} style={styles.productImage} />
-
         <Text style={styles.rating}>⭐ {rating}</Text>
 
         <Text style={styles.title} numberOfLines={2}>
@@ -131,8 +117,8 @@ export default ProductCard;
 
 const styles = StyleSheet.create({
   cardContainer: {
-    flex: 1,
     margin: 6,
+    flexGrow: 1,
   },
   card: {
     backgroundColor: "#fff",
@@ -161,7 +147,7 @@ const styles = StyleSheet.create({
   },
   productImage: {
     width: "100%",
-    height: 130,
+    height: 140,
     borderRadius: 8,
     resizeMode: "cover",
     marginTop: 16,

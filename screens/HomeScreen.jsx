@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import Header from '../components/HomeScreen/Header';
+import ProductHeader from '../components/Productlist/ProductHeader';
 import BottomNav from '../components/HomeScreen/BottomNav';
 import BannerCarousel from '../components/HomeScreen/BannerCarousel';
 import FeatureRow from '../components/HomeScreen/FeatureRow';
@@ -31,41 +32,62 @@ import Bikes from '../components/HomeScreen/Bike';
 import Cycles from '../components/HomeScreen/Cycles';
 import Pet from '../components/HomeScreen/Pet';
 
-// Use functional references, not JSX
 const sections = [
   { key: 'banner', component: BannerCarousel },
   { key: 'feature', component: FeatureRow },
-  { key: 'deals', component: DealsSection }, //Done
-  { key: 'fashion', component: FashionTalkSection },//Done
-  { key: 'dealsOfDay', component: DealsOfDaySection }, //Done
-  { key: 'laptops', component: Laptops },//done
-  { key: 'womenFoot', component: WomenFoot }, //done
-  { key: 'fruits', component: FruitsAndVeg }, //done
-  { key: 'kids', component: Kids }, //done
-  { key: 'wellness', component: Wellness },// done
-  { key: 'mobiles', component: Mobiles }, //Done
-  { key: 'kitchen', component: Kitchens }, //Done
-  { key: 'decor', component: HomeDecor }, //Done
-  { key: 'stationary', component: Stationary }, //Done
-  { key: 'medicines', component: Medicines }, //Done
-  { key: 'sports', component: Sports }, //Done
-  { key: 'kidsFootwear', component: KidsFootwear }, //Done
-  { key: 'cosmetics', component: Cosmatics }, //Done
-  { key: 'toys', component: Toys }, //Done
-  { key: 'jewellery', component: Jewellery }, //Done
-  { key: 'furniture', component: Furniture }, //Done
-  { key: 'carAccesories', component: CarAccesories }, //Done
-  { key: 'cars', component: Cars }, //Done
-  { key: 'nursery', component: Nursery },  //Done
-  { key: 'gifts', component: Gifts }, //Done
-  { key: 'bikes', component: Bikes }, //Done
-  { key: 'cycles', component: Cycles }, //Done
+  { key: 'deals', component: DealsSection },
+  { key: 'fashion', component: FashionTalkSection },
+  { key: 'dealsOfDay', component: DealsOfDaySection },
+  { key: 'laptops', component: Laptops },
+  { key: 'womenFoot', component: WomenFoot },
+  { key: 'fruits', component: FruitsAndVeg },
+  { key: 'kids', component: Kids },
+  { key: 'wellness', component: Wellness },
+  { key: 'mobiles', component: Mobiles },
+  { key: 'kitchen', component: Kitchens },
+  { key: 'decor', component: HomeDecor },
+  { key: 'stationary', component: Stationary },
+  { key: 'medicines', component: Medicines },
+  { key: 'sports', component: Sports },
+  { key: 'kidsFootwear', component: KidsFootwear },
+  { key: 'cosmetics', component: Cosmatics },
+  { key: 'toys', component: Toys },
+  { key: 'jewellery', component: Jewellery },
+  { key: 'furniture', component: Furniture },
+  { key: 'carAccesories', component: CarAccesories },
+  { key: 'cars', component: Cars },
+  { key: 'nursery', component: Nursery },
+  { key: 'gifts', component: Gifts },
+  { key: 'bikes', component: Bikes },
+  { key: 'cycles', component: Cycles },
   { key: 'pet', component: Pet },
 ];
 
 const HomeScreen = () => {
+  const [showStickyHeader, setShowStickyHeader] = useState(false);
+  const lastOffset = useRef(0);
+
+  const handleScroll = (event) => {
+    const currentOffset = event.nativeEvent.contentOffset.y;
+
+    // Instant reaction
+    if (currentOffset > 100) {
+      setShowStickyHeader(currentOffset < lastOffset.current); // Scroll up = show
+    } else {
+      setShowStickyHeader(false); // Show full header at top
+    }
+
+    lastOffset.current = currentOffset;
+  };
+
   return (
     <View style={styles.screenContainer}>
+      {showStickyHeader && (
+        <View style={styles.stickyHeaderContainer}>
+          <ProductHeader />
+        </View>
+      )}
+
       <FlatList
         ListHeaderComponent={<Header />}
         data={sections}
@@ -75,12 +97,14 @@ const HomeScreen = () => {
         }}
         keyExtractor={(item) => item.key}
         showsVerticalScrollIndicator={false}
-        initialNumToRender={6}
-        maxToRenderPerBatch={6}
-        windowSize={10}
-        updateCellsBatchingPeriod={50}
+        scrollEventThrottle={7} // ✅ Faster scroll detection
+        onScroll={handleScroll}
+        initialNumToRender={1} // ✅ Render faster
+        maxToRenderPerBatch={4}
+        windowSize={6}
         contentContainerStyle={{ paddingBottom: 100 }}
       />
+
       <View style={styles.bottomNavContainer}>
         <BottomNav />
       </View>
@@ -94,6 +118,20 @@ const styles = StyleSheet.create({
   screenContainer: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  stickyHeaderContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 999,
+    backgroundColor: '#fff',
+    padding: 10,
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
   },
   bottomNavContainer: {
     position: 'absolute',

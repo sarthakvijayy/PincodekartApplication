@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Dimensions,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 import AddressScreen from "./AddressScreen";
 import OrderSummaryScreen from "./OrderSummaryScreen";
@@ -44,8 +45,8 @@ const MyOrdersScreen = () => {
         return (
           <PaymentScreen
             addressId={selectedAddressId}
-            setCurrentStep={setCurrentStep}
             selectedSlot={selectedSlot}
+            setCurrentStep={setCurrentStep} // 👈 Passed for step control from inside
           />
         );
       case 3:
@@ -55,16 +56,27 @@ const MyOrdersScreen = () => {
     }
   };
 
-  const handleStepClick = (index) => {
-    // aap chahe to step click se bhi jump karwa sakte ho
-    setCurrentStep(index);
+  const handleGoBack = () => {
+    if (currentStep > 0) {
+      setCurrentStep((prev) => prev - 1);
+    }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>My Orders</Text>
+      {/* Header with Back Arrow and Title */}
+      <View style={styles.headerRow}>
+        <TouchableOpacity onPress={handleGoBack} style={styles.backBtn}>
+          <Ionicons
+            name="arrow-back"
+            size={24}
+            color={currentStep === 0 ? "transparent" : "#000"}
+          />
+        </TouchableOpacity>
+        <Text style={styles.title}>My Orders</Text>
+      </View>
 
-      {/* Step progress bar */}
+      {/* Step Progress Indicator */}
       <View style={styles.stepContainer}>
         {steps.map((step, index) => {
           const isActive = index === currentStep;
@@ -83,11 +95,7 @@ const MyOrdersScreen = () => {
                   ]}
                 />
               )}
-              <TouchableOpacity
-                style={styles.stepWrapper}
-                // onPress={() => handleStepClick(index)}
-                activeOpacity={0.7}
-              >
+              <TouchableOpacity style={styles.stepWrapper}>
                 <View
                   style={[
                     styles.circle,
@@ -106,9 +114,7 @@ const MyOrdersScreen = () => {
                   ]}
                 >
                   {isCompleted ? (
-                    <Text
-                      style={{ color: "white", fontWeight: "bold" }}
-                    >
+                    <Text style={{ color: "#fff", fontWeight: "bold" }}>
                       ✓
                     </Text>
                   ) : isActive ? (
@@ -132,18 +138,8 @@ const MyOrdersScreen = () => {
         })}
       </View>
 
-      {/* Step content */}
+      {/* Step Content */}
       {renderStepContent()}
-
-      {/* Next button */}
-      {/* {currentStep !== 2 && currentStep < steps.length - 1 && (
-        <TouchableOpacity
-          style={styles.nextBtn}
-          onPress={() => setCurrentStep(currentStep + 1)}
-        >
-          <Text style={styles.nextText}>Next</Text>
-        </TouchableOpacity>
-      )} */}
     </View>
   );
 };
@@ -154,10 +150,23 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 16,
-    paddingTop: 48,
+    paddingTop: 32,
     backgroundColor: "#fff",
   },
-  title: { fontSize: 20, fontWeight: "600", marginBottom: 24 },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  backBtn: {
+    padding: 6,
+    marginRight: 8,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#000",
+  },
   stepContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -196,18 +205,5 @@ const styles = StyleSheet.create({
     fontSize: 10,
     marginTop: 6,
     textAlign: "center",
-  },
-  nextBtn: {
-    marginTop: 24,
-    marginBottom: 24,
-    backgroundColor: "#3D5AFE",
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  nextText: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "600",
   },
 });

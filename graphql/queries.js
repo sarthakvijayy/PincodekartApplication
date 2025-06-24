@@ -371,3 +371,16 @@ export const VERIFY_COUPON = gql`
     }
   }
 `;
+
+
+export const GET_ALL_HOME_PAGE_SLIDERS = gql`
+query GetAllHomePageSlider {
+  getAllHomePageSlider {
+    id
+    image
+    url
+    contant
+    createdAt
+    updatedAt
+  }
+}`;

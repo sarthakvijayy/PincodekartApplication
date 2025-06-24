@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   TextInput,
   StyleSheet,
+  width,
 } from 'react-native';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { useNavigation } from "@react-navigation/native";
@@ -144,15 +145,15 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   searchBar: {
-    marginTop: 35,
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    flexDirection: 'row',
+   flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 5,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    marginTop: 20,
     height: 45,
-    width: 360,
-    marginLeft: 30,
+    width: width - 32, // Full width minus padding
+    alignSelf: 'center',
   },
   searchInput: {
     flex: 1,

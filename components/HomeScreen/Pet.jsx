@@ -34,7 +34,7 @@ const Cycles = () => {
   );
 
   const handlePress = (id) => {
-    navigation.navigate('ProductDetailScreen', { id });
+    navigation.navigate('ProductDetail', { id : id });
   };
 
   if (catLoading || productLoading) {
@@ -56,7 +56,7 @@ const Cycles = () => {
   }
 
   const banner = catData?.getCategory?.categoryImage;
-  const bannerList = [banner, banner, banner]; // You can later replace with different images
+  const bannerList = [banner, banner, banner];
   const products = productData?.getProductsByCat || [];
 
   return (

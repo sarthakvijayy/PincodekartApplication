@@ -16,7 +16,6 @@ import { GET_PRODUCTS_BY_CATEGORY, GET_CATEGORY_BY_ID } from '../../graphql/quer
 
 const { width } = Dimensions.get('window');
 const BANNER_HEIGHT = 180;
-
 const CATEGORY_ID = "6703c845a24ddf9a40b16c37";
 
 const DealsSection = () => {
@@ -33,8 +32,11 @@ const DealsSection = () => {
     }
   );
 
-  const handlePress = (id) => {
-    navigation.navigate('ProductDetailScreen');
+  const handlePress = (item) => {
+    navigation.navigate('ProductDetail', {
+      id: item.id,
+      productData: item,
+    });
   };
 
   if (catLoading || productLoading) {
@@ -56,7 +58,7 @@ const DealsSection = () => {
   }
 
   const banner = catData?.getCategory?.categoryImage;
-  const bannerList = [banner, banner, banner]; 
+  const bannerList = [banner, banner, banner];
   const products = productData?.getProductsByCat || [];
 
   return (
@@ -89,7 +91,11 @@ const DealsSection = () => {
           decelerationRate="fast"
         >
           {products.slice(0, 5).map((item) => (
-            <TouchableOpacity key={item.id} style={styles.dealCard} onPress={() => navigation.navigate('ProductDetailScreen')}>
+            <TouchableOpacity
+              key={item.id}
+              style={styles.dealCard}
+              onPress={() => handlePress(item)}
+            >
               <Image
                 source={{ uri: item?.variant?.[0]?.images?.[0] || item.previewImage }}
                 style={styles.dealImage}

@@ -39,7 +39,9 @@ const Kids = () => {
   });
 
   const handlePress = (id) => {
-    navigation.navigate('ProductDetailScreen', { id });
+    navigation.navigate('ProductDetail', { 
+      id : id,
+     });
   };
 
   if (catLoading || productLoading) {

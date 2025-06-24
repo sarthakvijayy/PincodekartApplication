@@ -26,7 +26,9 @@ const { width } = Dimensions.get("window");
 
 const ProductDetailScreen = ({ route }) => {
   const { id } = route.params;
-  // let id = ""
+  
+
+  
 
   const { loading, error, data } = useQuery(GET_PRODUCT, {
     variables: { getProductId: id },
@@ -70,34 +72,49 @@ const ProductDetailScreen = ({ route }) => {
       ? selectedSizeVariant.images
       : selectedColorVariant?.images || [];
 
-  const handleAddToCart = async () => {
-    const payload = {
-      productId: id,
-      quantity: 1,
-      variantName: selectedColorVariant.variantName,
-      size:
-        typeof selectedSizeVariant === "object"
-          ? selectedSizeVariant.size[0]
-          : selectedSizeVariant,
-      price: parseFloat(selectedColorVariant?.mrpPrice) || 0,
-    };
-
-    try {
-      await addCart({ variables: payload });
-      Toast.show("Added to cart successfully", {
-        duration: Toast.durations.SHORT,
-        position: Toast.positions.BOTTOM,
-        shadow: true,
-        animation: true,
-        hideOnPress: true,
-        message: "Added to cart successfully",
-      });
-    }
-     catch (error) {
-      console.log("Error in add to cart", error);
-      
-    }
+ const handleAddToCart = async () => {
+  const payload = {
+    productId: id,
+    quantity: 1,
+    variantName: selectedColorVariant.variantName,
+    size:
+      typeof selectedSizeVariant === "object"
+        ? selectedSizeVariant.size[0]
+        : selectedSizeVariant,
+    price: parseFloat(selectedColorVariant?.mrpPrice) || 0,
   };
+
+  try {
+    await addCart({ variables: payload });
+
+    // ✅ Success toast
+    Toast.show('🛒 Product added to cart!', {
+      duration: Toast.durations.SHORT,
+      position: Toast.positions.BOTTOM,
+      shadow: true,
+      animation: true,
+      hideOnPress: true,
+      backgroundColor: '#4CAF50',
+      textColor: '#fff',
+      opacity: 1,
+    });
+  } catch (error) {
+    console.error("Add to cart error:", error);
+
+    // ❌ Error toast
+    Toast.show('⚠️ Failed to add to cart', {
+      duration: Toast.durations.SHORT,
+      position: Toast.positions.BOTTOM,
+      shadow: true,
+      animation: true,
+      hideOnPress: true,
+      backgroundColor: '#f44336',
+      textColor: '#fff',
+      opacity: 1,
+    });
+  }
+};
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -286,7 +303,7 @@ const styles = StyleSheet.create({
     width: width,
     height: 500,
     resizeMode: "cover",
-    marginTop: 40,
+    marginTop: 'fit-content',
   },
   sliderDots: {
     flexDirection: "row",

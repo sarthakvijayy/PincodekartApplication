@@ -65,12 +65,7 @@ const ProductHeader = ({
         style={styles.headerGradient}
       >
         <View style={styles.headerRow}>
-          <Ionicons
-            name="arrow-back"
-            size={22}
-            color="#fff"
-            onPress={() => navigation.goBack()}
-          />
+          
           <View style={styles.searchContainer}>
             <Ionicons
               name="search"
@@ -102,68 +97,6 @@ const ProductHeader = ({
         </View>
       </LinearGradient>
 
-      {/* Category Modal */}
-      <Modal
-        isVisible={isCategoryModalVisible}
-        onBackdropPress={closeCategoryModal}
-        swipeDirection="down"
-        onSwipeComplete={closeCategoryModal}
-        backdropOpacity={0.4}
-        style={styles.modal}
-      >
-        <View style={styles.modalContent}>
-          <View style={styles.dragIndicator} />
-          <Text style={styles.modalTitle}>{selectedCategory}</Text>
-
-          {productsByCategory[selectedCategory]?.length > 0 ? (
-            <ScrollView showsVerticalScrollIndicator={false}>
-              {productsByCategory[selectedCategory].map((item) => (
-                <View key={item.id} style={styles.productCard}>
-                  <Image
-                    source={{ uri: item.image }}
-                    style={styles.productImage}
-                  />
-                  <View style={styles.productInfo}>
-                    <Text style={styles.brand}>{item.brand}</Text>
-                    <Text style={styles.title}>{item.title}</Text>
-                    <Text style={styles.price}>
-                      ₹{item.price}{" "}
-                      <Text style={styles.originalPrice}>
-                        ₹{item.originalPrice}
-                      </Text>{" "}
-                      <Text style={styles.discount}>
-                        {item.discount}% off
-                      </Text>
-                    </Text>
-                  </View>
-                </View>
-              ))}
-            </ScrollView>
-          ) : (
-            <Text style={styles.emptyText}>
-              No products available in this category.
-            </Text>
-          )}
-        </View>
-      </Modal>
-
-      {/* Filter Modal */}
-      <Modal
-        isVisible={isFilterModalVisible}
-        onBackdropPress={closeFilterModal}
-        swipeDirection="down"
-        onSwipeComplete={closeFilterModal}
-        backdropOpacity={0.4}
-        style={styles.modal}
-      >
-        <View style={styles.modalContent}>
-          <View style={styles.dragIndicator} />
-          <Text style={styles.modalTitle}>{selectedFilter}</Text>
-          <Text style={styles.emptyText}>
-            Filter options coming soon...
-          </Text>
-        </View>
-      </Modal>
     </>
   );
 };
@@ -177,7 +110,7 @@ const styles = StyleSheet.create({
   left: 0,
   right: 0,
   zIndex: 100, // ensures it stays above scroll content
-  paddingTop: 50,
+  paddingTop: 30,
   paddingBottom: 16,
   paddingHorizontal: 9,
   elevation: 10, // Android shadow

@@ -4,7 +4,6 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  Alert,
   ActivityIndicator,
   Modal,
   TextInput,
@@ -23,6 +22,7 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
   const [ushopId, setUshopId] = useState("");
   const [couponError, setCouponError] = useState("");
   const [couponApplied, setCouponApplied] = useState(false);
+  const [orderError, setOrderError] = useState("");
 
   const navigation = useNavigation();
 
@@ -41,16 +41,14 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
 
   const [createOrder, { loading: placingOrder }] = useMutation(CREATE_ORDER, {
     onCompleted: (data) => {
-      // Alert.alert("Success", "Order placed successfully!");
       navigation.replace("OrderConfirmedScreen", { orderData: data.createOrder });
     },
     onError: (err) => {
-      // Alert.alert("Error", err.message);
+      setOrderError(err.message || "Failed to place order.");
     },
   });
 
   const {
-    data: verifyCouponData,
     refetch: verifyCouponRefetch,
     loading: verifyCouponLoading,
   } = useQuery(VERIFY_COUPON, {
@@ -58,12 +56,15 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
   });
 
   const handlePlaceOrder = async () => {
+    setOrderError(""); // reset previous errors
+
     if (!selectedMethod) {
-      // Alert.alert("Error", "Please select a payment method.");
+      setOrderError("Please select a payment method.");
       return;
     }
+
     if (!addressId) {
-      // Alert.alert("Error", "Address is missing");
+      setOrderError("Delivery address is missing.");
       return;
     }
 
@@ -83,7 +84,7 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
         },
       });
     } catch (error) {
-      // Alert.alert("Error", error.message);
+      setOrderError(error.message || "Failed to place order. Please try again.");
     }
   };
 
@@ -97,9 +98,8 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
 
       if (response?.msg === "Invalid Coupon!") {
         setCouponError("Invalid Coupon!");
-        setAppliedDiscount(response?.discountAmount || 0);
+        setAppliedDiscount(0);
         setCouponApplied(false);
-        // Alert.alert("Invalid", "Please enter a valid coupon code.");
       } else {
         setCouponError("Valid Coupon!");
         setAppliedDiscount(response?.discountAmount || 0);
@@ -108,7 +108,6 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
       }
     } catch (err) {
       setCouponError("Error verifying coupon.");
-      // Alert.alert("Error", "Please try again.");
     }
   };
 
@@ -148,13 +147,11 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
         </View>
         <View style={styles.row}>
           <Text style={styles.totalLabel}>Grand Total</Text>
-          <Text style={styles.totalValue}>
-            ₹{discountedTotal.toFixed(2)}
-          </Text>
+          <Text style={styles.totalValue}>₹{discountedTotal.toFixed(2)}</Text>
         </View>
       </View>
 
-      {/* Coupon Section */}
+      {/* Coupon Button */}
       <TouchableOpacity
         style={styles.couponBtn}
         onPress={() => setCouponModalVisible(true)}
@@ -173,9 +170,7 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>
-              Enter Coupon Details
-            </Text>
+            <Text style={styles.modalTitle}>Enter Coupon Details</Text>
             <TextInput
               style={styles.input}
               placeholder="Coupon Code"
@@ -191,34 +186,22 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
             {couponError ? (
               <Text
                 style={{
-                  color:
-                    couponError === "Valid Coupon!" ? "green" : "red",
+                  color: couponError === "Valid Coupon!" ? "green" : "red",
                   marginBottom: 10,
                 }}
               >
                 {couponError}
               </Text>
             ) : null}
-            <TouchableOpacity
-              style={styles.applyBtn}
-              onPress={applyCoupon}
-            >
+            <TouchableOpacity style={styles.applyBtn} onPress={applyCoupon}>
               {verifyCouponLoading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
                 <Text style={styles.applyBtnText}>Apply Coupon</Text>
               )}
             </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => setCouponModalVisible(false)}
-            >
-              <Text
-                style={{
-                  color: "red",
-                  marginTop: 12,
-                  textAlign: "center",
-                }}
-              >
+            <TouchableOpacity onPress={() => setCouponModalVisible(false)}>
+              <Text style={{ color: "red", marginTop: 12, textAlign: "center" }}>
                 Cancel
               </Text>
             </TouchableOpacity>
@@ -226,7 +209,7 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
         </View>
       </Modal>
 
-      {/* Payment Methods */}
+      {/* Payment Method Selection */}
       <Text style={[styles.sectionTitle, { marginTop: 24 }]}>
         Payment Method
       </Text>
@@ -245,15 +228,18 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
               selectedMethod === method && styles.radioCircleSelected,
             ]}
           >
-            {selectedMethod === method && (
-              <View style={styles.innerCircle} />
-            )}
+            {selectedMethod === method && <View style={styles.innerCircle} />}
           </View>
           <Text style={styles.radioText}>{method}</Text>
         </TouchableOpacity>
       ))}
 
-      {/* Place Order */}
+      {/* 🟥 Show Error Message in Red */}
+      {orderError !== "" && (
+        <Text style={styles.errorText}>{orderError}</Text>
+      )}
+
+      {/* Place Order Button */}
       <TouchableOpacity
         style={[
           styles.placeOrderBtn,
@@ -371,6 +357,13 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  errorText: {
+    color: "red",
+    fontSize: 14,
+    marginTop: 10,
+    textAlign: "center",
+    fontWeight: "500",
   },
   modalOverlay: {
     flex: 1,
