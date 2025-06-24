@@ -127,13 +127,6 @@ const CartScreen = () => {
           Total Price: ₹{totalPrice.toFixed(2)}
         </Text>
 
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-          }}
-        ></View>
-
         <TouchableOpacity
 <<<<<<< Updated upstream
           style={styles.clearButton}
