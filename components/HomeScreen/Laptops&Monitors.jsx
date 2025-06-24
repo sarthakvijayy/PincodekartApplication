@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FF5722',
     borderRadius: 10,
     overflow: 'hidden',
-    marginBottom: 16,
+    // marginBottom: 7,
     elevation: 3,
     shadowColor: '#000',
     shadowOpacity: 0.1,

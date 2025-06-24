@@ -131,7 +131,7 @@ const Header = () => {
         />
 
         <TextInput
-          placeholder="Search for products, brands and more"
+          placeholder="Search for products."
           placeholderTextColor="#666"
           style={styles.searchInput}
         />

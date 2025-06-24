@@ -134,9 +134,9 @@ const styles = StyleSheet.create({
   },
   dealCard: {
     width: 140,
-    backgroundColor: '#E0E0E0',
+    marginRight: 16,
+    backgroundColor: '#ffffff',
     borderRadius: 10,
-    marginHorizontal: 6,
     overflow: 'hidden',
     elevation: 3,
     shadowColor: '#000',
@@ -149,17 +149,17 @@ const styles = StyleSheet.create({
     height: 120,
   },
   dealInfo: {
-    padding: 8,
+    padding: 10,
     alignItems: 'center',
   },
   dealTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
     color: '#333',
     textAlign: 'center',
   },
   dealDiscount: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#184977',
     marginTop: 4,
     fontWeight: 'bold',

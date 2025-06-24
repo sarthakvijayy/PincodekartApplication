@@ -8,7 +8,7 @@ import {
   Share,
   Alert,
   ActivityIndicator,
-  Dimensions,
+  useWindowDimensions,
 } from "react-native";
 import { AntDesign, Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -18,9 +18,6 @@ import {
   ADD_TO_WISHLIST,
   REMOVE_FROM_WISHLIST,
 } from "../../graphql/mutations";
-
-const screenWidth = Dimensions.get("window").width;
-const CARD_WIDTH = (screenWidth - 48) / 2; 
 
 const ProductCard = ({
   id,
@@ -35,6 +32,7 @@ const ProductCard = ({
 }) => {
   const [isWishlisted, setIsWishlisted] = useState(initialWishlisted);
   const navigation = useNavigation();
+  const { width } = useWindowDimensions();
 
   const [addToWishlist, { loading: adding }] = useMutation(ADD_TO_WISHLIST);
   const [removeFromWishlist, { loading: removing }] = useMutation(
@@ -47,8 +45,7 @@ const ProductCard = ({
         } else {
           Alert.alert(
             "Error",
-            data?.removeFromWishlist?.message ||
-              "Could not remove from wishlist"
+            data?.removeFromWishlist?.message || "Could not remove"
           );
         }
       },
@@ -73,32 +70,26 @@ const ProductCard = ({
     }
   };
 
-  const loading = adding || removing;
   const imageSource = typeof image === "string" ? { uri: image } : image;
+  const loading = adding || removing;
 
   return (
     <TouchableOpacity
       onPress={() => navigation.navigate("ProductDetail", { id })}
       activeOpacity={0.9}
+      style={[styles.cardContainer, { maxWidth: width / 2 - 18 }]}
     >
       <View style={styles.card}>
         <Text style={styles.sponsored}>Pincodekart</Text>
 
         <View style={styles.iconRow}>
-          <TouchableOpacity
-            onPress={handleWishlistToggle}
-            disabled={loading}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            accessibilityLabel={
-              isWishlisted ? "Remove from wishlist" : "Add to wishlist"
-            }
-          >
+          <TouchableOpacity onPress={handleWishlistToggle} disabled={loading}>
             {loading ? (
               <ActivityIndicator size="small" color="red" />
             ) : (
               <AntDesign
                 name={isWishlisted ? "heart" : "hearto"}
-                size={22}
+                size={20}
                 color={isWishlisted ? "red" : "#555"}
               />
             )}
@@ -107,18 +98,18 @@ const ProductCard = ({
           <TouchableOpacity
             onPress={() =>
               Share.share({
-                message: `Check out this product: ${title} for ₹${originalPrice}`,
+                message: `Check this out: ${title} for ₹${originalPrice}`,
               })
             }
-            style={styles.shareIcon}
           >
-            <Feather name="share-2" size={22} color="#555" />
+            <Feather name="share-2" size={20} color="#555" />
           </TouchableOpacity>
         </View>
 
         <Image source={imageSource} style={styles.productImage} />
 
         <Text style={styles.rating}>⭐ {rating}</Text>
+
         <Text style={styles.title} numberOfLines={2}>
           {title}
         </Text>
@@ -139,22 +130,24 @@ const ProductCard = ({
 export default ProductCard;
 
 const styles = StyleSheet.create({
+  cardContainer: {
+    flex: 1,
+    margin: 6,
+  },
   card: {
     backgroundColor: "#fff",
     borderRadius: 10,
-    margin: 6,
     padding: 10,
-    width: CARD_WIDTH,
     minHeight: 280,
     justifyContent: "space-between",
-    elevation: 3,
+    elevation: 2,
     shadowColor: "#000",
     shadowOpacity: 0.08,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
   },
   sponsored: {
-    fontSize: 12,
+    fontSize: 11,
     color: "#000",
     fontFamily: "Poppins_400Regular",
   },
@@ -166,21 +159,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 10,
   },
-  shareIcon: {
-    marginLeft: 12,
-  },
   productImage: {
     width: "100%",
     height: 130,
     borderRadius: 8,
     resizeMode: "cover",
-    marginTop: 12,
+    marginTop: 16,
   },
   rating: {
     fontSize: 12,
     color: "#4CAF50",
     fontFamily: "Poppins_500Medium",
-    marginTop: 4,
+    marginTop: 6,
   },
   title: {
     fontSize: 13,
@@ -201,19 +191,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#000",
     fontFamily: "Poppins_700Bold",
-    marginRight: 6,
-  },
-  originalPrice: {
-    fontSize: 13,
-    color: "#888",
-    textDecorationLine: "line-through",
-    fontFamily: "Poppins_400Regular",
-    marginRight: 6,
-  },
-  discount: {
-    fontSize: 12,
-    color: "#00A000",
-    fontFamily: "Poppins_500Medium",
   },
   labels: {
     flexDirection: "row",

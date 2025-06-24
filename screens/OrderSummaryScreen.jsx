@@ -5,77 +5,112 @@ import {
   StyleSheet,
   FlatList,
   ActivityIndicator,
+  TouchableOpacity,
 } from "react-native";
 import { useQuery } from "@apollo/client";
-import { GET_CART } from "../graphql/queries";
+import { GET_CART, GET_ADDRESS_QUERY } from "../graphql/queries";
 import { CartItemCard } from "./CartScreen";
 
-const OrderSummaryScreen = ({ route }) => {
-  const addressId = route?.params?.addressId;
+const OrderSummaryScreen = ({ selectedAddressId, onProceed }) => {
+  const {
+    data: addressData,
+    loading: addressLoading,
+    error: addressError,
+  } = useQuery(GET_ADDRESS_QUERY, {
+    variables: { getAddressId: selectedAddressId },
+    skip: !selectedAddressId,
+  });
 
-  const { data, loading: cartLoading, error: cartError } = useQuery(GET_CART);
+  const {
+    data: cartData,
+    loading: cartLoading,
+    error: cartError,
+  } = useQuery(GET_CART);
 
-  const cartItems = data?.getCart?.cartProducts || [];
+  const cartItems = cartData?.getCart?.cartProducts || [];
 
-  if (cartLoading) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#3D5AFE" />
-        <Text>Loading cart...</Text>
-      </View>
-    );
-  }
-
-  if (cartError) {
-    return (
-      <View style={styles.center}>
-        <Text style={{ color: "red" }}>
-          Failed to load cart: {cartError.message}
-        </Text>
-      </View>
-    );
-  }
+  const subtotal = cartItems.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0
+  );
+  const discount = 50;
+  const shippingFee = subtotal >= 500 ? 0 : 40;
+  const total = subtotal - discount + shippingFee;
 
   const renderItem = ({ item }) => (
     <CartItemCard item={item} isSummary={true} />
   );
 
-  
-  const subtotal = cartItems.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0
-  );
+  if (cartLoading || addressLoading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color="#3D5AFE" />
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
 
-  const discount = 50; 
-  const shippingFee = subtotal >= 500 ? 0 : 40;
-  const total = subtotal - discount + shippingFee;
+  if (cartError || addressError) {
+    return (
+      <View style={styles.center}>
+        <Text style={{ color: "red" }}>
+          {cartError?.message || addressError?.message}
+        </Text>
+      </View>
+    );
+  }
+
+  const address = addressData?.getAddress;
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Order Summary</Text>
+      {/* ✅ Deliver To Section */}
+      <View style={styles.addressCard}>
+        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+          <Text style={styles.deliverLabel}>Deliver to</Text>
+          {/* <TouchableOpacity onPress={() => onProceed?.(0)}>
+            <Text style={styles.editBtn}>Change Address</Text>
+          </TouchableOpacity> */}
+        </View>
+        <Text style={styles.addressName}>
+          {address?.fullName || "No Name"}{" "}
+          {address?.tag && (
+            <Text style={styles.addressTag}>{address?.tag}</Text>
+          )}
+        </Text>
+        <Text style={styles.addressText}>
+          {address?.addressLine1}, {address?.addressLine2}
+        </Text>
+        <Text style={styles.addressText}>
+          {address?.city}, {address?.state} - {address?.pincode}
+        </Text>
+        <Text style={styles.addressText}>{address?.country}</Text>
+      </View>
 
+      {/* 🛒 Cart Products */}
       <FlatList
         data={cartItems}
         keyExtractor={(item, index) => index.toString()}
         renderItem={renderItem}
-        contentContainerStyle={{ paddingBottom: 20 }}
+        contentContainerStyle={{ paddingBottom: 100 }}
       />
 
+      {/* 💵 Order Price Breakdown */}
       <View style={styles.priceSection}>
         <View style={styles.priceRow}>
-          <Text style={styles.label}>Subtotal</Text>
+          <Text style={styles.label}>Price</Text>
           <Text style={styles.value}>₹{subtotal.toFixed(2)}</Text>
         </View>
 
         <View style={styles.priceRow}>
           <Text style={styles.label}>Discount</Text>
-          <Text style={[styles.value, { color: "#2e7d32" }]}>
+          <Text style={[styles.value, { color: "green" }]}>
             - ₹{discount.toFixed(2)}
           </Text>
         </View>
 
         <View style={styles.priceRow}>
-          <Text style={styles.label}>Shipping Fee</Text>
+          <Text style={styles.label}>Delivery Fee</Text>
           <Text style={styles.value}>
             {shippingFee === 0 ? "Free" : `₹${shippingFee.toFixed(2)}`}
           </Text>
@@ -86,6 +121,11 @@ const OrderSummaryScreen = ({ route }) => {
           <Text style={styles.totalAmount}>₹{total.toFixed(2)}</Text>
         </View>
       </View>
+
+      {/* 🔵 Proceed Button */}
+      <TouchableOpacity style={styles.button} onPress={onProceed}>
+        <Text style={styles.buttonText}>Proceed to Payment</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -94,21 +134,53 @@ export default OrderSummaryScreen;
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     padding: 16,
     backgroundColor: "#fff",
-    flex: 1,
   },
-  title: {
-    fontSize: 20,
-    fontFamily: "Poppins-SemiBold",
+  addressCard: {
+    padding: 14,
+    borderRadius: 10,
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#ccc",
     marginBottom: 16,
+  },
+  deliverLabel: {
+    fontSize: 14,
+    color: "#444",
+    fontFamily: "Poppins-Medium",
+  },
+  editBtn: {
+    fontSize: 13,
+    color: "#3D5AFE",
+    fontFamily: "Poppins-SemiBold",
+  },
+  addressName: {
+    fontSize: 13,
+    marginTop: 6,
+    fontFamily: "Poppins-SemiBold",
+  },
+  addressTag: {
+    fontSize: 12,
+    backgroundColor: "#E0E0E0",
     color: "#333",
+    paddingHorizontal: 6,
+    marginLeft: 6,
+    borderRadius: 4,
+  },
+  addressText: {
+    fontSize: 11,
+    color: "#555",
+    marginTop: 2,
+    fontFamily: "Poppins-Regular",
   },
   priceSection: {
-    marginTop: 12,
-    paddingTop: 12,
+    marginTop: 10,
+    marginBottom: 60,
     borderTopWidth: 1,
     borderColor: "#eee",
+    paddingTop: 16,
   },
   priceRow: {
     flexDirection: "row",
@@ -116,32 +188,46 @@ const styles = StyleSheet.create({
     marginVertical: 4,
   },
   label: {
-    fontSize: 15,
+    fontSize: 14,
     fontFamily: "Poppins-Regular",
     color: "#666",
   },
   value: {
-    fontSize: 15,
+    fontSize: 14,
     fontFamily: "Poppins-Medium",
     color: "#333",
   },
   totalWrapper: {
-    borderTopWidth: 1,
-    borderColor: "#ccc",
-    paddingTop: 10,
-    marginTop: 10,
     flexDirection: "row",
     justifyContent: "space-between",
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderColor: "#ccc",
+    marginTop: 10,
   },
   totalLabel: {
     fontSize: 16,
     fontFamily: "Poppins-SemiBold",
-    color: "#000",
   },
   totalAmount: {
     fontSize: 18,
     fontFamily: "Poppins-Bold",
     color: "#000",
+  },
+  button: {
+    position: "absolute",
+    bottom: 16,
+    left: 16,
+    right: 16,
+    backgroundColor: "#3D5AFE",
+    paddingVertical: 14,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#fff",
+    fontFamily: "Poppins-SemiBold",
+    fontSize: 16,
   },
   center: {
     flex: 1,

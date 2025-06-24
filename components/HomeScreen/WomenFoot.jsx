@@ -117,13 +117,15 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   cardsContainer: {
-    paddingHorizontal: 10,
+    paddingLeft: 15,
+    paddingTop: 5,
+    paddingRight: 4,
   },
   dealCard: {
     width: 140,
-    backgroundColor: '#E0E0E0',
+    marginRight: 16,
+    backgroundColor: '#ffffff',
     borderRadius: 10,
-    marginHorizontal: 10,
     overflow: 'hidden',
     elevation: 3,
     shadowColor: '#000',
@@ -136,7 +138,7 @@ const styles = StyleSheet.create({
     height: 120,
   },
   dealInfo: {
-    padding: 8,
+    padding: 10,
     alignItems: 'center',
   },
   dealTitle: {

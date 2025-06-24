@@ -1,14 +1,23 @@
 import React from "react";
-import {View,Text,FlatList,StyleSheet,TouchableOpacity,Alert,ActivityIndicator,Image,} from "react-native";
-import { useNavigation, navigation} from "@react-navigation/native";
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+  ActivityIndicator,
+  Image,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
-import CartHeader from "./CartHeader";
 import { useQuery, useMutation } from "@apollo/client";
 import { GET_CART, GET_PRODUCT } from "../graphql/queries";
 import { UPDATE_CART, REMOVE_FROM_CART } from "../graphql/mutations";
+import CartHeader from "./CartHeader";
 
 const CartScreen = () => {
-   const navigation = useNavigation();
+  const navigation = useNavigation();
   const { loading, error, data, refetch } = useQuery(GET_CART);
 
   const [updateCartMutation] = useMutation(UPDATE_CART, {
@@ -23,10 +32,7 @@ const CartScreen = () => {
 
   const updateQuantity = async (item, newQty) => {
     if (newQty < 1) {
-      Alert.alert(
-        "Invalid Quantity",
-        "Quantity cannot be less than 1"
-      );
+      Alert.alert("Invalid Quantity", "Quantity cannot be less than 1");
       return;
     }
     try {
@@ -55,15 +61,10 @@ const CartScreen = () => {
     }
   };
 
-  
-
   const cartItems = data?.getCart?.cartProducts || [];
 
   const getTotalItems = () =>
-    cartItems.reduce(
-      (total, item) => total + (item.quantity ?? 1),
-      0
-    );
+    cartItems.reduce((total, item) => total + (item.quantity ?? 1), 0);
 
   const getTotalPrice = () =>
     cartItems.reduce((total, item) => {
@@ -74,52 +75,38 @@ const CartScreen = () => {
 
   if (loading) {
     return (
-      <View style={styles.emptyContainer}>
-        <ActivityIndicator size="large" color="#007bff" />
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color="#3D5AFE" />
       </View>
     );
   }
 
   if (error) {
     return (
-      // <View style={styles.emptyContainer}>
-      //   <Text style={styles.emptyText}>
-      //     Failed to load cart items.
-      //   </Text>
-      //   <TouchableOpacity onPress={() => refetch()}>
-      //     <Text style={{ color: "#007bff", marginTop: 10 }}>
-      //       Try Again
-      //     </Text>
-      //   </TouchableOpacity>
-      // </View>
-
-       <View style={styles.center}>
-              <Text style={{ color: "#333", fontSize: 16, marginBottom: 10 }}>
-                You are not logged in.
-              </Text>
-              <TouchableOpacity
-                style={styles.detailsBtn}
-                onPress={() => navigation.replace("LoginScreen")}
-              >
-                <Text style={styles.detailsText}>Go to Login</Text>
-              </TouchableOpacity>
-            </View>
+      <View style={styles.center}>
+        <Text style={{ color: "#333", fontSize: 16, marginBottom: 10 }}>
+          You are not logged in.
+        </Text>
+        <TouchableOpacity
+          style={styles.detailsBtn}
+          onPress={() => navigation.replace("LoginScreen")}
+        >
+          <Text style={styles.detailsText}>Go to Login</Text>
+        </TouchableOpacity>
+      </View>
     );
   }
-
-  
 
   const totalPrice = getTotalPrice();
 
   return (
     <View style={styles.container}>
       <CartHeader />
+
       <FlatList
         data={cartItems}
         keyExtractor={(item, index) =>
-          `${item.productId}_${item.size ?? ""}_${
-            item.variantName ?? ""
-          }_${index}`
+          `${item.productId}_${item.size ?? ""}_${item.variantName ?? ""}_${index}`
         }
         renderItem={({ item }) => (
           <CartItemCard
@@ -130,18 +117,14 @@ const CartScreen = () => {
         )}
         contentContainerStyle={{ paddingBottom: 120 }}
         ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>
-              🛒 Your cart is empty.
-            </Text>
+          <View style={styles.center}>
+            <Text style={styles.emptyText}>🛒 Your cart is empty.</Text>
           </View>
         }
       />
 
       <View style={styles.summaryContainer}>
-        <Text style={styles.summaryText}>
-          Total Items: {getTotalItems()}
-        </Text>
+        <Text style={styles.summaryText}>Total Items: {getTotalItems()}</Text>
         <Text style={styles.summaryText}>
           Total Price: ₹{totalPrice.toFixed(2)}
         </Text>
@@ -149,26 +132,21 @@ const CartScreen = () => {
         <TouchableOpacity
           style={styles.clearButton}
           onPress={() => {
-  if (cartItems.length === 0) {
-    Alert.alert("Cart Empty", "Please add a product to place order.");
-    return;
-  }
+            if (cartItems.length === 0) {
+              Alert.alert("Cart Empty", "Please add a product to place order.");
+              return;
+            }
 
-  Alert.alert(
-    "Place Order",
-    "Are you sure you want to place the order?",
-    [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "OK",
-        onPress: () => {
-          navigation.navigate("MyOrdersScreen");
-        },
-      },
-    ]
-  );
-}}
-
+            Alert.alert("Place Order", "Are you sure you want to place the order?", [
+              { text: "Cancel", style: "cancel" },
+              {
+                text: "OK",
+                onPress: () => {
+                  navigation.navigate("MyOrdersScreen");
+                },
+              },
+            ]);
+          }}
         >
           <Text style={styles.clearButtonText}>Place Order</Text>
         </TouchableOpacity>
@@ -177,27 +155,14 @@ const CartScreen = () => {
   );
 };
 
-export const CartItemCard = ({
-  item,
-  updateQuantity,
-  removeFromCart,
-}) => {
+export const CartItemCard = ({ item, updateQuantity, removeFromCart }) => {
   const { data, loading, error } = useQuery(GET_PRODUCT, {
     variables: { getProductId: item.productId },
   });
 
-  if (loading)
-    return (
-      <View style={styles.card}>
-        <ActivityIndicator size="small" />
-      </View>
-    );
-  if (error)
-    return (
-      <View style={styles.card}>
-        <Text>Error loading product</Text>
-      </View>
-    );
+  if (loading) return <ActivityIndicator style={{ padding: 16 }} />;
+
+  if (error) return <Text>Error loading product</Text>;
 
   const product = data?.getProduct;
   const price = item.price || product?.sellingPrice || 0;
@@ -212,56 +177,39 @@ export const CartItemCard = ({
   const imageUrl = variantImage || product?.previewImage;
 
   return (
-    
-    <View style={styles.card}>
-      <Image source={{ uri: imageUrl }} style={styles.image} />
-      <View style={styles.details}>
-        {removeFromCart && (
-          <TouchableOpacity
-            style={styles.removeIcon}
-            onPress={() => removeFromCart(item)}
-          >
-            <Ionicons
-              name="trash-outline"
-              size={22}
-              color="#FF3E3E"
-            />
-          </TouchableOpacity>
-        )}
-        
+    <View style={styles.cardContainer}>
+      <Image source={{ uri: imageUrl }} style={styles.productImage} />
 
-        <Text numberOfLines={1} style={styles.title}>
+      <View style={styles.productDetails}>
+        <TouchableOpacity
+          style={styles.trashIcon}
+          onPress={() => removeFromCart(item)}
+        >
+          <Ionicons name="trash-outline" size={20} color="#FF3E3E" />
+        </TouchableOpacity>
+
+        <Text style={styles.brandName}>{product?.brand || "Brand"}</Text>
+
+        <Text numberOfLines={2} style={styles.productTitle}>
           {product?.productName}
         </Text>
-        <Text style={styles.price}>₹{price}</Text>
-        <Text>Size: {item.size}</Text>
-        <Text>Variant: {item.variantName}</Text>
-        {updateQuantity && (
-          <View style={styles.controls}>
-            <TouchableOpacity
-              onPress={() => updateQuantity(item, qty - 1)}
-            >
-              <Ionicons
-                name="remove-circle-outline"
-                size={24}
-                color="#333"
-              />
-            </TouchableOpacity>
-            <Text style={styles.qty}>{qty}</Text>
-            <TouchableOpacity
-              onPress={() => updateQuantity(item, qty + 1)}
-            >
-              <Ionicons
-                name="add-circle-outline"
-                size={24}
-                color="#333"
-              />
-            </TouchableOpacity>
-          </View>
-        )}
-         
+
+        <Text style={styles.sellerText}>Selling by : LuxeDazzle</Text>
+
+        <View style={styles.badgeRow}>
+          <Text style={styles.badge}>Size: {item.size}</Text>
+          <Text style={styles.badge}>Qty: {qty}</Text>
+        </View>
+
+        <View style={styles.priceRow}>
+          <Text style={styles.sellingPrice}>₹{price}</Text>
+          <Text style={styles.mrp}>₹{product?.price || price + 400}</Text>
+          <Text style={styles.discount}>30% OFF</Text>
+        </View>
+
+        <Text style={styles.greenDelivery}>Open Box Delivery</Text>
+        <Text style={styles.deliveryBy}>Delivery by 24 Oct 2024</Text>
       </View>
-     
     </View>
   );
 };
@@ -272,6 +220,16 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     padding: 12,
     paddingTop: 28,
+  },
+  center: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  emptyText: {
+    fontSize: 18,
+    color: "#777",
+    fontFamily: "Poppins_500Medium",
   },
   summaryContainer: {
     position: "absolute",
@@ -289,7 +247,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   clearButton: {
-    backgroundColor: "#2A55E5", // updated color
+    backgroundColor: "#2A55E5",
     borderRadius: 6,
     paddingVertical: 12,
     marginTop: 10,
@@ -300,66 +258,97 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: "Poppins_500Medium",
   },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  emptyText: {
-    fontSize: 18,
-    color: "#777",
-    fontFamily: "Poppins_500Medium",
-  },
-  card: {
+
+  cardContainer: {
     flexDirection: "row",
+    marginBottom: 16,
     padding: 10,
-    borderBottomColor: "#eee",
-    borderBottomWidth: 1,
-    alignItems: "flex-start",
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 10,
+    backgroundColor: "#fff",
     position: "relative",
   },
-  image: {
-    width: 120,
-    height: 130,
+  productImage: {
+    width: 100,
+    height: 120,
     borderRadius: 8,
     backgroundColor: "#eee",
   },
-  details: {
+  productDetails: {
     flex: 1,
-    marginLeft: 10,
+    marginLeft: 12,
+    position: "relative",
   },
-  removeIcon: {
+  trashIcon: {
     position: "absolute",
-    right: 0,
     top: 0,
-    padding: 4,
+    right: 0,
     zIndex: 1,
+    padding: 4,
   },
-  title: {
-    fontSize: 16,
-    fontFamily: "Poppins_500Medium",
-    marginRight: 24,
-  },
-  price: {
+  brandName: {
     fontSize: 14,
-    fontFamily: "Poppins_400Regular",
+    fontFamily: "Poppins-SemiBold",
+    color: "#222",
+  },
+  productTitle: {
+    fontSize: 13,
     color: "#333",
+    fontFamily: "Poppins-Regular",
+    marginVertical: 2,
+  },
+  sellerText: {
+    fontSize: 11,
+    color: "#777",
+    fontFamily: "Poppins-Regular",
+  },
+  badgeRow: {
+    flexDirection: "row",
+    gap: 8,
     marginVertical: 4,
   },
-  controls: {
+  badge: {
+    backgroundColor: "#F1F1F1",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 4,
+    fontSize: 11,
+    fontFamily: "Poppins-Regular",
+    color: "#333",
+  },
+  priceRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 6,
+    gap: 10,
+    marginTop: 4,
   },
-  qty: {
-    fontSize: 16,
-    marginHorizontal: 12,
-    fontFamily: "Poppins_500Medium",
+  sellingPrice: {
+    fontSize: 14,
+    color: "#000",
+    fontFamily: "Poppins-SemiBold",
   },
-    center: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+  mrp: {
+    fontSize: 12,
+    color: "#999",
+    textDecorationLine: "line-through",
+    fontFamily: "Poppins-Regular",
+  },
+  discount: {
+    fontSize: 12,
+    color: "green",
+    fontFamily: "Poppins-Medium",
+  },
+  greenDelivery: {
+    fontSize: 11,
+    color: "#00A651",
+    fontFamily: "Poppins-Medium",
+    marginTop: 4,
+  },
+  deliveryBy: {
+    fontSize: 11,
+    color: "#666",
+    fontFamily: "Poppins-Regular",
   },
   detailsBtn: {
     marginTop: 10,

@@ -225,6 +225,24 @@ export const GET_ALL_ADDRESS_QUERY = gql`
   }
 `;
 
+export const GET_ADDRESS_QUERY = gql`
+query GetAddress($getAddressId: ID) {
+  getAddress(id: $getAddressId) {
+    id
+    userId
+    fullName
+    mobileNo
+    addressLine1
+    addressLine2
+    city
+    pincode
+    state
+    country
+    createdAt
+    updatedAt
+  }
+}`;
+
 export const GET_ALL_REVIEWS = gql`
   query GetAllReviews {
     getAllReviews {

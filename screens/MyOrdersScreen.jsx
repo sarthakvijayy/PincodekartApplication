@@ -27,11 +27,15 @@ const MyOrdersScreen = () => {
           <AddressScreen
             setSelectedAddressId={setSelectedAddressId}
             selectedAddressId={selectedAddressId}
+            onProceed={() => setCurrentStep(1)}
           />
         );
       case 1:
         return (
-          <OrderSummaryScreen selectedAddressId={selectedAddressId} />
+          <OrderSummaryScreen 
+          selectedAddressId={selectedAddressId}
+          onProceed={() => setCurrentStep(2)}
+         />
         );
       case 2:
         return (
@@ -128,14 +132,14 @@ const MyOrdersScreen = () => {
       {renderStepContent()}
 
       {/* Next button */}
-      {currentStep !== 2 && currentStep < steps.length - 1 && (
+      {/* {currentStep !== 2 && currentStep < steps.length - 1 && (
         <TouchableOpacity
           style={styles.nextBtn}
           onPress={() => setCurrentStep(currentStep + 1)}
         >
           <Text style={styles.nextText}>Next</Text>
         </TouchableOpacity>
-      )}
+      )} */}
     </View>
   );
 };

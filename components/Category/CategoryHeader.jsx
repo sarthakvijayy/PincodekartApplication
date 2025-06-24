@@ -70,7 +70,7 @@ const CategoryHeader = () => {
       <View style={styles.searchBar}>
         <Feather name="search" size={18} color="#888" />
         <TextInput
-          placeholder="Search for products, brands and more"
+          placeholder="Search for products"
           placeholderTextColor="#888"
           style={styles.searchInput}
         />

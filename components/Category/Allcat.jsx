@@ -11,212 +11,219 @@ import {
 } from "react-native";
 import { useQuery, useLazyQuery } from "@apollo/client";
 import { useNavigation } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
 import {
   GET_ALL_CATEGORIES,
   GET_PRODUCTS_BY_CATEGORY,
 } from "../../graphql/queries";
-import CategoryHeader from "./CategoryHeader";
 import BottomNav from "../HomeScreen/BottomNav";
 import ProductCard from "../Productlist/ProductCard";
 
 const { width } = Dimensions.get("window");
-const itemWidth = width / 2 - 24;
+const ITEM_WIDTH = width / 3 - 30;
 
 const Allcat = () => {
   const navigation = useNavigation();
   const [categories, setCategories] = useState([]);
-  const [selectedCat, setSelectedCat] = useState(null);
+  const [selectedCatId, setSelectedCatId] = useState(null);
+  const [subCats, setSubCats] = useState([]);
   const [products, setProducts] = useState([]);
-  const [fetchProductsByCat, { loading: loadingProducts }] =
-    useLazyQuery(GET_PRODUCTS_BY_CATEGORY);
 
-  const {
-    data: catData,
-    loading: loadingCats,
-    error: catError,
-  } = useQuery(GET_ALL_CATEGORIES, {
+  const { data, loading, error } = useQuery(GET_ALL_CATEGORIES, {
     variables: { page: null, take: null },
   });
 
-  useEffect(() => {
-    if (catData?.getAllCategories?.categories) {
-      const topLevelCategories = catData.getAllCategories.categories.filter(
-        (cat) => cat.parent === null
-      );
-      setCategories(topLevelCategories);
-    }
-  }, [catData]);
+  const [fetchProducts, { loading: prodLoading }] = useLazyQuery(
+    GET_PRODUCTS_BY_CATEGORY
+  );
 
-  const handleCategoryPress = (cat) => {
-    setSelectedCat(cat);
-    fetchProductsByCat({ variables: { catId: cat.id, sortOrder: "asc" } })
+  useEffect(() => {
+    if (data?.getAllCategories?.categories) {
+      const all = data.getAllCategories.categories;
+      const mainCats = all.filter((c) => c.parent === null);
+      setCategories(mainCats);
+      if (mainCats.length) {
+        selectCategory(mainCats[0].id, all);
+      }
+    }
+  }, [data]);
+
+  const selectCategory = (catId, allCats = null) => {
+    console.log("CatId" , catId)
+    setSelectedCatId(catId);
+    const all = allCats || data.getAllCategories.categories;
+    setSubCats(all.filter((c) => c.parent === catId));
+
+    fetchProducts({ variables: { catId } })
       .then((res) => setProducts(res.data.getProductsByCat || []))
       .catch(() => setProducts([]));
+
+      
   };
 
-  const renderCategory = ({ item }) => (
+
+
+  const renderMainCat = ({ item }) => (
     <TouchableOpacity
-      style={styles.categoryItem}
-      onPress={() => handleCategoryPress(item)}
+      onPress={() => selectCategory(item.id)}
+      style={[
+        styles.mainCategory,
+        item.id === selectedCatId && styles.mainCategorySelected,
+      ]}
     >
+      <Image source={{ uri: item.categoryIcon }} style={styles.mainIcon} />
+      <Text
+        style={[
+          styles.mainText,
+          item.id === selectedCatId && { color: "#2A55E5" },
+        ]}
+      >
+        {item.categoryName}
+      </Text>
+    </TouchableOpacity>
+  );
+
+  const renderSubCat = ({ item }) => (
+    <TouchableOpacity style={styles.subCategoryItem}>
       <Image
         source={{ uri: item.categoryIcon }}
-        style={styles.categoryImage}
+        style={styles.subCategoryIcon}
       />
-      <Text style={styles.categoryText} numberOfLines={1}>
+      <Text style={styles.subCategoryText} numberOfLines={2}>
         {item.categoryName}
       </Text>
     </TouchableOpacity>
   );
 
   const renderProduct = ({ item }) => {
-      const imageUrl = item?.previewImage?.trim();
+    const img = item.previewImage?.trim();
+    // return (
+  
+    // );
+  };
 
-      return (
-        <ProductCard
-          id={item.id}
-          image={imageUrl}
-          brand={item.brandName || "Pincodekart"}
-          title={item.productName}
-          mrpPrice={item?.variant?.[0]?.mrpPrice}
-          originalPrice={
-            item?.variant?.[0]?.originalPrice || item?.variant?.[0]?.mrpPrice
-          }
-          discount={item?.variant?.[0]?.discount || 0}
-          rating={item.avgRating || "4.0"}
-          initialWishlisted={item.isWishlisted || false}
-        />
-      );
-    }
-    
+  
 
-  if (loadingCats)
-    return <ActivityIndicator style={{ flex: 1 }} size="large" />;
-  if (catError)
-    return (
-      <View>
-        <Text>Error loading categories</Text>
-      </View>
-    );
+  if (loading) return <ActivityIndicator style={{ flex: 1 }} />;
+  if (error) return <Text>Error loading categories</Text>;
+
+
+  
 
   return (
-    <View style={{ flex: 1 }}>
-      <CategoryHeader />
+    <View style={styles.wrapper}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.navigate("HomeScreen")}>
+          <Ionicons name="arrow-back" size={24} color="#333" />
+        </TouchableOpacity>
+        <Text style={styles.title}>All Categories</Text>
+      </View>
 
-      {!selectedCat ? (
-        <FlatList
-          data={categories}
-          renderItem={renderCategory}
-          keyExtractor={(item) => item.id}
-          numColumns={2}
-          contentContainerStyle={[styles.gridContainer, { paddingBottom: 100 }]}
-        />
-      ) : (
-        <>
-          <TouchableOpacity
-            onPress={() => {
-              setSelectedCat(null);
-              setProducts([]);
-            }}
-          >
-            <Text style={styles.backText}>← Back to categories</Text>
-          </TouchableOpacity>
-          {loadingProducts ? (
-            <ActivityIndicator style={{ marginTop: 20 }} size="large" />
-          ) : products.length ? (
+      <View style={styles.body}>
+        <View style={styles.left}>
+          <FlatList
+            data={categories}
+            renderItem={renderMainCat}
+            keyExtractor={(item) => item.id}
+            showsVerticalScrollIndicator={false}
+          />
+        </View>
+
+        <View style={styles.right}>
+          <Text style={styles.sectionTitle}>Subcategories</Text>
+          <FlatList
+            data={subCats}
+            key={selectedCatId}
+            renderItem={renderSubCat}
+            keyExtractor={(item) => item.id.toString()}
+            numColumns={3}
+            columnWrapperStyle={styles.rowWrap}
+            contentContainerStyle={{ paddingBottom: 20 }}
+            showsVerticalScrollIndicator={false}
+          />
+
+          {/* <Text style={styles.sectionTitle}>Products</Text> */}
+          {prodLoading ? (
+            <ActivityIndicator size="large" />
+          ) : products.length > 0 ? (
             <FlatList
               data={products}
               renderItem={renderProduct}
               keyExtractor={(item) => item.id}
               numColumns={2}
-              contentContainerStyle={[styles.prodList, { paddingBottom: 100 }]}
+              columnWrapperStyle={styles.rowWrap}
+              contentContainerStyle={{ paddingBottom: 80 }}
+              showsVerticalScrollIndicator={false}
             />
           ) : (
-            <Text style={styles.emptyText}>
-              No products in {selectedCat.categoryName}
-            </Text>
+            <Text style={styles.noData}>No products found</Text>
           )}
-        </>
-      )}
+        </View>
+      </View>
 
       <BottomNav />
     </View>
   );
 };
 
+export default Allcat;
+
 const styles = StyleSheet.create({
-  gridContainer: {
-    padding: 16,
-  },
-  categoryItem: {
-    flex: 1,
-    margin: 8,
-    padding: 16,
-    backgroundColor: "#f9f9f9",
-    borderRadius: 8,
+  wrapper: { flex: 1 },
+  header: {
+    flexDirection: "row",
     alignItems: "center",
-    elevation: 2,
+    padding: 16,
+    paddingTop: 48,
+    borderBottomWidth: 1,
+    borderColor: "#eee",
   },
-  categoryImage: {
+  title: { fontSize: 18, fontWeight: "700", marginLeft: 10 },
+
+  body: { flex: 1, flexDirection: "row" },
+
+  left: {
+    width: 100,
+    borderRightWidth: 1,
+    borderColor: "#ddd",
+  },
+  mainCategory: {
+    padding: 12,
+    alignItems: "center",
+  },
+  mainCategorySelected: {
+    backgroundColor: "#e8f0ff",
+    borderLeftWidth: 4,
+    borderColor: "#2A55E5",
+  },
+  mainIcon: { width: 40, height: 40, borderRadius: 20 },
+  mainText: { marginTop: 6, fontSize: 12, color: "#444", textAlign: "center" },
+
+  right: { flex: 1, padding: 12 },
+
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginVertical: 12,
+    color: "#333",
+  },
+  subCategoryItem: {
+    width: ITEM_WIDTH,
+    marginBottom: 24,
+    alignItems: "center",
+  },
+  subCategoryIcon: {
     width: 60,
     height: 60,
     borderRadius: 30,
-    marginBottom: 8,
-    backgroundColor: "#fff",
   },
-  categoryText: {
-    fontSize: 14,
+  subCategoryText: {
+    fontSize: 13,
     textAlign: "center",
-    fontWeight: "500",
+    marginTop: 6,
   },
-  backText: {
-    fontSize: 16,
-    margin: 16,
-    color: "#2A55E5",
-    fontWeight: "600",
-  },
-  prodList: {
-    padding: 16,
-  },
-  productCard: {
-    flex: 1,
-    margin: 8,
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    padding: 12,
-    alignItems: "center",
-    width: itemWidth,
-    elevation: 2,
-  },
-  productImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 8,
-    marginBottom: 8,
-  },
-  noImage: {
-    width: 100,
-    height: 100,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 8,
-    backgroundColor: "#eee",
-    borderRadius: 8,
-  },
-  productText: {
-    fontSize: 14,
-    textAlign: "center",
-  },
-  productPrice: {
-    fontSize: 14,
-    fontWeight: "600",
-    marginTop: 4,
-  },
-  emptyText: {
-    textAlign: "center",
-    marginTop: 40,
-    fontSize: 16,
-  },
-});
 
-export default Allcat;
+  rowWrap: { justifyContent: "space-between" },
+
+  noData: { textAlign: "center", marginVertical: 12, color: "#777" },
+});

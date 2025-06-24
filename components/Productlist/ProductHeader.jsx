@@ -80,7 +80,7 @@ const ProductHeader = ({
             />
             <TextInput
               style={styles.searchInput}
-              placeholder="Search for products, brands and more"
+              placeholder="Search for products"
               placeholderTextColor="#888"
             />
           </View>

@@ -79,34 +79,30 @@ const DealsOfDaySection = () => {
 
         {/* Horizontal Products Scroll */}
         <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.productScroll}
-          snapToInterval={160 + 16}
-          decelerationRate="fast"
-        >
-          {products.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              style={styles.productCard}
-              onPress={() => handlePress(item.id)}
-            >
-              <Image
-                source={{ uri: item?.variant?.[0]?.images?.[0] || item.previewImage }}
-                style={styles.productImage}
-                resizeMode="cover"
-              />
-              <View style={styles.productInfo}>
-                <Text style={styles.productTitle} numberOfLines={1}>
-                  {item.productName}
-                </Text>
-                <Text style={styles.productDiscount}>
-                  {item.discount ? `UPTO ${item.discount}% OFF` : 'Special Deal'}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.cardScrollContainer}
+                  snapToInterval={160 + 16}
+                  decelerationRate="fast"
+                >
+                  {products.slice(0, 5).map((item) => (
+                    <TouchableOpacity key={item.id} style={styles.dealCard} onPress={() => handlePress(item.id)}>
+                      <Image
+                        source={{ uri: item?.variant?.[0]?.images?.[0] || item.previewImage }}
+                        style={styles.dealImage}
+                        resizeMode="cover"
+                      />
+                      <View style={styles.dealInfo}>
+                        <Text style={styles.dealTitle} numberOfLines={1}>
+                          {item.productName}
+                        </Text>
+                        <Text style={styles.dealDiscount}>
+                          {item.discount ? `UPTO ${item.discount}% OFF` : 'Special Deal'}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
       </LinearGradient>
     </View>
   );
@@ -131,14 +127,16 @@ const styles = StyleSheet.create({
     marginHorizontal: 12,
     borderRadius: 12,
   },
-  productScroll: {
-    paddingHorizontal: 10,
+   cardScrollContainer: {
+    paddingLeft: 12,
+    paddingTop: 20,
+    paddingRight: 4,
   },
-  productCard: {
-    width: 160,
-    backgroundColor: '#fff',
+  dealCard: {
+    width: 140,
+    marginRight: 16,
+    backgroundColor: '#ffffff',
     borderRadius: 10,
-    marginHorizontal: 6,
     overflow: 'hidden',
     elevation: 3,
     shadowColor: '#000',
@@ -146,21 +144,21 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
   },
-  productImage: {
+  dealImage: {
     width: '100%',
     height: 120,
   },
-  productInfo: {
-    padding: 8,
+  dealInfo: {
+    padding: 10,
     alignItems: 'center',
   },
-  productTitle: {
+  dealTitle: {
     fontSize: 15,
     fontWeight: '600',
     color: '#333',
     textAlign: 'center',
   },
-  productDiscount: {
+  dealDiscount: {
     fontSize: 13,
     color: '#184977',
     marginTop: 4,

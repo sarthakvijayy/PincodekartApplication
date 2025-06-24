@@ -138,8 +138,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   dealCard: {
-    width: (width - 60) / 4,
-    backgroundColor: '#FFF',
+    width: 140,
+    marginRight: 16,
+    backgroundColor: '#ffffff',
     borderRadius: 10,
     overflow: 'hidden',
     elevation: 3,
@@ -150,12 +151,10 @@ const styles = StyleSheet.create({
   },
   dealImage: {
     width: '100%',
-    height: 90,
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
+    height: 120,
   },
   dealInfo: {
-    padding: 5,
+    padding: 10,
     alignItems: 'center',
   },
   dealTitle: {
@@ -167,7 +166,7 @@ const styles = StyleSheet.create({
   dealDiscount: {
     fontSize: 13,
     color: '#184977',
-    marginTop: 2,
+    marginTop: 4,
     fontWeight: 'bold',
   },
   loader: {

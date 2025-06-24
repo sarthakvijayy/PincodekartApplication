@@ -25,6 +25,7 @@ const { width } = Dimensions.get("window");
 
 const ProductDetailScreen = ({ route }) => {
   const { id } = route.params;
+  // let id = ""
 
   const { loading, error, data } = useQuery(GET_PRODUCT, {
     variables: { getProductId: id },
@@ -274,9 +275,9 @@ const styles = StyleSheet.create({
   },
   bannerImage: {
     width: width,
-    height: 360,
+    height: 500,
     resizeMode: "cover",
-    marginTop: 135,
+    marginTop: 40,
   },
   sliderDots: {
     flexDirection: "row",

@@ -34,7 +34,7 @@ const DealsSection = () => {
   );
 
   const handlePress = (id) => {
-    navigation.navigate('ProductDetailScreen', { id });
+    navigation.navigate('ProductDetailScreen');
   };
 
   if (catLoading || productLoading) {
@@ -56,7 +56,7 @@ const DealsSection = () => {
   }
 
   const banner = catData?.getCategory?.categoryImage;
-  const bannerList = [banner, banner, banner]; // You can later replace with different images
+  const bannerList = [banner, banner, banner]; 
   const products = productData?.getProductsByCat || [];
 
   return (
@@ -89,7 +89,7 @@ const DealsSection = () => {
           decelerationRate="fast"
         >
           {products.slice(0, 5).map((item) => (
-            <TouchableOpacity key={item.id} style={styles.dealCard} onPress={() => handlePress(item.id)}>
+            <TouchableOpacity key={item.id} style={styles.dealCard} onPress={() => navigation.navigate('ProductDetailScreen')}>
               <Image
                 source={{ uri: item?.variant?.[0]?.images?.[0] || item.previewImage }}
                 style={styles.dealImage}
