@@ -182,6 +182,7 @@ export const CartItemCard = ({
   item,
   updateQuantity,
   removeFromCart,
+  isSummary = false, // 👈 default false
 }) => {
   const { data, loading, error } = useQuery(GET_PRODUCT, {
     variables: { getProductId: item.productId },
@@ -203,67 +204,60 @@ export const CartItemCard = ({
   const imageUrl = variantImage || product?.previewImage;
 
   return (
- <View style={styles.cardContainer}>
-  <Image source={{ uri: imageUrl }} style={styles.productImage} />
+    <View style={styles.cardContainer}>
+      <Image source={{ uri: imageUrl }} style={styles.productImage} />
 
-  <View style={styles.productDetails}>
-    <TouchableOpacity
-      style={styles.trashIcon}
-      onPress={() => removeFromCart(item)}
-    >
-      <Ionicons name="trash-outline" size={20} color="#FF3E3E" />
-    </TouchableOpacity>
+      <View style={styles.productDetails}>
+        {!isSummary && (
+          <TouchableOpacity
+            style={styles.trashIcon}
+            onPress={() => removeFromCart(item)}
+          >
+            <Ionicons name="trash-outline" size={20} color="#FF3E3E" />
+          </TouchableOpacity>
+        )}
 
-    <Text style={styles.brandName}>{product?.brand || "Brand"}</Text>
-    <Text numberOfLines={2} style={styles.productTitle}>
-      {product?.productName}
-    </Text>
-    {/* <Text style={styles.sellerText}>Selling by: LuxeDazzle</Text> */}
+        <Text style={styles.brandName}>{product?.brand || "Brand"}</Text>
+        <Text numberOfLines={2} style={styles.productTitle}>
+          {product?.productName}
+        </Text>
 
-    <Text style={styles.badge}>
-      Size: {item.size}    
-      </Text>
+        <Text style={styles.badge}>Size: {item.size}</Text>
+        <Text style={styles.badge}>Qty: {item.quantity}</Text>
 
-     <Text style={styles.badge}>
-           Qty: {item.quantity}
-      </Text>
+        <View style={styles.bottomRow}>
+          <View style={styles.priceRow}>
+            <Text style={styles.sellingPrice}>₹{price}</Text>
+            <Text style={styles.mrp}>₹{product?.price || price + 400}</Text>
+            <Text style={styles.discount}>30% OFF</Text>
+          </View>
+        </View>
 
-    <View style={styles.bottomRow}>
-      <View style={styles.priceRow}>
-        <Text style={styles.sellingPrice}>₹{price}</Text>
-        <Text style={styles.mrp}>₹{product?.price || price + 400}</Text>
-        <Text style={styles.discount}>30% OFF</Text>
+        <Text style={styles.greenDelivery}>Open Box Delivery</Text>
+        <Text style={styles.deliveryBy}>Delivery by 24 Oct 2024</Text>
+
+        {/* ✅ Show quantity buttons only if not in summary */}
+        {!isSummary && (
+          <View style={styles.qtyWrapper}>
+            <TouchableOpacity
+              onPress={() => updateQuantity(item, qty - 1)}
+              style={styles.qtyBtn}
+            >
+              <AntDesign name="minus" size={14} color="#000" />
+            </TouchableOpacity>
+
+            <Text style={styles.qtyNumber}>{qty}</Text>
+
+            <TouchableOpacity
+              onPress={() => updateQuantity(item, qty + 1)}
+              style={styles.qtyBtn}
+            >
+              <AntDesign name="plus" size={14} color="#000" />
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
-
-    
     </View>
-
-    <Text style={styles.greenDelivery}>Open Box Delivery</Text>
-    <Text style={styles.deliveryBy}>Delivery by 24 Oct 2024</Text>
-      <View style={styles.qtyWrapper}>
-        <TouchableOpacity
-          onPress={() => updateQuantity(item, qty - 1)}
-          style={styles.qtyBtn}
-        >
-          <AntDesign name="minus" size={14} color="#000" />
-      </TouchableOpacity>
-       <Text style={styles.qtyNumber}>{qty}</Text>
-
-      <TouchableOpacity
-          onPress={() => updateQuantity(item, qty + 1)}
-          style={styles.qtyBtn}
-        >
-         
-          <AntDesign name="plus" size={14} color="#000" />
-        </TouchableOpacity>
-
-               
-
-        
-      </View>
-  </View>
-</View>
-
   );
 };
 

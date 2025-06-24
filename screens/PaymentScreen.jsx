@@ -6,15 +6,14 @@ import {
   StyleSheet,
   Alert,
   ActivityIndicator,
-  FlatList,
   Modal,
   TextInput,
+  ScrollView,
 } from "react-native";
 import { useMutation, useQuery } from "@apollo/client";
-import { CREATE_ORDER, CREATE_COUPAN } from "../graphql/mutations";
+import { CREATE_ORDER } from "../graphql/mutations";
 import { GET_CART, VERIFY_COUPON } from "../graphql/queries";
-import { useNavigation, useRoute } from "@react-navigation/native";
-import { CartItemCard } from "./CartScreen";
+import { useNavigation } from "@react-navigation/native";
 
 const PaymentScreen = ({ addressId }) => {
   const [selectedMethod, setSelectedMethod] = useState(null);
@@ -22,47 +21,36 @@ const PaymentScreen = ({ addressId }) => {
   const [couponCodeInput, setCouponCodeInput] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState(0);
   const [ushopId, setUshopId] = useState("");
-  const [couponError, setCouponError] = useState("Invalid Coupon!");
-  const [couponData, setCouponData] = useState({
-    ushopId: "",
-    couponcode: "",
-  });
+  const [couponError, setCouponError] = useState("");
+  const [couponApplied, setCouponApplied] = useState(false);
 
   const navigation = useNavigation();
 
-  const {
-    data,
-    loading: cartLoading,
-    error: cartError,
-  } = useQuery(GET_CART);
+  const { data, loading: cartLoading, error: cartError } = useQuery(GET_CART);
   const cartItems = data?.getCart?.cartProducts || [];
 
-  const [createOrder, { loading: placingOrder }] = useMutation(
-    CREATE_ORDER,
-    {
-      onCompleted: (data) => {
-        Alert.alert("Success", "Order placed successfully!");
-        navigation.replace("OrderConfirmedScreen", {
-          orderData: data.createOrder,
-        });
-      },
-      onError: (err) => {
-        Alert.alert("Error", err.message);
-      },
-    }
-  );
+  const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const discountedTotal = Math.max(0, total - appliedDiscount);
+
+  const [createOrder, { loading: placingOrder }] = useMutation(CREATE_ORDER, {
+    onCompleted: (data) => {
+      Alert.alert("Success", "Order placed successfully!");
+      navigation.replace("OrderConfirmedScreen", { orderData: data.createOrder });
+    },
+    onError: (err) => {
+      Alert.alert("Error", err.message);
+    },
+  });
 
   const {
     data: verifyCouponData,
-    loading: verifyCouponLoading,
     refetch: verifyCouponRefetch,
+    loading: verifyCouponLoading,
   } = useQuery(VERIFY_COUPON, {
-    skip: !ushopId || !couponCodeInput,
-    variables: {
-      ushopId,
-      couponCodeInput,
-    },
+    skip: true,
   });
+
+  console.log("verifyCouponRefetch", verifyCouponData);
 
   const handlePlaceOrder = async () => {
     if (!selectedMethod) {
@@ -73,18 +61,10 @@ const PaymentScreen = ({ addressId }) => {
       Alert.alert("Error", "Address is missing");
       return;
     }
+
     if (selectedMethod === "Online") {
       navigation.navigate("PaymentGatewayScreen", { addressId });
       return;
-    }
-
-    if (couponError == "Invalid Coupon!") {
-      setCouponData({
-        ushopId: "",
-        couponcode: "",
-      });
-      setCouponCodeInput("");
-      setCouponError("");
     }
 
     try {
@@ -92,14 +72,8 @@ const PaymentScreen = ({ addressId }) => {
         variables: {
           addressId,
           paymentMethod: "Cash on Delivery",
-          ushopId:
-            couponError === "Valid Coupon!"
-              ? couponData?.ushopId
-              : "",
-          couponCode:
-            couponError === "Valid Coupon!"
-              ? couponData?.couponcode
-              : "",
+          ushopId: couponApplied ? ushopId : "",
+          couponCode: couponApplied ? couponCodeInput : "",
         },
       });
     } catch (error) {
@@ -107,7 +81,30 @@ const PaymentScreen = ({ addressId }) => {
     }
   };
 
-  const renderCartItem = ({ item }) => <CartItemCard item={item} />;
+  const applyCoupon = async () => {
+    try {
+      const { data: refetchResult } = await verifyCouponRefetch({
+        ushopId,
+        couponcode: couponCodeInput,
+      });
+      const response = refetchResult?.varifyCoupon;
+
+      if (response?.msg === "Invalid Coupon!") {
+        setCouponError("Invalid Coupon!");
+        setAppliedDiscount(response?.discountAmount || 0);
+        setCouponApplied(false);
+        Alert.alert("Invalid", "Please enter a valid coupon code.");
+      } else {
+        setCouponError("Valid Coupon!");
+        setAppliedDiscount(response?.discountAmount || 0);
+        setCouponApplied(true);
+        setCouponModalVisible(false);
+      }
+    } catch (err) {
+      setCouponError("Error verifying coupon.");
+      Alert.alert("Error", "Please try again.");
+    }
+  };
 
   if (cartLoading) {
     return (
@@ -126,38 +123,35 @@ const PaymentScreen = ({ addressId }) => {
     );
   }
 
-  const total = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
-
-  const discountedTotal = Math.max(0, total - appliedDiscount);
-
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Review Order</Text>
+    <ScrollView style={styles.container}>
+      <Text style={styles.header}>Payment Details</Text>
 
-      <FlatList
-        data={cartItems}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={renderCartItem}
-        style={{ marginBottom: 10 }}
-      />
-
-      <Text style={styles.total}>Subtotal: ₹{total}</Text>
-      {appliedDiscount > 0 && (
-        <Text style={styles.discount}>
-          Discount: ₹{appliedDiscount}
-        </Text>
-      )}
-      <Text style={styles.totalFinal}>Total: ₹{discountedTotal}</Text>
+      {/* Billing Summary */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Billing Details</Text>
+        <View style={styles.row}>
+          <Text style={styles.label}>Subtotal</Text>
+          <Text style={styles.value}>₹{total.toFixed(2)}</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>Discount</Text>
+          <Text style={[styles.value, { color: "green" }]}>- ₹{appliedDiscount.toFixed(2)}</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.totalLabel}>Grand Total</Text>
+          <Text style={styles.totalValue}>₹{discountedTotal.toFixed(2)}</Text>
+        </View>
+      </View>
 
       {/* Coupon Section */}
       <TouchableOpacity
-        style={styles.couponLine}
+        style={styles.couponBtn}
         onPress={() => setCouponModalVisible(true)}
       >
-        <Text style={styles.couponLineText}>Have a Coupon Code?</Text>
+        <Text style={styles.couponBtnText}>
+          {couponApplied ? "Coupon Applied ✅" : "Apply Coupon Code"}
+        </Text>
       </TouchableOpacity>
 
       {/* Coupon Modal */}
@@ -169,7 +163,7 @@ const PaymentScreen = ({ addressId }) => {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Enter Coupon Code</Text>
+            <Text style={styles.modalTitle}>Enter Coupon Details</Text>
             <TextInput
               style={styles.input}
               placeholder="Coupon Code"
@@ -178,88 +172,29 @@ const PaymentScreen = ({ addressId }) => {
             />
             <TextInput
               style={styles.input}
-              placeholder="Ushop Id"
+              placeholder="Ushop ID"
               value={ushopId}
               onChangeText={setUshopId}
             />
-            {verifyCouponLoading ? (
-              <ActivityIndicator
-                size="small"
-                color="#3D5AFE"
-                style={{ marginBottom: 8 }}
-              />
-            ) : couponError ? (
+            {couponError ? (
               <Text
                 style={{
-                  color:
-                    couponError === "Valid Coupon!" ? "green" : "red",
-                  marginBottom: 8,
+                  color: couponError === "Valid Coupon!" ? "green" : "red",
+                  marginBottom: 10,
                 }}
               >
                 {couponError}
               </Text>
             ) : null}
-            <TouchableOpacity
-              style={[
-                styles.applyBtn,
-                (ushopId === "" ||
-                  couponCodeInput === "" ||
-                  verifyCouponLoading) && { opacity: 0.6 },
-              ]}
-              onPress={async () => {
-                try {
-                  const { data: refetchResult } =
-                    await verifyCouponRefetch({
-                      ushopId: ushopId,
-                      couponcode: couponCodeInput,
-                    });
-                  const msg = refetchResult?.varifyCoupon?.msg;
-
-                  if (msg === "Invalid Coupon!") {
-                    Alert.alert(
-                      "Invalid Coupon",
-                      "Please enter a valid coupon code"
-                    );
-                    setCouponError("Invalid Coupon!");
-                    setAppliedDiscount(0);
-                  } else {
-                    setCouponError("Valid Coupon!");
-                    setAppliedDiscount(
-                      refetchResult?.varifyCoupon?.discountAmount || 0
-                    );
-                    setCouponModalVisible(false);
-                  }
-                } catch (error) {
-                  Alert.alert(
-                    "Error",
-                    "Please enter valid coupon code."
-                  );
-                  console.error(error);
-                }
-              }}
-              disabled={
-                ushopId === "" ||
-                couponCodeInput === "" ||
-                verifyCouponLoading
-              }
-            >
+            <TouchableOpacity style={styles.applyBtn} onPress={applyCoupon}>
               {verifyCouponLoading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.applyBtnText}>Apply</Text>
+                <Text style={styles.applyBtnText}>Apply Coupon</Text>
               )}
             </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => setCouponModalVisible(false)}
-            >
-              <Text
-                style={{
-                  color: "red",
-                  marginTop: 12,
-                  textAlign: "center",
-                }}
-              >
+            <TouchableOpacity onPress={() => setCouponModalVisible(false)}>
+              <Text style={{ color: "red", marginTop: 12, textAlign: "center" }}>
                 Cancel
               </Text>
             </TouchableOpacity>
@@ -267,10 +202,8 @@ const PaymentScreen = ({ addressId }) => {
         </View>
       </Modal>
 
-      <Text style={[styles.title, { marginTop: 24 }]}>
-        Select Payment Method
-      </Text>
-
+      {/* Payment Methods */}
+      <Text style={[styles.sectionTitle, { marginTop: 24 }]}>Payment Method</Text>
       {["Online", "Cash on Delivery"].map((method) => (
         <TouchableOpacity
           key={method}
@@ -279,27 +212,22 @@ const PaymentScreen = ({ addressId }) => {
             selectedMethod === method && styles.selected,
           ]}
           onPress={() => setSelectedMethod(method)}
-          activeOpacity={0.8}
         >
           <View
             style={[
-              styles.outerCircle,
-              selectedMethod === method && styles.activeOuterCircle,
+              styles.radioCircle,
+              selectedMethod === method && styles.radioCircleSelected,
             ]}
           >
-            {selectedMethod === method && (
-              <View style={styles.innerCircle} />
-            )}
+            {selectedMethod === method && <View style={styles.innerCircle} />}
           </View>
-          <Text style={styles.radioLabel}>{method}</Text>
+          <Text style={styles.radioText}>{method}</Text>
         </TouchableOpacity>
       ))}
 
+      {/* Place Order */}
       <TouchableOpacity
-        style={[
-          styles.placeOrderBtn,
-          (!selectedMethod || placingOrder) && { opacity: 0.6 },
-        ]}
+        style={[styles.placeOrderBtn, (!selectedMethod || placingOrder) && { opacity: 0.6 }]}
         onPress={handlePlaceOrder}
         disabled={!selectedMethod || placingOrder}
       >
@@ -309,65 +237,85 @@ const PaymentScreen = ({ addressId }) => {
           <Text style={styles.placeOrderText}>Place Order</Text>
         )}
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 };
 
 export default PaymentScreen;
 
 const styles = StyleSheet.create({
-  container: {
+  container: { flex: 1, padding: 16, backgroundColor: "#fff" },
+  center: { flex: 1, justifyContent: "center", alignItems: "center" },
+  header: { fontSize: 20, fontWeight: "700", marginBottom: 20 },
+  section: {
     padding: 16,
-    flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#F7F9FC",
+    borderRadius: 10,
+    marginBottom: 16,
   },
-  title: {
-    fontSize: 18,
+  sectionTitle: {
+    fontSize: 16,
     fontWeight: "600",
     marginBottom: 12,
   },
-  total: {
-    fontWeight: "600",
-    fontSize: 16,
-    marginTop: 6,
-    color: "#333",
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 6,
   },
-  totalFinal: {
+  label: {
+    fontSize: 14,
+    color: "#444",
+  },
+  value: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#222",
+  },
+  totalLabel: {
+    fontSize: 16,
     fontWeight: "700",
-    fontSize: 18,
-    marginTop: 4,
     color: "#000",
   },
-  discount: {
+  totalValue: {
     fontSize: 16,
-    color: "green",
+    fontWeight: "700",
+    color: "#000",
+  },
+  couponBtn: {
+    padding: 12,
+    backgroundColor: "#E0F7FA",
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  couponBtnText: {
+    color: "#00796B",
     fontWeight: "600",
   },
   radioContainer: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 14,
-    marginBottom: 12,
+    padding: 12,
+    marginBottom: 10,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: "#ccc",
-    backgroundColor: "#f9f9f9",
   },
   selected: {
     borderColor: "#3D5AFE",
-    backgroundColor: "#E8EDFF",
+    backgroundColor: "#E3F2FD",
   },
-  outerCircle: {
+  radioCircle: {
     width: 18,
     height: 18,
     borderRadius: 9,
     borderWidth: 2,
     borderColor: "#999",
-    justifyContent: "center",
     alignItems: "center",
-    marginRight: 12,
+    justifyContent: "center",
+    marginRight: 10,
   },
-  activeOuterCircle: {
+  radioCircleSelected: {
     borderColor: "#3D5AFE",
   },
   innerCircle: {
@@ -376,36 +324,22 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: "#3D5AFE",
   },
-  radioLabel: {
-    fontSize: 16,
+  radioText: {
+    fontSize: 15,
     fontWeight: "500",
-  },
-  center: {
-    alignItems: "center",
-    marginTop: 16,
   },
   placeOrderBtn: {
     backgroundColor: "#3D5AFE",
     paddingVertical: 14,
     borderRadius: 8,
     alignItems: "center",
-    marginTop: 24,
+    marginTop: 20,
+    marginBottom: 30,
   },
   placeOrderText: {
     color: "#fff",
-    fontWeight: "bold",
     fontSize: 16,
-  },
-  couponLine: {
-    padding: 14,
-    backgroundColor: "#E8F5E9",
-    borderRadius: 8,
-    alignItems: "center",
-    marginTop: 16,
-  },
-  couponLineText: {
-    color: "#388E3C",
-    fontWeight: "600",
+    fontWeight: "bold",
   },
   modalOverlay: {
     flex: 1,
@@ -414,16 +348,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalContent: {
-    width: "80%",
+    width: "85%",
     backgroundColor: "#fff",
     padding: 20,
-    borderRadius: 10,
-    elevation: 5,
+    borderRadius: 12,
+    elevation: 10,
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: "600",
-    marginBottom: 10,
+    marginBottom: 12,
     textAlign: "center",
   },
   input: {
@@ -442,6 +376,6 @@ const styles = StyleSheet.create({
   applyBtnText: {
     color: "#fff",
     fontWeight: "bold",
-    fontSize: 16,
+    fontSize: 15,
   },
 });
