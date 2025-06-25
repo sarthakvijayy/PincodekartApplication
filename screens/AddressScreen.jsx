@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState , useEffect} from "react";
 import {View,Text,TextInput,FlatList,TouchableOpacity,StyleSheet,ActivityIndicator,Modal,ScrollView,} from "react-native";
 import { useQuery, useMutation } from "@apollo/client";
 import { GET_ALL_ADDRESS_QUERY } from "../graphql/queries";
@@ -54,6 +54,16 @@ const AddressScreen = ({
 
   const [deleteAddress] = useMutation(DELETE_ADDRESS);
   const [createAddress] = useMutation(CREATE_ADDRESS);
+
+  useEffect(() => {
+  const addresses = data?.getAllAddress?.addresses || [];
+  if (addresses.length > 0 && !selectedAddressId) {
+    const firstAddressId = addresses[0]?.id;
+    setSelectedAddressId(firstAddressId);
+    updateSelectedAddressId(firstAddressId);
+  }
+}, [data]);
+
 
   const validateForm = () => {
     const newErrors = {};

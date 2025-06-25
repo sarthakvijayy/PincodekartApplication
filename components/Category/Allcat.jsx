@@ -142,22 +142,7 @@ const Allcat = () => {
             showsVerticalScrollIndicator={false}
           />
 
-          {/* <Text style={styles.sectionTitle}>Products</Text> */}
-          {prodLoading ? (
-            <ActivityIndicator size="large" />
-          ) : products.length > 0 ? (
-            <FlatList
-              data={products}
-              renderItem={renderProduct}
-              keyExtractor={(item) => item.id}
-              numColumns={2}
-              columnWrapperStyle={styles.rowWrap}
-              contentContainerStyle={{ paddingBottom: 80 }}
-              showsVerticalScrollIndicator={false}
-            />
-          ) : (
-            <Text style={styles.noData}>No products found</Text>
-          )}
+          
         </View>
       </View>
 

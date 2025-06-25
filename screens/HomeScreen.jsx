@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import Header from '../components/HomeScreen/Header';
-import ProductHeader from '../components/Productlist/ProductHeader';
+import StaticHeader from '../components/HomeScreen/StaticHeader';
 import BottomNav from '../components/HomeScreen/BottomNav';
 import BannerCarousel from '../components/HomeScreen/BannerCarousel';
 import FeatureRow from '../components/HomeScreen/FeatureRow';
@@ -84,7 +84,7 @@ const HomeScreen = () => {
     <View style={styles.screenContainer}>
       {showStickyHeader && (
         <View style={styles.stickyHeaderContainer}>
-          <ProductHeader />
+          <StaticHeader />
         </View>
       )}
 

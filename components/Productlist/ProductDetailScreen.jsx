@@ -11,6 +11,7 @@ import {
   StyleSheet,
   SafeAreaView,
   Animated,
+  StatusBar,
 } from "react-native";
 import { useQuery, useMutation } from "@apollo/client";
 import { GET_PRODUCT } from "../../graphql/queries";
@@ -23,13 +24,10 @@ import { ADD_TO_CART } from "../../graphql/mutations";
 import ImageViewing from "react-native-image-viewing";
 import { useNavigation } from "@react-navigation/native";
 
-
-
 const { width } = Dimensions.get("window");
 
 const ProductDetailScreen = ({ route }) => {
   const navigation = useNavigation();
-
   const { id } = route.params;
 
   const { loading, error, data } = useQuery(GET_PRODUCT, {
@@ -43,7 +41,6 @@ const ProductDetailScreen = ({ route }) => {
   const [isImageViewerVisible, setImageViewerVisible] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
-  // Toast animation
   const [alertMessage, setAlertMessage] = useState("");
   const [alertType, setAlertType] = useState("success");
   const alertAnim = useState(new Animated.Value(-100))[0];
@@ -66,7 +63,7 @@ const ProductDetailScreen = ({ route }) => {
       }).start(() => {
         setAlertMessage("");
       });
-    }, 3000);
+    }, 4000);
   };
 
   const handleScroll = (event) => {
@@ -121,43 +118,42 @@ const ProductDetailScreen = ({ route }) => {
   };
 
   const handleBuyNow = () => {
-  const orderPayload = {
-    productId: id,
-    productName: product.productName,
-    variantName: selectedColorVariant.variantName,
-    size:
-      typeof selectedSizeVariant === "object"
-        ? selectedSizeVariant.size?.[0] || selectedSizeVariant.variantName
-        : selectedSizeVariant,
-    price: parseFloat(selectedColorVariant?.mrpPrice) || 0,
-    quantity: 1,
-    image:
-      selectedSizeVariant?.images?.[0] ||
-      selectedColorVariant?.images?.[0] ||
-      product?.previewImage,
+    const orderPayload = {
+      productId: id,
+      productName: product.productName,
+      variantName: selectedColorVariant.variantName,
+      size:
+        typeof selectedSizeVariant === "object"
+          ? selectedSizeVariant.size?.[0] || selectedSizeVariant.variantName
+          : selectedSizeVariant,
+      price: parseFloat(selectedColorVariant?.mrpPrice) || 0,
+      quantity: 1,
+      image:
+        selectedSizeVariant?.images?.[0] ||
+        selectedColorVariant?.images?.[0] ||
+        product?.previewImage,
+    };
+
+    navigation.navigate("MyOrderScreen", { fromBuyNow: true, item: orderPayload });
   };
-
-  navigation.navigate("MyOrderScreen", { fromBuyNow: true, item: orderPayload });
-};
-
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Modern Top Toast Alert */}
+      {/* Animated Top Alert */}
       {alertMessage !== "" && (
         <Animated.View
           style={[
             styles.alertContainer,
             {
-              backgroundColor: alertType === "success" ? "#b7f6ba" : "#f44336",
+              borderLeftColor: alertType === "success" ? "#4CAF50" : "#f44336",
               transform: [{ translateY: alertAnim }],
             },
           ]}
         >
           <AntDesign
             name={alertType === "success" ? "checkcircle" : "closecircleo"}
-            size={18}
-            color="#276029"
+            size={20}
+            color={alertType === "success" ? "#4CAF50" : "#f44336"}
           />
           <Text style={styles.alertText}>{alertMessage}</Text>
         </Animated.View>
@@ -283,9 +279,7 @@ const ProductDetailScreen = ({ route }) => {
                 <AntDesign name="shoppingcart" size={20} color="#000" />
                 <Text style={styles.cartText}>Add to Cart</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.buyButton} 
-              onPress={handleAddToCart}
-              >
+              <TouchableOpacity style={styles.buyButton} onPress={handleBuyNow}>
                 <Text style={styles.buyText}>Buy Now</Text>
               </TouchableOpacity>
             </View>
@@ -314,6 +308,7 @@ const ProductDetailScreen = ({ route }) => {
 };
 
 export default ProductDetailScreen;
+
 
 
 const styles = StyleSheet.create({
@@ -481,4 +476,32 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#fff",
   },
+  alertContainer: {
+  position: "absolute",
+  top: 0,
+  left: 16,
+  right: 16,
+  marginTop: StatusBar.currentHeight || 30,
+  backgroundColor: "#fff",
+  padding: 12,
+  borderRadius: 8,
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "flex-start",
+  zIndex: 999,
+  elevation: 6,
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.2,
+  shadowRadius: 4,
+  borderLeftWidth: 5,
+},
+alertText: {
+  fontSize: 14,
+  marginLeft: 10,
+  fontFamily: "Poppins-Medium",
+  color: "#333",
+  flexShrink: 1,
+},
+
 });

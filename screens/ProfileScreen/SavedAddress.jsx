@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,15 +7,11 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
-  Alert,
   Modal,
-  KeyboardAvoidingView,
-  Platform,
   ScrollView,
-  TouchableWithoutFeedback,
-  Keyboard,
 } from "react-native";
 import { useQuery, useMutation } from "@apollo/client";
+import { useRoute } from "@react-navigation/native";
 import { GET_ALL_ADDRESS_QUERY } from "../../graphql/queries";
 import {
   CREATE_ADDRESS,
@@ -23,14 +19,14 @@ import {
   UPDATE_ADDRESS,
 } from "../../graphql/mutations";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation, useRoute } from "@react-navigation/native";
-import { LinearGradient } from "expo-linear-gradient";
 
 const SavedAddress = () => {
   const route = useRoute();
-  const navigation = useNavigation();
+  const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [isEdit, setIsEdit] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [addressValidationError, setAddressValidationError] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
   const [form, setForm] = useState({
     fullName: "",
     mobileNo: "",
@@ -40,71 +36,46 @@ const SavedAddress = () => {
     pincode: "",
     state: "",
     country: "",
+    tag: "Home",
   });
 
-  const [selectedAddressId, setSelectedAddressId] = useState(
-    route?.params?.selectedAddressId || null
-  );
-  const updateSelectedAddressId =
-    route?.params?.setSelectedAddressId || setSelectedAddressId;
+  const routeSetSelectedAddressId = route?.params?.setSelectedAddressId;
+  const onProceed = route?.params?.onProceed;
 
   const { data, loading, error, refetch } = useQuery(GET_ALL_ADDRESS_QUERY, {
     variables: { page: 0, take: 10 },
   });
 
-  const [updateAddress, { loading: updating }] = useMutation(UPDATE_ADDRESS, {
+  useEffect(() => {
+    const addresses = data?.getAllAddress?.addresses || [];
+    if (addresses.length > 0 && !selectedAddressId) {
+      const firstId = addresses[0]?.id;
+      setSelectedAddressId(firstId);
+      if (typeof routeSetSelectedAddressId === "function") {
+        routeSetSelectedAddressId(firstId);
+      }
+    }
+  }, [data]);
+
+  const [createAddress] = useMutation(CREATE_ADDRESS);
+  const [updateAddress] = useMutation(UPDATE_ADDRESS, {
     onCompleted: () => {
-      Alert.alert("Success", "Address updated successfully!");
+      resetForm();
       refetch();
       setModalVisible(false);
     },
-    onError: (err) => Alert.alert("Error", err.message),
   });
+  const [deleteAddress] = useMutation(DELETE_ADDRESS);
 
-  const [deleteAddress, { loading: deletingAddress }] = useMutation(DELETE_ADDRESS);
-  const [createAddress, { loading: creatingAddressLoading }] = useMutation(CREATE_ADDRESS);
-
-  const handleCreate = async () => {
-    const pincodeInt = parseInt(form.pincode, 10);
-    if (isNaN(pincodeInt)) return Alert.alert("Invalid pincode");
-
-    try {
-      await createAddress({ variables: { ...form, pincode: pincodeInt } });
-      Alert.alert("Success", "Address created successfully!");
-      setModalVisible(false);
-      resetForm();
-      await refetch();
-    } catch (error) {
-      Alert.alert("Error", error.message || "Failed to create address.");
-    }
-  };
-
-  const handleUpdate = async () => {
-    if (!selectedAddressId) return Alert.alert("Select an address first");
-    const pincodeInt = parseInt(form.pincode, 10);
-    if (isNaN(pincodeInt)) return Alert.alert("Invalid pincode");
-
-    try {
-      await updateAddress({
-        variables: {
-          updateAddressId: selectedAddressId,
-          ...form,
-          pincode: pincodeInt,
-        },
-      });
-      resetForm();
-    } catch (error) {
-      Alert.alert("Error", error.message);
-    }
-  };
-
-  const handleAddressDelete = async (id) => {
-    try {
-      await deleteAddress({ variables: { deleteAddressId: id } });
-      await refetch();
-    } catch (error) {
-      Alert.alert("Delete failed", error.message);
-    }
+  const validateForm = () => {
+    const errors = {};
+    Object.keys(form).forEach((key) => {
+      if (!form[key]) {
+        errors[key] = `* ${key.replace(/([A-Z])/g, " $1")} is required`;
+      }
+    });
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const resetForm = () => {
@@ -117,44 +88,89 @@ const SavedAddress = () => {
       pincode: "",
       state: "",
       country: "",
+      tag: "Home",
     });
+    setFormErrors({});
     setIsEdit(false);
     setSelectedAddressId(null);
   };
 
-  const renderAddressItem = ({ item }) => (
-    <TouchableOpacity
-      style={[
-        styles.addressItem,
-        selectedAddressId === item?.id && styles.selectedAddress,
-      ]}
-      onPress={() => {
-        setSelectedAddressId(item?.id);
-        updateSelectedAddressId(item?.id);
-      }}
-    >
-      <View style={styles.radioContainer}>
-        <Ionicons
-          name={
-            selectedAddressId === item?.id
-              ? "radio-button-on"
-              : "radio-button-off"
-          }
-          size={20}
-          color="#007BFF"
-        />
-        <View style={{ marginLeft: 10 }}>
-          <Text style={styles.addressLabel}>{item?.fullName}</Text>
-          <Text>{item?.mobileNo}</Text>
-          <Text>{item?.addressLine1}, {item?.addressLine2}</Text>
-          <Text>{item?.city}, {item?.state} - {item?.pincode}</Text>
-          <Text>{item?.country}</Text>
+  const handleCreate = async () => {
+    if (!validateForm()) return;
+    try {
+      await createAddress({
+        variables: { ...form, pincode: parseInt(form.pincode, 10) },
+      });
+      resetForm();
+      refetch();
+      setModalVisible(false);
+    } catch (err) {
+      console.log("Create Error:", err.message);
+    }
+  };
 
-          <View style={{ flexDirection: "row", marginTop: 5 }}>
+  const handleUpdate = async () => {
+    if (!validateForm()) return;
+    try {
+      await updateAddress({
+        variables: {
+          updateAddressId: selectedAddressId,
+          ...form,
+          pincode: parseInt(form.pincode, 10),
+        },
+      });
+      resetForm();
+    } catch (err) {
+      console.log("Update Error:", err.message);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await deleteAddress({ variables: { deleteAddressId: id } });
+      await refetch();
+    } catch (err) {
+      console.log("Delete Error:", err.message);
+    }
+  };
+
+  const handleProceed = () => {
+    if (!selectedAddressId) {
+      setAddressValidationError(true);
+    } else {
+      setAddressValidationError(false);
+      if (typeof onProceed === "function") {
+        onProceed();
+      }
+    }
+  };
+
+  const renderAddressItem = ({ item }) => {
+    const isSelected = selectedAddressId === item?.id;
+    return (
+      <TouchableOpacity
+        style={[styles.cardContainer, isSelected && styles.selectedCard]}
+        onPress={() => {
+          setSelectedAddressId(item?.id);
+          if (typeof routeSetSelectedAddressId === "function") {
+            routeSetSelectedAddressId(item?.id);
+          }
+          setAddressValidationError(false);
+        }}
+      >
+        <View style={styles.cardHeader}>
+          <View style={styles.radioNameWrapper}>
+            <Ionicons
+              name={isSelected ? "radio-button-on" : "radio-button-off"}
+              size={20}
+              color="#007BFF"
+            />
+            <Text style={styles.nameText}>{item?.fullName}</Text>
+          </View>
+          <View style={{ flexDirection: "row", gap: 12 }}>
             <TouchableOpacity
               onPress={() => {
                 setSelectedAddressId(item?.id);
-                updateSelectedAddressId(item?.id);
                 setForm({
                   fullName: item?.fullName || "",
                   mobileNo: item?.mobileNo || "",
@@ -168,142 +184,117 @@ const SavedAddress = () => {
                 setIsEdit(true);
                 setModalVisible(true);
               }}
-              style={{ marginRight: 12 }}
             >
-              <Ionicons name="pencil-outline" size={22} />
+              <Ionicons name="pencil-outline" size={20} color="#007BFF" />
             </TouchableOpacity>
-
-            <TouchableOpacity onPress={() => handleAddressDelete(item?.id)}>
-              {deletingAddress ? (
-                <ActivityIndicator size="small" />
-              ) : (
-                <Ionicons name="trash-outline" size={22} />
-              )}
+            <TouchableOpacity onPress={() => handleDelete(item?.id)}>
+              <Ionicons name="trash" size={20} color="red" />
             </TouchableOpacity>
           </View>
         </View>
-      </View>
-    </TouchableOpacity>
-  );
+        <Text style={styles.addressText}>Mobile No. {item?.mobileNo}</Text>
+        <Text style={styles.addressText}>
+          {item?.addressLine1}, {item?.addressLine2}, {item?.city},{" "}
+          {item?.state}, {item?.country} - {item?.pincode}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
 
   if (loading) return <ActivityIndicator style={{ marginTop: 20 }} />;
-  if (error) return <Text style={{ color: "red", marginTop: 20 }}>{error.message}</Text>;
+  if (error) return <Text style={{ color: "red" }}>{error.message}</Text>;
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <LinearGradient
-        colors={["#184977", "#459BEC", "#73BBFF", "#DFF0FF"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0, y: 1 }}
-        style={styles.headerContainer}
-      >
-        <View style={styles.headerContent}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#fff" />
-          </TouchableOpacity>
-          <Text style={styles.headerText}>Saved Addresses</Text>
-        </View>
-      </LinearGradient>
+      <Text style={styles.heading}>Your Addresses</Text>
 
-      {/* Address Section */}
-      <View style={styles.headContainer}>
-        <Text style={styles.heading}>Your Address</Text>
-        <TouchableOpacity
-          style={styles.createBTN}
-          onPress={() => {
-            resetForm();
-            setModalVisible(true);
-          }}
-        >
-          <Ionicons name="add-outline" size={20} color={"blue"} />
-        </TouchableOpacity>
-      </View>
+      {addressValidationError && (
+        <Text style={styles.errorText}>* Please select address</Text>
+      )}
 
       <FlatList
         data={data?.getAllAddress?.addresses || []}
-        keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
+        keyExtractor={(item) => item?.id?.toString()}
         renderItem={renderAddressItem}
         ListEmptyComponent={<Text>No addresses found.</Text>}
-        contentContainerStyle={{ paddingBottom: 80 }}
       />
 
-      {/* Bottom Save New Address Button */}
-      <TouchableOpacity
-        style={[styles.button, { margin: 16 }]}
+      {/* <TouchableOpacity
+        style={[styles.button, styles.addAddressButton]}
         onPress={() => {
           resetForm();
           setModalVisible(true);
         }}
       >
-        <Text style={styles.buttonText}>Save Address</Text>
+        <Text style={styles.addAddressText}>Add New Address</Text>
       </TouchableOpacity>
 
-      {/* Address Modal */}
+      <TouchableOpacity style={styles.button} onPress={handleProceed}>
+        <Text style={styles.buttonText}>Deliver to this Address</Text>
+      </TouchableOpacity> */}
+
       <Modal
         animationType="slide"
         transparent={true}
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={styles.modalOverlay}>
-            <KeyboardAvoidingView
-              behavior={Platform.OS === "ios" ? "padding" : "height"}
-              style={{ flex: 1 }}
-            >
-              <ScrollView contentContainerStyle={styles.modalView}>
-                <Text style={styles.modalText}>
-                  {isEdit ? "Edit Address" : "Add New Address"}
-                </Text>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalView}>
+            <ScrollView>
+              <Text style={styles.modalText}>
+                {isEdit ? "Edit Address" : "Add New Address"}
+              </Text>
 
-                {[{ label: "Full Name", key: "fullName" },
-                  { label: "Mobile No.", key: "mobileNo" },
-                  { label: "Address Line 1", key: "addressLine1" },
-                  { label: "Address Line 2", key: "addressLine2" },
-                  { label: "City", key: "city" },
-                  { label: "Pincode", key: "pincode" },
-                  { label: "State", key: "state" },
-                  { label: "Country", key: "country" },
-                ].map((field) => (
+              {[
+                "fullName",
+                "mobileNo",
+                "addressLine1",
+                "addressLine2",
+                "city",
+                "pincode",
+                "state",
+                "country",
+              ].map((key) => (
+                <View key={key} style={{ marginBottom: 12 }}>
                   <TextInput
-                    key={field.key}
-                    placeholder={field.label}
+                    placeholder={key.replace(/([A-Z])/g, " $1")}
                     style={styles.input}
-                    value={form[field.key]}
-                    onChangeText={(text) =>
-                      setForm((prev) => ({ ...prev, [field.key]: text }))
+                    value={form[key]}
+                    onChangeText={(text) => {
+                      setForm({ ...form, [key]: text });
+                      setFormErrors({ ...formErrors, [key]: "" });
+                    }}
+                    keyboardType={
+                      ["pincode", "mobileNo"].includes(key)
+                        ? "numeric"
+                        : "default"
                     }
-                    keyboardType={["pincode", "mobileNo"].includes(field.key) ? "numeric" : "default"}
                   />
-                ))}
+                  {formErrors[key] && (
+                    <Text style={styles.errorText}>{formErrors[key]}</Text>
+                  )}
+                </View>
+              ))}
 
-                <TouchableOpacity
-                  style={styles.button}
-                  onPress={isEdit ? handleUpdate : handleCreate}
-                  disabled={updating || creatingAddressLoading}
-                >
-                  <Text style={styles.buttonText}>
-                    {isEdit
-                      ? updating
-                        ? "Updating..."
-                        : "Update Address"
-                      : creatingAddressLoading
-                      ? "Saving..."
-                      : "Save Address"}
-                  </Text>
-                </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={isEdit ? handleUpdate : handleCreate}
+              >
+                <Text style={styles.buttonText}>
+                  {isEdit ? "Update Address" : "Save Address"}
+                </Text>
+              </TouchableOpacity>
 
-                <TouchableOpacity
-                  onPress={() => setModalVisible(false)}
-                  style={[styles.button, { backgroundColor: "gray", marginTop: 10 }]}
-                >
-                  <Text style={styles.buttonText}>Cancel</Text>
-                </TouchableOpacity>
-              </ScrollView>
-            </KeyboardAvoidingView>
+              <TouchableOpacity
+                onPress={() => setModalVisible(false)}
+                style={[styles.button, { backgroundColor: "gray" }]}
+              >
+                <Text style={styles.buttonText}>Cancel</Text>
+              </TouchableOpacity>
+            </ScrollView>
           </View>
-        </TouchableWithoutFeedback>
+        </View>
       </Modal>
     </View>
   );
@@ -311,54 +302,82 @@ const SavedAddress = () => {
 
 export default SavedAddress;
 
+
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
-  headerContainer: {
-    paddingVertical: 45,
-    paddingHorizontal: 10,
-    justifyContent: "center",
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: "#fff",
   },
-  headerContent: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  backButton: {
-    marginRight: 10,
-  },
-  headerText: {
-    fontSize: 20,
+  heading: {
+    fontSize: 18,
     fontWeight: "bold",
-    color: "#fff",
+    marginVertical: 12,
   },
-  headContainer: {
+  cardContainer: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "#ddd",
+  },
+  selectedCard: {
+    borderColor: "#007BFF",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  cardHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 16,
-    marginTop: 12,
-  },
-  createBTN: {
-    borderWidth: 2,
-    borderColor: "blue",
-    borderRadius: 100,
-    padding: 6,
-  },
-  heading: { fontSize: 18, fontWeight: "bold", marginVertical: 12 },
-  addressItem: {
-    padding: 12,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
     marginBottom: 8,
-    marginHorizontal: 16,
   },
-  selectedAddress: {
-    borderColor: "#007BFF",
-    backgroundColor: "#E6F0FF",
-  },
-  radioContainer: {
+  radioNameWrapper: {
     flexDirection: "row",
-    alignItems: "flex-start",
+    alignItems: "center",
+  },
+  nameText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginLeft: 8,
+  },
+  tag: {
+    marginLeft: 10,
+    backgroundColor: "#eee",
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  tagText: {
+    fontSize: 12,
+    color: "#555",
+  },
+  addressText: {
+    fontSize: 14,
+    color: "#555",
+    lineHeight: 20,
+  },
+  button: {
+    backgroundColor: "#007BFF",
+    padding: 14,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 16,
+  },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  errorText: {
+    color: "red",
+    fontSize: 12,
+    marginTop: 2,
+    marginLeft: 2,
   },
   modalOverlay: {
     flex: 1,
@@ -370,8 +389,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f0f0f0",
     borderRadius: 10,
     padding: 20,
-    elevation: 5,
-    flexGrow: 1,
+    maxHeight: "90%",
   },
   modalText: {
     fontSize: 18,
@@ -379,25 +397,20 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: "center",
   },
-  addressLabel: { fontWeight: "600", marginBottom: 4 },
   input: {
     borderWidth: 1,
     borderColor: "#ccc",
     padding: 10,
-    marginBottom: 10,
     borderRadius: 6,
   },
-  button: {
+  addAddressButton: {
     backgroundColor: "#fff",
-    padding: 14,
-    borderRadius: 8,
-    alignItems: "center",
-    marginTop: 10,
-    borderColor: '#2A55E5',
-    borderWidth: 2,
+    borderWidth: 1,
+    borderColor: "#007BFF",
   },
-  buttonText: { 
-    color: "#2A55E5", 
-    fontWeight: "bold", 
-    fontSize: 16 },
+  addAddressText: {
+    color: "#007BFF",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
 });

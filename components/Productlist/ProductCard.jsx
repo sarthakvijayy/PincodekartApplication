@@ -101,7 +101,7 @@ const ProductCard = ({
         </Text>
 
         <View style={styles.priceRow}>
-          <Text style={styles.price}>₹{mrpPrice}</Text>
+          <Text style={styles.price}>₹{mrpPrice || "PRICE"} </Text>
         </View>
 
         <View style={styles.labels}>

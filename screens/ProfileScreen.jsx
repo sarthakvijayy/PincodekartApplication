@@ -13,7 +13,7 @@ import {
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import BottomNav from '../components/HomeScreen/BottomNav';
-import { GET_CURRENT_USER } from '../graphql/queries';
+import { GET_CURRENT_USER, GET_ALL_PRODUCTS } from '../graphql/queries';
 import { useQuery, useApolloClient } from '@apollo/client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -30,16 +30,14 @@ const ProfileScreen = () => {
   const [languageExpanded, setLanguageExpanded] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('English');
   const [selectedAddressId, setSelectedAddressId] = useState(null);
+  const [randomViewed, setRandomViewed] = useState([]);
 
   const { data: currentUser } = useQuery(GET_CURRENT_USER);
+  const { data: allProductsData, loading: productsLoading } = useQuery(GET_ALL_PRODUCTS, {
+    variables: { take: 20, page: 1 },
+  });
 
-  const languages = ['Hindi', 'English', 'Marathi', 'Gujarati'];
-  const recentlyViewed = [
-    { id: 1, title: 'Shirts', image: require('../assets/deals/Shirt.png'), rating: 4 },
-    { id: 2, title: 'Mobiles', image: require('../assets/deals/Shirt.png'), rating: 5 },
-    { id: 3, title: 'Home', image: require('../assets/deals/Shirt.png'), rating: 3 },
-    { id: 4, title: 'Shoes', image: require('../assets/deals/Shirt.png'), rating: 4.5 },
-  ];
+  const languages = ['Hindi', 'English'];
 
   useEffect(() => {
     const checkLoginStatus = async () => {
@@ -53,7 +51,6 @@ const ProfileScreen = () => {
         setLoadingLoginStatus(false);
       }
     };
-
     checkLoginStatus();
   }, []);
 
@@ -62,6 +59,13 @@ const ProfileScreen = () => {
       setSelectedAddressId(route.params.selectedAddressId);
     }
   }, [route.params]);
+
+  useEffect(() => {
+    if (allProductsData?.getAllProducts?.products?.length) {
+      const shuffled = [...allProductsData.getAllProducts.products].sort(() => 0.5 - Math.random());
+      setRandomViewed(shuffled.slice(0, 5));
+    }
+  }, [allProductsData]);
 
   const renderRating = (rating) => {
     const fullStars = Math.floor(rating);
@@ -102,11 +106,13 @@ const ProfileScreen = () => {
     );
   };
 
-  if (loadingLoginStatus) {
+  if (loadingLoginStatus || productsLoading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" color="#2A55E5" />
-        <Text style={{ fontFamily: 'Poppins_500Medium', marginTop: 10 }}>Loading profile...</Text>
+        <Text style={{ fontFamily: 'Poppins_500Medium', marginTop: 10 }}>
+          Loading profile...
+        </Text>
       </View>
     );
   }
@@ -114,12 +120,7 @@ const ProfileScreen = () => {
   return (
     <View style={{ flex: 1 }}>
       <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 100 }}>
-        <View style={styles.headerBar}>
-          <TouchableOpacity
-            style={styles.userSection}
-            onPress={() => navigation.navigate(isLoggedIn ? 'EditProfile' : 'LoginScreen')}
-          />
-        </View>
+        <View style={styles.headerBar} />
 
         <Text style={styles.heading}>
           Hello {isLoggedIn && currentUser?.getCurrentUser?.firstName
@@ -146,7 +147,6 @@ const ProfileScreen = () => {
                     break;
                 }
               };
-
               return (
                 <TouchableOpacity key={index} style={styles.actionCard} onPress={handleNavigation}>
                   <Text style={styles.cardText}>{item}</Text>
@@ -156,15 +156,19 @@ const ProfileScreen = () => {
           </View>
         )}
 
-        {isLoggedIn && (
+        {isLoggedIn && randomViewed.length > 0 && (
           <>
             <Text style={styles.sectionTitle}>Recently Viewed Products</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.carousel}>
-              {recentlyViewed.map((item) => (
+              {randomViewed.map((item) => (
                 <View key={item.id} style={styles.productCard}>
-                  <Image source={item.image} style={styles.productImage} />
-                  <Text style={styles.productTitle}>{item.title}</Text>
-                  {renderRating(item.rating)}
+                  <Image
+                    source={{ uri: item.Image }}
+                    style={styles.productImage}
+                    resizeMode="cover"
+                  />
+                  <Text style={styles.productTitle} numberOfLines={2}>{item.productName}</Text>
+                  {renderRating(Math.floor(Math.random() * 5) + 1)}
                 </View>
               ))}
             </ScrollView>
@@ -182,10 +186,7 @@ const ProfileScreen = () => {
         )}
 
         {isLoggedIn && (
-          <TouchableOpacity
-            style={styles.settingRow}
-            onPress={() => setAddressExpanded(!addressExpanded)}
-          >
+          <TouchableOpacity style={styles.settingRow} onPress={() => setAddressExpanded(!addressExpanded)}>
             <Text style={styles.settingText}>Saved Address</Text>
             <Ionicons name={addressExpanded ? 'chevron-up' : 'chevron-down'} size={20} />
           </TouchableOpacity>
@@ -200,7 +201,7 @@ const ProfileScreen = () => {
             )}
             <TouchableOpacity
               style={styles.addAddressBtn}
-              onPress={() => navigation.navigate('AddressScreen', { fromProfile: true })}
+              onPress={() => navigation.navigate('SavedAddress', { fromProfile: true })}
             >
               <Text style={styles.addAddressText}>View Your Address</Text>
             </TouchableOpacity>
@@ -208,10 +209,7 @@ const ProfileScreen = () => {
         )}
 
         {isLoggedIn && (
-          <TouchableOpacity
-            style={styles.settingRow}
-            onPress={() => setLanguageExpanded(!languageExpanded)}
-          >
+          <TouchableOpacity style={styles.settingRow} onPress={() => setLanguageExpanded(!languageExpanded)}>
             <Text style={styles.settingText}>Select Language</Text>
             <Ionicons name={languageExpanded ? 'chevron-up' : 'chevron-down'} size={20} />
           </TouchableOpacity>
@@ -278,7 +276,6 @@ const ProfileScreen = () => {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff', padding: 16 },
   headerBar: { flexDirection: 'row', justifyContent: 'flex-end', marginBottom: 10 },
-  userSection: { flexDirection: 'row', alignItems: 'center', padding: 8, marginTop: 16 },
   heading: { fontSize: 22, fontFamily: 'Poppins_700Medium', marginBottom: 15, marginTop: 15 },
   quickActions: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
   actionCard: {

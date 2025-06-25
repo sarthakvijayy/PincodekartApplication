@@ -64,11 +64,16 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
       return;
     }
 
+     if (selectedMethod === "Pay on Delivery") {
+      navigation.navigate("OrderConfirmedScreen", { addressId });
+      return;
+    }
+
     try {
       await createOrder({
         variables: {
           addressId,
-          paymentMethod: selectedMethod === "Cash on Delivery" ? "COD" : selectedMethod,
+          paymentMethod: selectedMethod === "Pay on Delivery" ? "COD" : selectedMethod,
           ushopId: couponApplied ? ushopId : "",
           couponCode: couponApplied ? couponCodeInput : "",
           timeSlot: selectedSlot,
