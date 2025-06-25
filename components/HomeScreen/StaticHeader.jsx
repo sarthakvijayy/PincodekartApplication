@@ -78,6 +78,20 @@ const StaticHeader = ({
               placeholder="Search for products"
               placeholderTextColor="#888"
             />
+
+            {/* <Ionicons
+              name="mic"
+              size={18}
+              color="#888"
+              style={{ marginRight: 8 }}
+            />
+            <Ionicons
+              name="camera"
+              size={18}
+              color="#888"
+              style={{ marginRight: 8 }}
+            /> */}
+
           </View>
              {/* <TouchableOpacity onPress={() => navigation.navigate("CartScreen")}>
                    <View style={styles.iconWithBadge}>
@@ -94,6 +108,8 @@ const StaticHeader = ({
                      </View>
                    </View>
                  </TouchableOpacity> */}
+
+                 
         </View>
       </LinearGradient>
 
@@ -113,7 +129,7 @@ const styles = StyleSheet.create({
   paddingTop: 30,
   paddingBottom: 16,
   paddingHorizontal: 9,
-  elevation: 10, // Android shadow
+  elevation: 10, 
   shadowColor: "#000",
   shadowOffset: { width: 0, height: 2 },
   shadowOpacity: 0.2,
@@ -131,9 +147,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#F5F6FA",
     borderRadius: 15,
     alignItems: "center",
-    paddingHorizontal: 12,
+    paddingHorizontal: 20,
     height: 42,
-    marginHorizontal: 12,
+    // marginHorizontal: 12,
   },
   searchInput: {
     flex: 1,

@@ -17,7 +17,7 @@ import {
   GET_PRODUCTS_BY_CATEGORY,
 } from "../../graphql/queries";
 import BottomNav from "../HomeScreen/BottomNav";
-import ProductCard from "../Productlist/ProductCard";
+
 
 const { width } = Dimensions.get("window");
 const ITEM_WIDTH = width / 3 - 30;
@@ -84,7 +84,14 @@ const Allcat = () => {
   );
 
   const renderSubCat = ({ item }) => (
-    <TouchableOpacity style={styles.subCategoryItem}>
+    <TouchableOpacity style={styles.subCategoryItem}
+      onPress={() =>
+        navigation.navigate("CategoryScreen", {
+          categoryId: item.id,
+          catName: item.categoryName,
+        })
+      }
+    >
       <Image
         source={{ uri: item.categoryIcon }}
         style={styles.subCategoryIcon}
@@ -97,9 +104,7 @@ const Allcat = () => {
 
   const renderProduct = ({ item }) => {
     const img = item.previewImage?.trim();
-    // return (
-  
-    // );
+ 
   };
 
   

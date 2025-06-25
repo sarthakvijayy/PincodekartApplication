@@ -21,18 +21,18 @@ const OrderSummaryScreen = ({
   // const [selectedSlot, setSelectedSlot] = useState("09AM - 10AM");
 
   const deliverySlots = [
-    { id: 1, label: "09AM - 10AM", value: "09AM - 10AM" },
-    { id: 2, label: "10AM - 11AM", value: "10AM - 11AM" },
-    { id: 3, label: "11AM - 12PM", value: "11AM - 12PM" },
-    { id: 4, label: "12PM - 01PM", value: "12PM - 01PM" },
-    { id: 5, label: "01PM - 02PM", label: "01PM - 02PM" },
-    { id: 6, label: "02PM - 03PM", label: "02PM - 03PM" },
-    { id: 7, label: "03PM - 04PM", label: "03PM - 04PM" },
-    { id: 8, label: "04PM - 05PM", label: "04PM - 05PM" },
-    { id: 9, label: "05PM - 06PM", label: "05PM - 06PM" },
-    { id: 10, label: "06PM - 07PM", label: "06PM - 07PM" },
-    { id: 11, label: "07PM - 08PM", label: "07PM - 08PM" },
-    { id: 12, label: "08PM - 09PM", label: "08PM - 09PM" },
+    { id: 1, label: "09:00AM - 10:00AM", value: "09:00AM - 10:00AM" },
+    { id: 2, label: "10:00AM - 11:00AM", value: "10:00AM - 11:00AM" },
+    { id: 3, label: "11:00AM - 12:00PM", value: "11:00AM - 12:00PM" },
+    { id: 4, label: "12:00PM - 01:00PM", value: "12:00PM - 01:00PM" },
+    { id: 5, label: "01:00PM - 02:00PM", label: "01:00PM - 02:00PM" },
+    { id: 6, label: "02:00PM - 03:00PM", label: "02:00PM - 03:00PM" },
+    { id: 7, label: "03:00PM - 04:00PM", label: "03:00PM - 04:00PM" },
+    { id: 8, label: "04:00PM - 05:00PM", label: "04:00PM - 05:00PM" },
+    { id: 9, label: "05:00PM - 06:00PM", label: "05:00PM - 06:00PM" },
+    { id: 10, label: "06:00PM - 07:00PM", label: "06:00PM - 07:00PM" },
+    { id: 11, label: "07:00PM - 08:00PM", label: "07:00PM - 08:00PM" },
+    { id: 12, label: "08:00PM - 09:00PM", label: "08:00PM - 09:00PM" },
   ];
 
   const {

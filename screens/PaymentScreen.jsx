@@ -89,6 +89,7 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
       const { data: refetchResult } = await verifyCouponRefetch({
         ushopId,
         couponcode: couponCodeInput,
+        
       });
 
       const response = refetchResult?.verifyCoupon || refetchResult?.varifyCoupon;
@@ -175,16 +176,18 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
             <Text style={styles.modalTitle}>Enter Coupon Details</Text>
             <TextInput
               style={styles.input}
-              placeholder="Coupon Code"
-              value={couponCodeInput}
-              onChangeText={setCouponCodeInput}
-            />
-            <TextInput
-              style={styles.input}
               placeholder="Ushop ID"
               value={ushopId}
               onChangeText={setUshopId}
             />
+
+            <TextInput
+              style={styles.input}
+              placeholder="Coupon Code"
+              value={couponCodeInput}
+              onChangeText={setCouponCodeInput}
+            />
+            
             {couponError ? (
               <Text
                 style={{
@@ -213,7 +216,7 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
 
       {/* Payment Method */}
       <Text style={[styles.sectionTitle, { marginTop: 24 }]}>Payment Method</Text>
-      {["Online", "Cash on Delivery"].map((method) => (
+      {["Pay Online", "Pay on Delivery"].map((method) => (
         <TouchableOpacity
           key={method}
           style={[styles.radioContainer, selectedMethod === method && styles.selected]}

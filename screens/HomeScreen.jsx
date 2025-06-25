@@ -1,5 +1,10 @@
 import React, { useRef, useState } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import {
+  FlatList,
+  StyleSheet,
+  View,
+  Animated,
+} from 'react-native';
 import Header from '../components/HomeScreen/Header';
 import StaticHeader from '../components/HomeScreen/StaticHeader';
 import BottomNav from '../components/HomeScreen/BottomNav';
@@ -65,19 +70,20 @@ const sections = [
 
 const HomeScreen = () => {
   const [showStickyHeader, setShowStickyHeader] = useState(false);
-  const lastOffset = useRef(0);
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const lastOffsetY = useRef(0);
 
   const handleScroll = (event) => {
-    const currentOffset = event.nativeEvent.contentOffset.y;
+    const currentY = event.nativeEvent.contentOffset.y;
 
-    // Instant reaction
-    if (currentOffset > 100) {
-      setShowStickyHeader(currentOffset < lastOffset.current); // Scroll up = show
-    } else {
-      setShowStickyHeader(false); // Show full header at top
+    // Only show StaticHeader when scrolling up and past 150px
+    if (currentY < lastOffsetY.current && currentY > 150) {
+      setShowStickyHeader(true);
+    } else if (currentY <= 150 || currentY > lastOffsetY.current) {
+      setShowStickyHeader(false);
     }
 
-    lastOffset.current = currentOffset;
+    lastOffsetY.current = currentY;
   };
 
   return (
@@ -97,9 +103,9 @@ const HomeScreen = () => {
         }}
         keyExtractor={(item) => item.key}
         showsVerticalScrollIndicator={false}
-        scrollEventThrottle={7} // ✅ Faster scroll detection
+        scrollEventThrottle={16}
         onScroll={handleScroll}
-        initialNumToRender={1} // ✅ Render faster
+        initialNumToRender={1}
         maxToRenderPerBatch={4}
         windowSize={6}
         contentContainerStyle={{ paddingBottom: 100 }}
@@ -126,12 +132,12 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 999,
     backgroundColor: '#fff',
-    padding: 10,
-    elevation: 10,
+    paddingVertical: 8,
+    elevation: 12,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
   },
   bottomNavContainer: {
     position: 'absolute',

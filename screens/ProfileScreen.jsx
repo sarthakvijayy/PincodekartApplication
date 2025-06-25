@@ -34,7 +34,7 @@ const ProfileScreen = () => {
 
   const { data: currentUser } = useQuery(GET_CURRENT_USER);
   const { data: allProductsData, loading: productsLoading } = useQuery(GET_ALL_PRODUCTS, {
-    variables: { take: 20, page: 1 },
+    variables: { take: 20, page: 0 },
   });
 
   const languages = ['Hindi', 'English'];
@@ -66,6 +66,8 @@ const ProfileScreen = () => {
       setRandomViewed(shuffled.slice(0, 5));
     }
   }, [allProductsData]);
+
+console.log('Current User:', randomViewed);
 
   const renderRating = (rating) => {
     const fullStars = Math.floor(rating);
@@ -163,7 +165,7 @@ const ProfileScreen = () => {
               {randomViewed.map((item) => (
                 <View key={item.id} style={styles.productCard}>
                   <Image
-                    source={{ uri: item.Image }}
+                    source={{ uri: item.previewImage }}
                     style={styles.productImage}
                     resizeMode="cover"
                   />

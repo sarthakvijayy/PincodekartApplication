@@ -1,20 +1,67 @@
 import { gql } from "@apollo/client";
 
 export const GET_ALL_PRODUCTS = gql`
-  query Products($page: Int, $take: Int) {
-    getAllProducts(page: $page, take: $take) {
-      products {
-        id
-        productName
-        sellingPrice
-        price
-        discount
-        image
-        brandId
-        reviewId
+query GetAllProducts($take: Int, $page: Int) {
+  getAllProducts(take: $take, page: $page) {
+    products {
+      id
+      categoryId
+      brandId
+      previewImage
+      mainCategory
+      productName
+      description
+      includeGst
+      gst
+      hsnCode
+      variant {
+        variantType
+        variantName
+        skuId
+        size
+        productStyleCode
+        discountPrice
+        manufacturerPrice
+        mrpPrice
+        dukandarMargin
+        logisticCost
+        moq
+        stock
+        warrentyType
+        images
+        atributes {
+          atributeName
+          atributeValue
+        }
+        customatributes {
+          customAtributeName
+          customAtributeValue
+        }
+        packagingLength
+        packagingBreadth
+        packagingHeight
+        packagingWeight
       }
+      wholesalerId
+      active
+      approved
+      rejected
+      rejectedReason
+      createdAt
+      updatedAt
+      previewName
+      image
+      sellingPrice
+      price
+      bestSellingProduct
+      featuredProduct
+      popularProduct
+      discount
+      reviewId
     }
+    count
   }
+}
 `;
 
 export const GET_ALL_CATEGORIES = gql`
