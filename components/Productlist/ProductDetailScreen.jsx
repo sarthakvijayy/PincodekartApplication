@@ -10,6 +10,7 @@ import {
   Dimensions,
   StyleSheet,
   SafeAreaView,
+  Animated,
 } from "react-native";
 import { useQuery, useMutation } from "@apollo/client";
 import { GET_PRODUCT } from "../../graphql/queries";
@@ -20,15 +21,16 @@ import ProductCoursel from "./ProductCoursel";
 import BottomNav from "../HomeScreen/BottomNav";
 import { ADD_TO_CART } from "../../graphql/mutations";
 import ImageViewing from "react-native-image-viewing";
-import Toast from 'react-native-root-toast';
+import { useNavigation } from "@react-navigation/native";
+
+
 
 const { width } = Dimensions.get("window");
 
 const ProductDetailScreen = ({ route }) => {
-  const { id } = route.params;
-  
+  const navigation = useNavigation();
 
-  
+  const { id } = route.params;
 
   const { loading, error, data } = useQuery(GET_PRODUCT, {
     variables: { getProductId: id },
@@ -41,13 +43,38 @@ const ProductDetailScreen = ({ route }) => {
   const [isImageViewerVisible, setImageViewerVisible] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
+  // Toast animation
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertType, setAlertType] = useState("success");
+  const alertAnim = useState(new Animated.Value(-100))[0];
+
+  const showAlert = (message, type = "success") => {
+    setAlertMessage(message);
+    setAlertType(type);
+
+    Animated.timing(alertAnim, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+
+    setTimeout(() => {
+      Animated.timing(alertAnim, {
+        toValue: -100,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => {
+        setAlertMessage("");
+      });
+    }, 3000);
+  };
+
   const handleScroll = (event) => {
     const scrollY = event.nativeEvent.contentOffset.y;
     setIsScrolledEnough(scrollY > 400);
   };
 
-  if (loading)
-    return <ActivityIndicator size="large" style={{ marginTop: 50 }} />;
+  if (loading) return <ActivityIndicator size="large" style={{ marginTop: 50 }} />;
   if (error) return <Text>Error loading product: {error.message}</Text>;
 
   const product = data?.getProduct;
@@ -72,53 +99,70 @@ const ProductDetailScreen = ({ route }) => {
       ? selectedSizeVariant.images
       : selectedColorVariant?.images || [];
 
- const handleAddToCart = async () => {
-  const payload = {
+  const handleAddToCart = async () => {
+    const payload = {
+      productId: id,
+      quantity: 1,
+      variantName: selectedColorVariant.variantName,
+      size:
+        typeof selectedSizeVariant === "object"
+          ? selectedSizeVariant.size[0]
+          : selectedSizeVariant,
+      price: parseFloat(selectedColorVariant?.mrpPrice) || 0,
+    };
+
+    try {
+      await addCart({ variables: payload });
+      showAlert("Product added to cart successfully", "success");
+    } catch (error) {
+      console.error("Add to cart error:", error);
+      showAlert("Failed to add product to cart", "error");
+    }
+  };
+
+  const handleBuyNow = () => {
+  const orderPayload = {
     productId: id,
-    quantity: 1,
+    productName: product.productName,
     variantName: selectedColorVariant.variantName,
     size:
       typeof selectedSizeVariant === "object"
-        ? selectedSizeVariant.size[0]
+        ? selectedSizeVariant.size?.[0] || selectedSizeVariant.variantName
         : selectedSizeVariant,
     price: parseFloat(selectedColorVariant?.mrpPrice) || 0,
+    quantity: 1,
+    image:
+      selectedSizeVariant?.images?.[0] ||
+      selectedColorVariant?.images?.[0] ||
+      product?.previewImage,
   };
 
-  try {
-    await addCart({ variables: payload });
-
-    // ✅ Success toast
-    Toast.show('🛒 Product added to cart!', {
-      duration: Toast.durations.SHORT,
-      position: Toast.positions.BOTTOM,
-      shadow: true,
-      animation: true,
-      hideOnPress: true,
-      backgroundColor: '#4CAF50',
-      textColor: '#fff',
-      opacity: 1,
-    });
-  } catch (error) {
-    console.error("Add to cart error:", error);
-
-    // ❌ Error toast
-    Toast.show('⚠️ Failed to add to cart', {
-      duration: Toast.durations.SHORT,
-      position: Toast.positions.BOTTOM,
-      shadow: true,
-      animation: true,
-      hideOnPress: true,
-      backgroundColor: '#f44336',
-      textColor: '#fff',
-      opacity: 1,
-    });
-  }
+  navigation.navigate("MyOrderScreen", { fromBuyNow: true, item: orderPayload });
 };
 
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Fixed Header */}
+      {/* Modern Top Toast Alert */}
+      {alertMessage !== "" && (
+        <Animated.View
+          style={[
+            styles.alertContainer,
+            {
+              backgroundColor: alertType === "success" ? "#b7f6ba" : "#f44336",
+              transform: [{ translateY: alertAnim }],
+            },
+          ]}
+        >
+          <AntDesign
+            name={alertType === "success" ? "checkcircle" : "closecircleo"}
+            size={18}
+            color="#276029"
+          />
+          <Text style={styles.alertText}>{alertMessage}</Text>
+        </Animated.View>
+      )}
+
       <View style={styles.fixedHeader}>
         <ProductHeader />
       </View>
@@ -161,9 +205,7 @@ const ProductDetailScreen = ({ route }) => {
         </View>
 
         <View style={styles.detailsContainer}>
-          <Text style={styles.brand}>
-            {product.previewName || "Brand Name"}
-          </Text>
+          <Text style={styles.brand}>{product.previewName || "Brand Name"}</Text>
           <Text style={styles.title}>{product.productName}</Text>
 
           <View style={styles.priceRow}>
@@ -187,8 +229,7 @@ const ProductDetailScreen = ({ route }) => {
                   }}
                   style={[
                     styles.variantBox,
-                    index === selectedColorIndex &&
-                      styles.variantBoxSelected,
+                    index === selectedColorIndex && styles.variantBoxSelected,
                   ]}
                 >
                   <Text style={styles.variantText}>
@@ -242,7 +283,9 @@ const ProductDetailScreen = ({ route }) => {
                 <AntDesign name="shoppingcart" size={20} color="#000" />
                 <Text style={styles.cartText}>Add to Cart</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.buyButton}>
+              <TouchableOpacity style={styles.buyButton} 
+              onPress={handleAddToCart}
+              >
                 <Text style={styles.buyText}>Buy Now</Text>
               </TouchableOpacity>
             </View>
@@ -259,7 +302,7 @@ const ProductDetailScreen = ({ route }) => {
             <AntDesign name="shoppingcart" size={20} color="#000" />
             <Text style={styles.cartText}>Add to Cart</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.buyButton}>
+          <TouchableOpacity style={styles.buyButton} onPress={handleBuyNow}>
             <Text style={styles.buyText}>Buy Now</Text>
           </TouchableOpacity>
         </View>
@@ -273,23 +316,36 @@ const ProductDetailScreen = ({ route }) => {
 export default ProductDetailScreen;
 
 
-
 const styles = StyleSheet.create({
-
+  alertContainer: {
+    position: 'absolute',
+    top: -29,
+    left: 0,
+    right: 0,
+    height: 110,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 999,
+    elevation: 10,
+  },
+  alertText: {
+    color: '#276029',
+    fontSize: 18,
+    fontFamily: 'Poppins-Medium',
+  },
   fixedHeader: {
-  position: "absolute",
-  top: 0,
-  left: 0,
-  right: 0,
-  zIndex: 100,
-  backgroundColor: "#fff",
-  elevation: 4,
-  shadowColor: "#000",
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.2,
-  shadowRadius: 2,
-},
-
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 100,
+    backgroundColor: "#fff",
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+  },
   container: {
     flex: 1,
     backgroundColor: "#fff",
@@ -303,7 +359,6 @@ const styles = StyleSheet.create({
     width: width,
     height: 500,
     resizeMode: "cover",
-    marginTop: 'fit-content',
   },
   sliderDots: {
     flexDirection: "row",

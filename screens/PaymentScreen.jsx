@@ -13,6 +13,7 @@ import { useMutation, useQuery } from "@apollo/client";
 import { CREATE_ORDER } from "../graphql/mutations";
 import { GET_CART, VERIFY_COUPON } from "../graphql/queries";
 import { useNavigation } from "@react-navigation/native";
+import { MaterialIcons } from "@expo/vector-icons"; // Coupon icon
 
 const PaymentScreen = ({ addressId, selectedSlot }) => {
   const [selectedMethod, setSelectedMethod] = useState(null);
@@ -26,17 +27,10 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
 
   const navigation = useNavigation();
 
-  const {
-    data,
-    loading: cartLoading,
-    error: cartError,
-  } = useQuery(GET_CART);
+  const { data, loading: cartLoading, error: cartError } = useQuery(GET_CART);
   const cartItems = data?.getCart?.cartProducts || [];
 
-  const total = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const discountedTotal = Math.max(0, total - appliedDiscount);
 
   const [createOrder, { loading: placingOrder }] = useMutation(CREATE_ORDER, {
@@ -48,15 +42,12 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
     },
   });
 
-  const {
-    refetch: verifyCouponRefetch,
-    loading: verifyCouponLoading,
-  } = useQuery(VERIFY_COUPON, {
+  const { refetch: verifyCouponRefetch, loading: verifyCouponLoading } = useQuery(VERIFY_COUPON, {
     skip: true,
   });
 
   const handlePlaceOrder = async () => {
-    setOrderError(""); // reset previous errors
+    setOrderError("");
 
     if (!selectedMethod) {
       setOrderError("Please select a payment method.");
@@ -77,7 +68,7 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
       await createOrder({
         variables: {
           addressId,
-          paymentMethod: "Cash on Delivery",
+          paymentMethod: selectedMethod === "Cash on Delivery" ? "COD" : selectedMethod,
           ushopId: couponApplied ? ushopId : "",
           couponCode: couponApplied ? couponCodeInput : "",
           timeSlot: selectedSlot,
@@ -94,15 +85,17 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
         ushopId,
         couponcode: couponCodeInput,
       });
-      const response = refetchResult?.varifyCoupon;
 
-      if (response?.msg === "Invalid Coupon!") {
+      const response = refetchResult?.verifyCoupon || refetchResult?.varifyCoupon;
+
+      if (!response || response?.msg === "Invalid Coupon!") {
         setCouponError("Invalid Coupon!");
         setAppliedDiscount(0);
         setCouponApplied(false);
       } else {
+        const discountValue = parseFloat(response.discountAmount) || 0;
         setCouponError("Valid Coupon!");
-        setAppliedDiscount(response?.discountAmount || 0);
+        setAppliedDiscount(discountValue);
         setCouponApplied(true);
         setCouponModalVisible(false);
       }
@@ -132,7 +125,6 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
     <ScrollView style={styles.container}>
       <Text style={styles.header}>Payment Details</Text>
 
-      {/* Billing Summary */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Billing Details</Text>
         <View style={styles.row}>
@@ -141,9 +133,7 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
         </View>
         <View style={styles.row}>
           <Text style={styles.label}>Discount</Text>
-          <Text style={[styles.value, { color: "green" }]}>
-            - ₹{appliedDiscount.toFixed(2)}
-          </Text>
+          <Text style={[styles.value, { color: "green" }]}>- ₹{appliedDiscount.toFixed(2)}</Text>
         </View>
         <View style={styles.row}>
           <Text style={styles.totalLabel}>Grand Total</Text>
@@ -156,10 +146,17 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
         style={styles.couponBtn}
         onPress={() => setCouponModalVisible(true)}
       >
+        <MaterialIcons name="local-offer" size={20} color="#00796B" style={{ marginRight: 6 }} />
         <Text style={styles.couponBtnText}>
-          {couponApplied ? "Coupon Applied ✅" : "Apply Coupon Code"}
+          {couponApplied ? "Coupon Applied" : "Apply Coupon Code"}
         </Text>
       </TouchableOpacity>
+
+      {couponApplied && (
+        <Text style={{ color: "green", textAlign: "center", marginTop: 6 }}>
+          Coupon Applied Successfully ✅
+        </Text>
+      )}
 
       {/* Coupon Modal */}
       <Modal
@@ -209,42 +206,27 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
         </View>
       </Modal>
 
-      {/* Payment Method Selection */}
-      <Text style={[styles.sectionTitle, { marginTop: 24 }]}>
-        Payment Method
-      </Text>
+      {/* Payment Method */}
+      <Text style={[styles.sectionTitle, { marginTop: 24 }]}>Payment Method</Text>
       {["Online", "Cash on Delivery"].map((method) => (
         <TouchableOpacity
           key={method}
-          style={[
-            styles.radioContainer,
-            selectedMethod === method && styles.selected,
-          ]}
+          style={[styles.radioContainer, selectedMethod === method && styles.selected]}
           onPress={() => setSelectedMethod(method)}
         >
-          <View
-            style={[
-              styles.radioCircle,
-              selectedMethod === method && styles.radioCircleSelected,
-            ]}
-          >
+          <View style={[styles.radioCircle, selectedMethod === method && styles.radioCircleSelected]}>
             {selectedMethod === method && <View style={styles.innerCircle} />}
           </View>
           <Text style={styles.radioText}>{method}</Text>
         </TouchableOpacity>
       ))}
 
-      {/* 🟥 Show Error Message in Red */}
       {orderError !== "" && (
         <Text style={styles.errorText}>{orderError}</Text>
       )}
 
-      {/* Place Order Button */}
       <TouchableOpacity
-        style={[
-          styles.placeOrderBtn,
-          (!selectedMethod || placingOrder) && { opacity: 0.6 },
-        ]}
+        style={[styles.placeOrderBtn, (!selectedMethod || placingOrder) && { opacity: 0.6 }]}
         onPress={handlePlaceOrder}
         disabled={!selectedMethod || placingOrder}
       >
@@ -259,6 +241,9 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
 };
 
 export default PaymentScreen;
+
+// Styles remain the same — use the same styles from your current file.
+
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16, backgroundColor: "#fff" },
@@ -304,6 +289,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#E0F7FA",
     borderRadius: 8,
     alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "center",
   },
   couponBtnText: {
     color: "#00796B",

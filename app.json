@@ -4,13 +4,13 @@
     "slug": "pincodekartApp",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/logo/logo.png",
+    "icon": "./assets/logo/playstore.png",   
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/logo/logo.png",
+      "image": "./assets/logo/playstore.png",   
       "resizeMode": "contain",
-      "backgroundColor": "#184977"
+      "backgroundColor": "#ffffff"       
     },
     "ios": {
       "supportsTablet": true,
@@ -21,7 +21,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/logo/logo.png",
+        "foregroundImage": "./assets/logo/playstore.png", 
         "backgroundColor": "#ffffff"
       },
       "package": "com.sarthakvijay.pincodekartApp"
@@ -29,9 +29,7 @@
     "web": {
       "favicon": "./assets/logo/logo.png"
     },
-    "plugins": [
-      "expo-font"
-    ],
+    "plugins": ["expo-font"],
     "extra": {
       "eas": {
         "projectId": "2948a157-0dab-4dcf-bb1f-daa017e1a418"

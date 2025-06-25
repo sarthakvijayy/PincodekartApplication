@@ -200,7 +200,7 @@ const ProfileScreen = () => {
             )}
             <TouchableOpacity
               style={styles.addAddressBtn}
-              onPress={() => navigation.navigate('SavedAddress', { fromProfile: true })}
+              onPress={() => navigation.navigate('AddressScreen', { fromProfile: true })}
             >
               <Text style={styles.addAddressText}>View Your Address</Text>
             </TouchableOpacity>
