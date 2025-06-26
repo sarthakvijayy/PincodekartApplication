@@ -81,6 +81,7 @@ const FashionTalkSection = () => {
         </ScrollView>
 
         {/* Product Cards */}
+        <View style={styles.productSection}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -106,6 +107,7 @@ const FashionTalkSection = () => {
             </TouchableOpacity>
           ))}
         </ScrollView>
+        </View>
       </LinearGradient>
     </View>
   );
@@ -127,16 +129,19 @@ const styles = StyleSheet.create({
     width: width - 32,
     height: BANNER_HEIGHT,
     marginRight: 16,
-    borderRadius: 12,
+    borderRadius: 16,
     overflow: 'hidden',
   },
-  dealsRow: {
-    paddingHorizontal: 10,
+   productSection: {
     marginTop: 20,
+   marginHorizontal: 20,
+  },
+  dealsRow: {
+   paddingBottom: 10,
+    gap: 20
   },
   dealCard: {
     width: 140,
-    marginRight: 16,
     backgroundColor: '#ffffff',
     borderRadius: 10,
     overflow: 'hidden',

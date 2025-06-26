@@ -67,8 +67,6 @@ const ProfileScreen = () => {
     }
   }, [allProductsData]);
 
-console.log('Current User:', randomViewed);
-
   const renderRating = (rating) => {
     const fullStars = Math.floor(rating);
     const halfStar = rating % 1 !== 0;
@@ -97,143 +95,137 @@ console.log('Current User:', randomViewed);
   };
 
   const confirmLogout = () => {
-    Alert.alert(
-      'Confirm Logout',
-      'Are you sure you want to log out?',
-      [
-        { text: 'No', style: 'cancel' },
-        { text: 'Yes', onPress: handleLogout },
-      ],
-      { cancelable: true }
-    );
+    Alert.alert('Confirm Logout', 'Are you sure you want to log out?', [
+      { text: 'No', style: 'cancel' },
+      { text: 'Yes', onPress: handleLogout },
+    ]);
   };
 
   if (loadingLoginStatus || productsLoading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" color="#2A55E5" />
-        <Text style={{ fontFamily: 'Poppins_500Medium', marginTop: 10 }}>
-          Loading profile...
-        </Text>
+        <Text style={{ fontFamily: 'Poppins_500Medium', marginTop: 10 }}>Loading profile...</Text>
       </View>
     );
   }
 
   return (
-    <View style={{ flex: 1 }}>
-      <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 100 }}>
-        <View style={styles.headerBar} />
+    <View style={{ flex: 1, backgroundColor: '#fff' }}>
+      {isLoggedIn ? (
+        <>
+          <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 100 }}>
+            <View style={styles.headerBar} />
 
-        <Text style={styles.heading}>
-          Hello {isLoggedIn && currentUser?.getCurrentUser?.firstName
-            ? currentUser.getCurrentUser.firstName
-            : 'Guest'}
-        </Text>
+            <View style={styles.accountHeader}>
+              <Text style={styles.heading}>
+                Hello {currentUser?.getCurrentUser?.firstName || 'User'}
+              </Text>
+            </View>
 
-        {isLoggedIn && (
-          <View style={styles.quickActions}>
-            {['Your Orders', 'Wishlist', 'Offers', 'Help Center'].map((item, index) => {
-              const handleNavigation = () => {
-                switch (item) {
-                  case 'Your Orders':
-                    navigation.navigate('OrderList');
-                    break;
-                  case 'Wishlist':
-                    navigation.navigate('WishlistCard');
-                    break;
-                  case 'Offers':
-                    navigation.navigate('Offers');
-                    break;
-                  case 'Help Center':
-                    navigation.navigate('HelpCenter');
-                    break;
-                }
-              };
-              return (
-                <TouchableOpacity key={index} style={styles.actionCard} onPress={handleNavigation}>
-                  <Text style={styles.cardText}>{item}</Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        )}
+            <View style={styles.quickActions}>
+              {['Your Orders', 'Wishlist', 'Offers', 'Help Center'].map((item, index) => {
+                const handleNavigation = () => {
+                  switch (item) {
+                    case 'Your Orders':
+                      navigation.navigate('OrderList');
+                      break;
+                    case 'Wishlist':
+                      navigation.navigate('WishlistCard');
+                      break;
+                    case 'Offers':
+                      navigation.navigate('Offers');
+                      break;
+                    case 'Help Center':
+                      navigation.navigate('HelpCenter');
+                      break;
+                  }
+                };
+                return (
+                  <TouchableOpacity key={index} style={styles.actionCard} onPress={handleNavigation}>
+                    <Text style={styles.cardText}>{item}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
 
-        {isLoggedIn && randomViewed.length > 0 && (
-          <>
-            <Text style={styles.sectionTitle}>Recently Viewed Products</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.carousel}>
-              {randomViewed.map((item) => (
-                <View key={item.id} style={styles.productCard}>
-                  <Image
-                    source={{ uri: item.previewImage }}
-                    style={styles.productImage}
-                    resizeMode="cover"
-                  />
-                  <Text style={styles.productTitle} numberOfLines={2}>{item.productName}</Text>
-                  {renderRating(Math.floor(Math.random() * 5) + 1)}
-                </View>
-              ))}
-            </ScrollView>
-          </>
-        )}
+            {randomViewed.length > 0 && (
+              <>
+                <Text style={styles.sectionTitle}>Recently Viewed Products</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.carousel}>
+                  {randomViewed.map((item) => (
+                    <View key={item.id} style={styles.productCard}>
+                      <Image
+                        source={{ uri: item.previewImage }}
+                        style={styles.productImage}
+                        resizeMode="cover"
+                      />
+                      <Text style={styles.productTitle} numberOfLines={2}>
+                        {item.productName}
+                      </Text>
+                      {renderRating(Math.floor(Math.random() * 5) + 1)}
+                    </View>
+                  ))}
+                </ScrollView>
+              </>
+            )}
 
-        {isLoggedIn && (
-          <>
             <Text style={styles.sectionTitle}>Account Settings</Text>
-            <TouchableOpacity style={styles.settingRow} onPress={() => navigation.navigate('EditProfile')}>
+            <TouchableOpacity
+              style={styles.settingRow}
+              onPress={() => navigation.navigate('EditProfile')}
+            >
               <Text style={styles.settingText}>Edit Profile</Text>
               <Ionicons name="chevron-forward" size={20} />
             </TouchableOpacity>
-          </>
-        )}
 
-        {isLoggedIn && (
-          <TouchableOpacity style={styles.settingRow} onPress={() => setAddressExpanded(!addressExpanded)}>
-            <Text style={styles.settingText}>Saved Address</Text>
-            <Ionicons name={addressExpanded ? 'chevron-up' : 'chevron-down'} size={20} />
-          </TouchableOpacity>
-        )}
-
-        {addressExpanded && isLoggedIn && (
-          <View style={styles.expandContent}>
-            {selectedAddressId ? (
-              <Text style={styles.address}>Selected Address ID: {selectedAddressId}</Text>
-            ) : (
-              <Text style={styles.address}>View Address</Text>
-            )}
             <TouchableOpacity
-              style={styles.addAddressBtn}
-              onPress={() => navigation.navigate('SavedAddress', { fromProfile: true })}
+              style={styles.settingRow}
+              onPress={() => setAddressExpanded(!addressExpanded)}
             >
-              <Text style={styles.addAddressText}>View Your Address</Text>
+              <Text style={styles.settingText}>Saved Address</Text>
+              <Ionicons name={addressExpanded ? 'chevron-up' : 'chevron-down'} size={20} />
             </TouchableOpacity>
-          </View>
-        )}
 
-        {isLoggedIn && (
-          <TouchableOpacity style={styles.settingRow} onPress={() => setLanguageExpanded(!languageExpanded)}>
-            <Text style={styles.settingText}>Select Language</Text>
-            <Ionicons name={languageExpanded ? 'chevron-up' : 'chevron-down'} size={20} />
-          </TouchableOpacity>
-        )}
+            {addressExpanded && (
+              <View style={styles.expandContent}>
+                {selectedAddressId ? (
+                  <Text style={styles.address}>Selected Address ID: {selectedAddressId}</Text>
+                ) : (
+                  <Text style={styles.address}>View Address</Text>
+                )}
+                <TouchableOpacity
+                  style={styles.addAddressBtn}
+                  onPress={() => navigation.navigate('SavedAddress', { fromProfile: true })}
+                >
+                  <Text style={styles.addAddressText}>View Your Address</Text>
+                </TouchableOpacity>
+              </View>
+            )}
 
-        {languageExpanded && isLoggedIn && (
-          <View style={styles.expandContent}>
-            {languages.map((lang) => (
-              <TouchableOpacity key={lang} style={styles.radioRow} onPress={() => setSelectedLanguage(lang)}>
-                <Ionicons
-                  name={selectedLanguage === lang ? 'radio-button-on' : 'radio-button-off'}
-                  size={20}
-                  color="#2A55E5"
-                />
-                <Text style={styles.languageText}>{lang}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
+            <TouchableOpacity
+              style={styles.settingRow}
+              onPress={() => setLanguageExpanded(!languageExpanded)}
+            >
+              <Text style={styles.settingText}>Select Language</Text>
+              <Ionicons name={languageExpanded ? 'chevron-up' : 'chevron-down'} size={20} />
+            </TouchableOpacity>
 
-        {isLoggedIn && (
-          <>
+            {languageExpanded && (
+              <View style={styles.expandContent}>
+                {languages.map((lang) => (
+                  <TouchableOpacity key={lang} style={styles.radioRow} onPress={() => setSelectedLanguage(lang)}>
+                    <Ionicons
+                      name={selectedLanguage === lang ? 'radio-button-on' : 'radio-button-off'}
+                      size={20}
+                      color="#2A55E5"
+                    />
+                    <Text style={styles.languageText}>{lang}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+
             <Text style={styles.sectionTitle}>Information</Text>
             <TouchableOpacity style={styles.settingRow} onPress={() => navigation.navigate('Terms')}>
               <Text style={styles.settingText}>Terms, Policies & Licenses</Text>
@@ -243,30 +235,45 @@ console.log('Current User:', randomViewed);
               <Text style={styles.settingText}>Ask FAQs</Text>
               <Ionicons name="chevron-forward" size={20} />
             </TouchableOpacity>
-          </>
-        )}
 
-        {isLoggedIn ? (
-          <TouchableOpacity style={styles.logoutBtn} onPress={confirmLogout}>
-            <Text style={styles.logoutText}>Log Out</Text>
-          </TouchableOpacity>
-        ) : (
-          <View style={styles.authSection}>
-            <TouchableOpacity
-              style={styles.authButton}
-              onPress={() => navigation.navigate('LoginScreen')}
-            >
-              <Text style={styles.authButtonText}>Login</Text>
+            <TouchableOpacity style={styles.logoutBtn} onPress={confirmLogout}>
+              <Text style={styles.logoutText}>Log Out</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.authButton}
-              onPress={() => navigation.navigate('SignUpScreen')}
-            >
-              <Text style={styles.authButtonText}>Sign Up</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-      </ScrollView>
+          </ScrollView>
+        </>
+      ) : (
+        <ScrollView contentContainerStyle={styles.loginContainer}>
+  <Image
+    source={require('../assets/logo/logo.png')}
+    style={styles.loginLogo}
+    resizeMode="contain"
+  />
+  <Text style={styles.welcomeText}>Welcome to PincodeKart</Text>
+  <Text style={styles.subText}>Log in to access your account and explore amazing deals.</Text>
+
+  <View style={styles.iconRow}>
+    <Ionicons name="cart-outline" size={30} color="#2A55E5" />
+    <Ionicons name="heart-outline" size={30} color="#EF4444" />
+    <Ionicons name="star-outline" size={30} color="#FBBF24" />
+    <Ionicons name="gift-outline" size={30} color="#10B981" />
+  </View>
+
+  <TouchableOpacity
+    style={styles.loginButtonLarge}
+    onPress={() => navigation.navigate('LoginScreen')}
+  >
+    <Text style={styles.loginButtonText}>Log In</Text>
+  </TouchableOpacity>
+
+  <View style={styles.signupRow}>
+    <Text style={styles.signupText}>Don't have an account?</Text>
+    <TouchableOpacity onPress={() => navigation.navigate('SignUpScreen')}>
+      <Text style={styles.signupLink}> Sign Up</Text>
+    </TouchableOpacity>
+  </View>
+</ScrollView>
+
+      )}
 
       <View style={styles.bottomNav}>
         <BottomNav />
@@ -340,17 +347,68 @@ const styles = StyleSheet.create({
     borderColor: '#2A55E5',
   },
   logoutText: { color: '#2A55E5', fontFamily: 'Poppins_700Bold', fontSize: 14 },
-  authSection: { marginTop: 20 },
-  authButton: {
-    backgroundColor: '#fff',
-    borderWidth: 2,
-    borderColor: '#2A55E5',
-    paddingVertical: 12,
-    borderRadius: 8,
-    marginBottom: 10,
+  loginContainer: {
+    flexGrow: 1,
     alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+    // paddingTop: 10,
+    paddingBottom: 40,
+    backgroundColor: '#fff',
   },
-  authButtonText: { color: '#2A55E5', fontFamily: 'Poppins_700Bold', fontSize: 16 },
+  loginLogo: {
+    width: 250,
+    height: 140,
+    marginBottom: 24,
+  },
+  signupRow: {
+  flexDirection: 'row',
+  marginTop: 20,
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+signupText: {
+  fontFamily: 'Poppins_400Regular',
+  fontSize: 14,
+  color: '#6B7280',
+},
+signupLink: {
+  fontFamily: 'Poppins_500Medium',
+  fontSize: 14,
+  color: '#2A55E5',
+},
+
+  welcomeText: {
+    fontSize: 22,
+    fontFamily: 'Poppins_700Bold',
+    marginBottom: 10,
+    textAlign: 'center',
+    color: '#111827',
+  },
+  subText: {
+    fontSize: 14,
+    fontFamily: 'Poppins_400Regular',
+    textAlign: 'center',
+    marginBottom: 30,
+    color: '#6B7280',
+  },
+  iconRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '60%',
+    marginBottom: 40,
+  },
+  loginButtonLarge: {
+    backgroundColor: '#2A55E5',
+    paddingVertical: 14,
+    paddingHorizontal: 40,
+    borderRadius: 30,
+  },
+  loginButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontFamily: 'Poppins_600SemiBold',
+  },
   bottomNav: {
     position: 'absolute',
     bottom: 0,

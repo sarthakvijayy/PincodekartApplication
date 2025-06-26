@@ -94,6 +94,7 @@ const DealsSection = () => {
         )}
 
         {/* Product Scroll */}
+        <View style={styles.productSection}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -124,6 +125,7 @@ const DealsSection = () => {
             );
           })}
         </ScrollView>
+        </View>
       </LinearGradient>
     </View>
   );
@@ -141,23 +143,26 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   bannerScroll: {
-    paddingLeft: 12,
+    paddingLeft: 16,
   },
   bannerImage: {
     width: width - 32,
     height: BANNER_HEIGHT,
     marginRight: 16,
-    borderRadius: 12,
+    borderRadius: 16,
     overflow: 'hidden',
   },
   cardScrollContainer: {
-    paddingLeft: 12,
-    paddingTop: 20,
-    paddingRight: 4,
+    paddingBottom: 10,
+      gap: 10
+  },
+   productSection: {
+    marginTop: 20,
+   marginHorizontal: 20,
   },
   dealCard: {
     width: 140,
-    marginRight: 16,
+    marginRight: 12,
     backgroundColor: '#ffffff',
     borderRadius: 10,
     overflow: 'hidden',
@@ -170,7 +175,6 @@ const styles = StyleSheet.create({
   dealImage: {
     width: '100%',
     height: 120,
-    backgroundColor: '#f2f2f2',
   },
   dealInfo: {
     padding: 10,

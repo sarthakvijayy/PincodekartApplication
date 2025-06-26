@@ -80,6 +80,7 @@ navigation.navigate('ProductDetail', { id : id });  };
         </ScrollView>
 
         {/* Products Scroll */}
+        <View style={styles.productSection}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -105,6 +106,7 @@ navigation.navigate('ProductDetail', { id : id });  };
             </TouchableOpacity>
           ))}
         </ScrollView>
+        </View>
       </LinearGradient>
     </View>
   );
@@ -129,13 +131,16 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   cardScrollContainer: {
-    paddingLeft: 12,
-    paddingTop: 20,
-    paddingRight: 4,
+    paddingBottom: 10,
+      gap: 10
+  },
+   productSection: {
+    marginTop: 20,
+   marginHorizontal: 20,
   },
   dealCard: {
     width: 140,
-    marginRight: 16,
+    marginRight: 12,
     backgroundColor: '#ffffff',
     borderRadius: 10,
     overflow: 'hidden',

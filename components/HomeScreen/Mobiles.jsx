@@ -74,6 +74,7 @@ const Mobiles = () => {
         )}
 
         {/* Deal Cards */}
+        
         <View style={styles.dealsContainer}>
           {products.slice(0, 4).map((item) => (
             <TouchableOpacity
@@ -127,7 +128,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    paddingHorizontal: 10,
+    paddingHorizontal: 16,
   },
   dealCard: {
     width: 140,

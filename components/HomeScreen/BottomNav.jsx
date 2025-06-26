@@ -59,12 +59,13 @@ const BottomNav = () => {
 const styles = StyleSheet.create({
   wrapper: {
     position: 'absolute',
-    bottom: 0,
+    bottom: 10,
     width: width,
     backgroundColor: '#fff',
     borderTopWidth: 1,
     borderTopColor: '#eee',
     zIndex: 100,
+    gap: 10,
   },
   container: {
     height: 70,
@@ -107,6 +108,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
   },
   centerImage: {
+    paddingTop: 15,
     width: 48,
     height: 48,
   },

@@ -130,12 +130,12 @@ const styles = StyleSheet.create({
     width: width - 32,
     height: 180,
     marginRight: 16,
-    borderRadius: 10,
+    borderRadius: 16,
   },
   dealsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 10,
+    paddingHorizontal: 16,
   },
   dealCard: {
     width: 140,

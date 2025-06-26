@@ -79,6 +79,7 @@ const WomenFoot = () => {
         </ScrollView>
 
         {/* Product Cards */}
+        <View style={styles.productSection}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.cardsContainer}>
           {products.slice(0, 5).map((item) => (
             <TouchableOpacity key={item.id} style={styles.dealCard} onPress={() => handlePress(item.id)}>
@@ -94,6 +95,7 @@ const WomenFoot = () => {
             </TouchableOpacity>
           ))}
         </ScrollView>
+        </View>
       </LinearGradient>
     </View>
   );
@@ -117,14 +119,17 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     borderRadius: 12,
   },
-  cardsContainer: {
-    paddingLeft: 15,
-    paddingTop: 5,
-    paddingRight: 4,
+  cardScrollContainer: {
+    paddingBottom: 10,
+      gap: 10
+  },
+   productSection: {
+    marginTop: 20,
+   marginHorizontal: 20,
   },
   dealCard: {
     width: 140,
-    marginRight: 16,
+    marginRight: 12,
     backgroundColor: '#ffffff',
     borderRadius: 10,
     overflow: 'hidden',

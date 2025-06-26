@@ -78,6 +78,7 @@ const DealsOfDaySection = () => {
         </ScrollView>
 
         {/* Horizontal Products Scroll */}
+        <View style={styles.productSection}>
         <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
@@ -103,6 +104,7 @@ const DealsOfDaySection = () => {
                     </TouchableOpacity>
                   ))}
                 </ScrollView>
+                </View>
       </LinearGradient>
     </View>
   );
@@ -119,22 +121,26 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
   },
   bannerScroll: {
-    marginBottom: 10,
+    paddingLeft: 16,
   },
   bannerImage: {
-    width: width - 24,
+    width: width - 32,
     height: (width - 32) * 0.5,
-    marginHorizontal: 12,
-    borderRadius: 12,
+    marginRight: 16,
+    borderRadius: 16,
+    overflow: 'hidden',
   },
    cardScrollContainer: {
-    paddingLeft: 12,
-    paddingTop: 20,
-    paddingRight: 4,
+     paddingBottom: 10,
+      gap: 10
+  },
+   productSection: {
+    marginTop: 20,
+   marginHorizontal: 20,
   },
   dealCard: {
     width: 140,
-    marginRight: 16,
+    marginRight: 12,
     backgroundColor: '#ffffff',
     borderRadius: 10,
     overflow: 'hidden',

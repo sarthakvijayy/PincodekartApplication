@@ -94,6 +94,7 @@ const Kids = () => {
         
 
         {/* Four Products in Row */}
+        
         <View style={styles.dealsRow}>
           {products.map((item) => {
             const imageUri = item?.variant?.[0]?.images?.[0] || item.previewImage;
@@ -137,7 +138,7 @@ const styles = StyleSheet.create({
   dealsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 10,
+    paddingHorizontal: 16,
   },
  dealCard: {
     width: 140,
