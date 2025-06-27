@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 10,
     width: width,
-    backgroundColor: '#fff',
+    backgroundColor: '#f0f0f0',
     borderTopWidth: 1,
     borderTopColor: '#eee',
     zIndex: 100,
@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
     height: 70,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 10,
+    // paddingHorizontal: 20,
     alignItems: 'center',
   },
   tabItem: {
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     color: '#2563EB',
   },
   centerTab: {
-    top: -12,
+    top: -1,
   },
   defaultIconWrapper: {
     justifyContent: 'center',

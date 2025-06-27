@@ -18,7 +18,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useQuery } from '@apollo/client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BottomNav from '../components/HomeScreen/BottomNav';
-import { GET_ALL_PRODUCTS } from '../graphql/queries';
+import { GET_ALL_PRODUCTS, GET_CURRENT_USER } from '../graphql/queries';
 
 const { width } = Dimensions.get('window');
 
@@ -32,6 +32,11 @@ const ProfileScreen = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
   const [randomViewed, setRandomViewed] = useState([]);
+  const [language, setLanguage] = useState('English');
+const [languageExpanded, setLanguageExpanded] = useState(false);
+
+  
+  const { data: currentUser } = useQuery(GET_CURRENT_USER);
 
   const { data: allProductsData, loading: productsLoading } = useQuery(GET_ALL_PRODUCTS, {
     variables: { take: 20, page: 0 },
@@ -172,19 +177,20 @@ const ProfileScreen = () => {
           </View>
         ) : (
           <>
-            
+            <Text style={styles.userName}>Hello {currentUser?.getCurrentUser?.firstName || 'User'}</Text>
+
             <View style={[styles.sectionCard, { backgroundColor: '#f5f7ff' }]}>
-              <Text style={styles.userName}></Text>
+              
               
               <View style={styles.quickRow}>
                 {[
                   { icon: 'cube', label: 'Orders' },
-                  { icon: 'heart-o', label: 'Wishlist' },
-                  { icon: 'gift', label: 'Coupons' },
+                  { icon: 'heart', label: 'Wishlist' },
+                  { icon: 'money', label: 'Coupons' },
                   { icon: 'headphones', label: 'Help Center' },
                 ].map(({ icon, label }, idx) => (
                   <TouchableOpacity key={idx} style={styles.quickItem}>
-                    <FontAwesome name={icon} size={20} color="#2A55E5" />
+                    <FontAwesome name={icon} size={24} color="#2A55E5" />
                     <Text style={styles.quickLabel}>{label}</Text>
                   </TouchableOpacity>
                 ))}
@@ -209,42 +215,27 @@ const ProfileScreen = () => {
             )}
 
             {/* Account Settings */}
-            <View style={styles.sectionCard}>
-              <Text style={styles.sectionTitle}>Account Settings</Text>
-              {[
-                { icon: 'person-circle-outline', label: 'Edit Profile' },
-                { icon: 'wallet-outline', label: 'Saved Cards' },
-                { icon: 'location-outline', label: 'Saved Addresses' },
-                { icon: 'language-outline', label: 'Select Language' },
-                { icon: 'notifications-outline', label: 'Notification Settings' },
-                { icon: 'headset-outline', label: 'Help Center' },
-              ].map(({ icon, label }, i) => (
-                <TouchableOpacity key={i} style={styles.settingRow}>
-                  <View style={styles.iconLabel}>
-                    <Ionicons name={icon} size={20} color="#2A55E5" />
-                    <Text style={styles.settingText}>{label}</Text>
-                  </View>
-                  <Ionicons name="chevron-forward" size={18} color="#6B7280" />
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            {/* My Activity */}
-            <View style={styles.sectionCard}>
-              <Text style={styles.sectionTitle}>My Activity</Text>
-              {[
-                { icon: 'chatbox-outline', label: 'Reviews' },
-                { icon: 'help-circle-outline', label: 'Questions & Answers' },
-              ].map(({ icon, label }, i) => (
-                <TouchableOpacity key={i} style={styles.settingRow}>
-                  <View style={styles.iconLabel}>
-                    <Ionicons name={icon} size={20} color="#2A55E5" />
-                    <Text style={styles.settingText}>{label}</Text>
-                  </View>
-                  <Ionicons name="chevron-forward" size={18} color="#6B7280" />
-                </TouchableOpacity>
-              ))}
-            </View>
+          <View style={styles.sectionCard}>
+  <Text style={styles.sectionTitle}>Account Settings</Text>
+  {[
+    { icon: 'person-circle-outline', label: 'Edit Profile', route: 'EditProfile' },
+    { icon: 'location-outline', label: 'Saved Addresses', route: 'SavedAddress' },
+    { icon: 'language-outline', label: 'Select Language' },
+    { icon: 'headset-outline', label: 'Help Center' },
+  ].map(({ icon, label, route }, i) => (
+    <TouchableOpacity
+      key={i}
+      style={styles.settingRow}
+      onPress={() => route && navigation.navigate(route)}
+    >
+      <View style={styles.iconLabel}>
+        <Ionicons name={icon} size={20} color="#2A55E5" />
+        <Text style={styles.settingText}>{label}</Text>
+      </View>
+      <Ionicons name="chevron-forward" size={18} color="#6B7280" />
+    </TouchableOpacity>
+  ))}
+</View>
 
             {/* Feedback */}
             <View style={styles.sectionCard}>
@@ -321,6 +312,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginBottom: 6,
     color: '#111827',
+    marginHorizontal: 10,
   },
   userStatus: {
     fontFamily: 'Poppins_400Regular',
@@ -329,18 +321,22 @@ const styles = StyleSheet.create({
   },
   quickRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-around',
+    // marginVertical: 10,
     marginTop: 20,
   },
   quickItem: {
     alignItems: 'center',
-    width: width / 4.5,
+    width: (width - 40)/2,
+     marginBottom: 20,
   },
   quickLabel: {
     fontSize: 12,
     fontFamily: 'Poppins_400Regular',
     marginTop: 4,
     color: '#2A55E5',
+   
   },
   productCard: {
     width: 100,
@@ -379,14 +375,14 @@ const styles = StyleSheet.create({
   },
   logoutBtn: {
     backgroundColor: '#fff',
-    borderTopWidth: 1,
+    borderWidth: 1,
     borderColor: '#ccc',
     padding: 16,
   },
   logoutText: {
     fontFamily: 'Poppins_600SemiBold',
     fontSize: 16,
-    color: '#d32f2f',
+    color: '#2A55E5',
     textAlign: 'center',
   },
   bottomNav: {

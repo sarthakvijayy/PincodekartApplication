@@ -9,6 +9,8 @@ import { useQuery, useMutation } from "@apollo/client";
 import { GET_CART, GET_PRODUCT } from "../graphql/queries";
 import { UPDATE_CART, REMOVE_FROM_CART } from "../graphql/mutations";
 import CartHeader from "./CartHeader";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const CartScreen = () => {
   const navigation = useNavigation();
@@ -68,6 +70,9 @@ const CartScreen = () => {
       navigation.navigate("MyOrdersScreen");
     }
   };
+
+   const email =  AsyncStorage.getItem('guestCart');
+   console.log("fsdfdsf", JSON.parse(email))
 
   if (loading) {
     return (

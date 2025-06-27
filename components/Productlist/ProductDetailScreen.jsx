@@ -23,6 +23,8 @@ import BottomNav from "../HomeScreen/BottomNav";
 import { ADD_TO_CART } from "../../graphql/mutations";
 import ImageViewing from "react-native-image-viewing";
 import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const { width } = Dimensions.get("window");
 
@@ -96,26 +98,61 @@ const ProductDetailScreen = ({ route }) => {
       ? selectedSizeVariant.images
       : selectedColorVariant?.images || [];
 
-  const handleAddToCart = async () => {
-    const payload = {
-      productId: id,
-      quantity: 1,
-      variantName: selectedColorVariant.variantName,
-      size:
-        typeof selectedSizeVariant === "object"
-          ? selectedSizeVariant.size[0]
-          : selectedSizeVariant,
-      price: parseFloat(selectedColorVariant?.mrpPrice) || 0,
-    };
-
-    try {
-      await addCart({ variables: payload });
-      showAlert("Product added to cart successfully", "success");
-    } catch (error) {
-      console.error("Add to cart error:", error);
-      showAlert("Failed to add product to cart", "error");
-    }
+ const handleAddToCart = async () => {
+  const cartItem = {
+    productId: id,
+    quantity: 1,
+    variantName: selectedColorVariant.variantName,
+    size:
+      typeof selectedSizeVariant === "object"
+        ? selectedSizeVariant.size?.[0]
+        : selectedSizeVariant,
+    price: parseFloat(selectedColorVariant?.mrpPrice) || 0,
+    image:
+      selectedSizeVariant?.images?.[0] ||
+      selectedColorVariant?.images?.[0] ||
+      product?.previewImage,
+    productName: product?.productName,
   };
+
+  try {
+    const token = await AsyncStorage.getItem("authToken"); // or check isLoggedIn
+
+    if (token) {
+      // ✅ User is logged in → send to server
+      await addCart({ variables: cartItem });
+      showAlert("Product added to cart successfully", "success");
+    } else {
+      // 🔴 User is not logged in → store in AsyncStorage locally
+      const existingCart = await AsyncStorage.getItem("guestCart");
+      let updatedCart = [];
+
+      if (existingCart) {
+        updatedCart = JSON.parse(existingCart);
+        // Check if same product + variant + size already exists
+        const index = updatedCart.findIndex(
+          (item) =>
+            item.productId === cartItem.productId
+        );
+
+        if (index !== -1) {
+          updatedCart[index].quantity += 1;
+        } else {
+          updatedCart.push(cartItem);
+        }
+      } else {
+        updatedCart.push(cartItem);
+      }
+
+      await AsyncStorage.setItem("guestCart", JSON.stringify(updatedCart));
+      showAlert("Added to cart (as guest)", "success");
+    }
+  } catch (error) {
+    console.error("Add to cart error:", error);
+    showAlert("Failed to add product to cart", "error");
+  }
+};
+
 
   const handleBuyNow = () => {
     const orderPayload = {

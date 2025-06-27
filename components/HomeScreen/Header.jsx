@@ -23,7 +23,7 @@ const Header = () => {
 
 
   const { loading, data, error } = useQuery(GET_ALL_CATEGORIES, {
-    variables: { page: null, take: null },
+    variables: { page: 0, take: 10 },
   });
 
   const { loading: wishlistLoading, data: wishlistData, error: wishlistError }
@@ -65,7 +65,7 @@ const Header = () => {
 
   return (
     <LinearGradient
-      colors={["#184977", "#459BEC", "#73BBFF", "#DFF0FF"]}
+      colors={["#184977", "#459BEC", "#fff", "#fff"]}
       start={{ x: 1, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={styles.container}
