@@ -33,35 +33,39 @@ const CartScreen = () => {
     onCompleted: () => refetch(),
   });
 
-  const updateQuantity = async (item, newQty) => {
-    if (newQty < 1 || newQty > 5) {
-      Alert.alert("Limit", "Quantity must be between 1 and 5");
-      return;
-    }
+const updateQuantity = async (item, newQty) => {
+  if (newQty < 1 || newQty > 5) {
+    Alert.alert("Limit", "Quantity must be between 1 and 5");
+    return;
+  }
 
-    console.log("IS LOGGED IN USER", newQty);
-    if (isLoggedInUser) {
-      await updateCartMutation({
-        variables: {
-          productId: item.productId,
-          quantity: newQty,
-        },
-      });
-    } else {
-      const guestCart = await AsyncStorage.getItem("guestCart");
-      const parsedData = JSON.parse(guestCart);
-      parsedData.forEach((cartItem) => {
-        if (cartItem.productId === item.productId) {
-          cartItem.quantity = newQty;
-        }
-      });
-      console.log("PARSED DATA", parsedData);
-      await AsyncStorage.setItem(
-        "guestCart",
-        JSON.stringify(parsedData)
-      );
-    }
-  };
+  if (isLoggedInUser) {
+    await updateCartMutation({
+      variables: {
+        productId: item.productId,
+        quantity: newQty,
+      },
+    });
+  } else {
+    const guestCart = await AsyncStorage.getItem("guestCart");
+    let parsedData = JSON.parse(guestCart) || [];
+
+    parsedData = parsedData.map((cartItem) => {
+      if (
+        cartItem.productId === item.productId &&
+        cartItem.variantName === item.variantName &&
+        cartItem.size === item.size
+      ) {
+        return { ...cartItem, quantity: newQty };
+      }
+      return cartItem;
+    });
+
+    await AsyncStorage.setItem("guestCart", JSON.stringify(parsedData));
+    setGuestCartData(parsedData); // ✅ Refresh UI immediately
+  }
+};
+
 
   const removeFromCart = async (item) => {
     await removeFromCartMutation({
@@ -163,23 +167,26 @@ const CartScreen = () => {
         }
       />
 
-      <View style={styles.summaryContainer}>
-        <View style={styles.amountRow}>
-          <Text style={styles.amountText}>
-            ₹{totalPrice.toFixed(2)}
-          </Text>
-          <TouchableOpacity
-            style={[
-              styles.placeOrderBtn,
-              cartItems.length === 0 && { opacity: 0.4 },
-            ]}
-            onPress={handlePlaceOrder}
-            disabled={cartItems.length === 0}
-          >
-            <Text style={styles.placeOrderText}>Place Order</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+     <View style={styles.summaryContainer}>
+  <View style={styles.amountRow}>
+    <Text style={styles.amountText}>
+      ₹{totalPrice.toFixed(2)}
+    </Text>
+    <TouchableOpacity
+      style={[
+        styles.placeOrderBtn,
+        (isLoggedInUser ? cartItems.length : guestCartData?.length || 0) === 0 && {
+          opacity: 0.4,
+        },
+      ]}
+      onPress={handlePlaceOrder}
+      disabled={(isLoggedInUser ? cartItems.length : guestCartData?.length || 0) === 0}
+    >
+      <Text style={styles.placeOrderText}>Place Order</Text>
+    </TouchableOpacity>
+  </View>
+</View>
+
 
       {/* Bottom Modal for Login Prompt */}
       <Modal
@@ -235,10 +242,10 @@ export const CartItemCard = ({
   removeFromCart,
   isSummary = false,
 }) => {
-  console.log("ITfEMfdfd", item.productId);
   const { data, loading, error } = useQuery(GET_PRODUCT, {
     variables: { getProductId: item.productId },
   });
+
   if (loading) return <ActivityIndicator style={{ padding: 16 }} />;
   if (error) return <Text>Error loading product</Text>;
 
@@ -264,11 +271,7 @@ export const CartItemCard = ({
             style={styles.trashIcon}
             onPress={() => removeFromCart(item)}
           >
-            <Ionicons
-              name="trash-outline"
-              size={20}
-              color="#FF3E3E"
-            />
+            <Ionicons name="trash-outline" size={20} color="#FF3E3E" />
           </TouchableOpacity>
         )}
 
@@ -307,10 +310,7 @@ export const CartItemCard = ({
             <Text style={styles.qtyNumber}>{qty}</Text>
 
             <TouchableOpacity
-              onPress={() => {
-                console.log("ITfsdfsEM", qty);
-                updateQuantity(item, qty);
-              }}
+              onPress={() => updateQuantity(item, qty + 1)} // ✅ FIXED LINE
               style={styles.qtyBtn}
             >
               <AntDesign name="plus" size={14} color="#000" />
@@ -321,6 +321,7 @@ export const CartItemCard = ({
     </View>
   );
 };
+
 
 // 🔵 Styles
 const styles = StyleSheet.create({
