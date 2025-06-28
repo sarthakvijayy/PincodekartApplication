@@ -103,6 +103,8 @@ const CartScreen = () => {
 
   const totalPrice = getTotalPrice();
 
+  console.log("IS LOGGED IN USER", isLoggedInUser);
+
   const handlePlaceOrder = () => {
     if (!isLoggedInUser) {
       navigation.navigate("LoginScreen");
@@ -115,7 +117,8 @@ const CartScreen = () => {
   const getDataFromStorage = async () => {
     try {
       const guestCart = await AsyncStorage.getItem("guestCart");
-      const token = await AsyncStorage.getItem("authToken");
+      const token = await AsyncStorage.getItem("email");
+      console.log("TOKEN", token);
       setIsLoggedInUser(token ? true : false);
       if (guestCart !== null) {
         const parsedData = JSON.parse(guestCart);
@@ -171,9 +174,7 @@ const CartScreen = () => {
 
       <View style={styles.summaryContainer}>
         <View style={styles.amountRow}>
-          <Text style={styles.amountText}>
-            ₹{totalPrice.toFixed(2)}
-          </Text>
+          <Text style={styles.amountText}>₹{totalPrice}</Text>
           <TouchableOpacity
             style={[
               styles.placeOrderBtn,
@@ -212,9 +213,7 @@ const CartScreen = () => {
             </Text>
 
             <View style={styles.amountBox}>
-              <Text style={styles.amountWhite}>
-                ₹{totalPrice.toFixed(2)}
-              </Text>
+              <Text style={styles.amountWhite}>₹{totalPrice}</Text>
             </View>
 
             <TouchableOpacity

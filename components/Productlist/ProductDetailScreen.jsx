@@ -23,8 +23,7 @@ import BottomNav from "../HomeScreen/BottomNav";
 import { ADD_TO_CART } from "../../graphql/mutations";
 import ImageViewing from "react-native-image-viewing";
 import { useNavigation } from "@react-navigation/native";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width } = Dimensions.get("window");
 
@@ -40,7 +39,8 @@ const ProductDetailScreen = ({ route }) => {
   const [selectedColorIndex, setSelectedColorIndex] = useState(0);
   const [selectedSizeIndex, setSelectedSizeIndex] = useState(0);
   const [isScrolledEnough, setIsScrolledEnough] = useState(false);
-  const [isImageViewerVisible, setImageViewerVisible] = useState(false);
+  const [isImageViewerVisible, setImageViewerVisible] =
+    useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   const [alertMessage, setAlertMessage] = useState("");
@@ -73,8 +73,12 @@ const ProductDetailScreen = ({ route }) => {
     setIsScrolledEnough(scrollY > 400);
   };
 
-  if (loading) return <ActivityIndicator size="large" style={{ marginTop: 50 }} />;
-  if (error) return <Text>Error loading product: {error.message}</Text>;
+  if (loading)
+    return (
+      <ActivityIndicator size="large" style={{ marginTop: 50 }} />
+    );
+  if (error)
+    return <Text>Error loading product: {error.message}</Text>;
 
   const product = data?.getProduct;
   if (!product) {
@@ -86,7 +90,8 @@ const ProductDetailScreen = ({ route }) => {
   }
 
   const colorVariants = product.variant || [];
-  const selectedColorVariant = colorVariants[selectedColorIndex] || {};
+  const selectedColorVariant =
+    colorVariants[selectedColorIndex] || {};
   const sizeVariants = selectedColorVariant.size || [];
   const selectedSizeVariant =
     sizeVariants.length > 0
@@ -98,61 +103,62 @@ const ProductDetailScreen = ({ route }) => {
       ? selectedSizeVariant.images
       : selectedColorVariant?.images || [];
 
- const handleAddToCart = async () => {
-  const cartItem = {
-    productId: id,
-    quantity: 1,
-    variantName: selectedColorVariant.variantName,
-    size:
-      typeof selectedSizeVariant === "object"
-        ? selectedSizeVariant.size?.[0]
-        : selectedSizeVariant,
-    price: parseFloat(selectedColorVariant?.mrpPrice) || 0,
-    image:
-      selectedSizeVariant?.images?.[0] ||
-      selectedColorVariant?.images?.[0] ||
-      product?.previewImage,
-    productName: product?.productName,
-  };
+  const handleAddToCart = async () => {
+    const cartItem = {
+      productId: id,
+      quantity: 1,
+      variantName: selectedColorVariant.variantName,
+      size:
+        typeof selectedSizeVariant === "object"
+          ? selectedSizeVariant.size?.[0]
+          : selectedSizeVariant,
+      price: parseFloat(selectedColorVariant?.mrpPrice) || 0,
+      image:
+        selectedSizeVariant?.images?.[0] ||
+        selectedColorVariant?.images?.[0] ||
+        product?.previewImage,
+      productName: product?.productName,
+    };
 
-  try {
-    const token = await AsyncStorage.getItem("authToken"); // or check isLoggedIn
+    try {
+      const token = await AsyncStorage.getItem("email"); // or check isLoggedIn
 
-    if (token) {
-      // ✅ User is logged in → send to server
-      await addCart({ variables: cartItem });
-      showAlert("Product added to cart successfully", "success");
-    } else {
-      // 🔴 User is not logged in → store in AsyncStorage locally
-      const existingCart = await AsyncStorage.getItem("guestCart");
-      let updatedCart = [];
+      if (token) {
+        // ✅ User is logged in → send to server
+        await addCart({ variables: cartItem });
+        showAlert("Product added to cart successfully", "success");
+      } else {
+        // 🔴 User is not logged in → store in AsyncStorage locally
+        const existingCart = await AsyncStorage.getItem("guestCart");
+        let updatedCart = [];
 
-      if (existingCart) {
-        updatedCart = JSON.parse(existingCart);
-        // Check if same product + variant + size already exists
-        const index = updatedCart.findIndex(
-          (item) =>
-            item.productId === cartItem.productId
-        );
+        if (existingCart) {
+          updatedCart = JSON.parse(existingCart);
+          // Check if same product + variant + size already exists
+          const index = updatedCart.findIndex(
+            (item) => item.productId === cartItem.productId
+          );
 
-        if (index !== -1) {
-          updatedCart[index].quantity += 1;
+          if (index !== -1) {
+            updatedCart[index].quantity += 1;
+          } else {
+            updatedCart.push(cartItem);
+          }
         } else {
           updatedCart.push(cartItem);
         }
-      } else {
-        updatedCart.push(cartItem);
+
+        await AsyncStorage.setItem(
+          "guestCart",
+          JSON.stringify(updatedCart)
+        );
+        showAlert("Added to cart (as guest)", "success");
       }
-
-      await AsyncStorage.setItem("guestCart", JSON.stringify(updatedCart));
-      showAlert("Added to cart (as guest)", "success");
+    } catch (error) {
+      console.error("Add to cart error:", error);
+      showAlert("Failed to add product to cart", "error");
     }
-  } catch (error) {
-    console.error("Add to cart error:", error);
-    showAlert("Failed to add product to cart", "error");
-  }
-};
-
+  };
 
   const handleBuyNow = () => {
     const orderPayload = {
@@ -161,7 +167,8 @@ const ProductDetailScreen = ({ route }) => {
       variantName: selectedColorVariant.variantName,
       size:
         typeof selectedSizeVariant === "object"
-          ? selectedSizeVariant.size?.[0] || selectedSizeVariant.variantName
+          ? selectedSizeVariant.size?.[0] ||
+            selectedSizeVariant.variantName
           : selectedSizeVariant,
       price: parseFloat(selectedColorVariant?.mrpPrice) || 0,
       quantity: 1,
@@ -171,7 +178,10 @@ const ProductDetailScreen = ({ route }) => {
         product?.previewImage,
     };
 
-    navigation.navigate("MyOrderScreen", { fromBuyNow: true, item: orderPayload });
+    navigation.navigate("MyOrderScreen", {
+      fromBuyNow: true,
+      item: orderPayload,
+    });
   };
 
   return (
@@ -182,13 +192,16 @@ const ProductDetailScreen = ({ route }) => {
           style={[
             styles.alertContainer,
             {
-              borderLeftColor: alertType === "success" ? "#4CAF50" : "#f44336",
+              borderLeftColor:
+                alertType === "success" ? "#4CAF50" : "#f44336",
               transform: [{ translateY: alertAnim }],
             },
           ]}
         >
           <AntDesign
-            name={alertType === "success" ? "checkcircle" : "closecircleo"}
+            name={
+              alertType === "success" ? "checkcircle" : "closecircleo"
+            }
             size={20}
             color={alertType === "success" ? "#4CAF50" : "#f44336"}
           />
@@ -219,7 +232,10 @@ const ProductDetailScreen = ({ route }) => {
                 setImageViewerVisible(true);
               }}
             >
-              <Image source={{ uri: item }} style={styles.bannerImage} />
+              <Image
+                source={{ uri: item }}
+                style={styles.bannerImage}
+              />
             </TouchableOpacity>
           )}
         />
@@ -238,7 +254,9 @@ const ProductDetailScreen = ({ route }) => {
         </View>
 
         <View style={styles.detailsContainer}>
-          <Text style={styles.brand}>{product.previewName || "Brand Name"}</Text>
+          <Text style={styles.brand}>
+            {product.previewName || "Brand Name"}
+          </Text>
           <Text style={styles.title}>{product.productName}</Text>
 
           <View style={styles.priceRow}>
@@ -252,7 +270,10 @@ const ProductDetailScreen = ({ route }) => {
 
           <View style={styles.variantContainer}>
             <Text style={styles.sectionTitle}>Select Variant</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+            >
               {colorVariants.map((variant, index) => (
                 <TouchableOpacity
                   key={variant.skuId || `color-${index}`}
@@ -262,7 +283,8 @@ const ProductDetailScreen = ({ route }) => {
                   }}
                   style={[
                     styles.variantBox,
-                    index === selectedColorIndex && styles.variantBoxSelected,
+                    index === selectedColorIndex &&
+                      styles.variantBoxSelected,
                   ]}
                 >
                   <Text style={styles.variantText}>
@@ -276,12 +298,16 @@ const ProductDetailScreen = ({ route }) => {
           {sizeVariants.length > 0 && (
             <View style={styles.variantContainer}>
               <Text style={styles.sectionTitle}>Select Size</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+              >
                 {sizeVariants.map((variant, index) => {
                   const isSelected = index === selectedSizeIndex;
                   const key =
                     typeof variant === "object"
-                      ? variant.skuId || `size-${variant.size || index}`
+                      ? variant.skuId ||
+                        `size-${variant.size || index}`
                       : `size-${variant}-${index}`;
                   const displaySize =
                     typeof variant === "object"
@@ -297,7 +323,9 @@ const ProductDetailScreen = ({ route }) => {
                         isSelected && styles.variantBoxSelected,
                       ]}
                     >
-                      <Text style={styles.variantText}>{displaySize}</Text>
+                      <Text style={styles.variantText}>
+                        {displaySize}
+                      </Text>
                     </TouchableOpacity>
                   );
                 })}
@@ -307,16 +335,28 @@ const ProductDetailScreen = ({ route }) => {
 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Product Details</Text>
-            <Text style={styles.sectionText}>{product.description}</Text>
+            <Text style={styles.sectionText}>
+              {product.description}
+            </Text>
           </View>
 
           {isScrolledEnough && (
             <View style={styles.scrollButtons}>
-              <TouchableOpacity style={styles.cartButton} onPress={handleAddToCart}>
-                <AntDesign name="shoppingcart" size={20} color="#000" />
+              <TouchableOpacity
+                style={styles.cartButton}
+                onPress={handleAddToCart}
+              >
+                <AntDesign
+                  name="shoppingcart"
+                  size={20}
+                  color="#000"
+                />
                 <Text style={styles.cartText}>Add to Cart</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.buyButton} onPress={handleBuyNow}>
+              <TouchableOpacity
+                style={styles.buyButton}
+                onPress={handleBuyNow}
+              >
                 <Text style={styles.buyText}>Buy Now</Text>
               </TouchableOpacity>
             </View>
@@ -329,11 +369,17 @@ const ProductDetailScreen = ({ route }) => {
 
       {!isScrolledEnough && (
         <View style={styles.fixedButtons}>
-          <TouchableOpacity style={styles.cartButton} onPress={handleAddToCart}>
+          <TouchableOpacity
+            style={styles.cartButton}
+            onPress={handleAddToCart}
+          >
             <AntDesign name="shoppingcart" size={20} color="#000" />
             <Text style={styles.cartText}>Add to Cart</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.buyButton} onPress={handleBuyNow}>
+          <TouchableOpacity
+            style={styles.buyButton}
+            onPress={handleBuyNow}
+          >
             <Text style={styles.buyText}>Buy Now</Text>
           </TouchableOpacity>
         </View>
@@ -346,24 +392,22 @@ const ProductDetailScreen = ({ route }) => {
 
 export default ProductDetailScreen;
 
-
-
 const styles = StyleSheet.create({
   alertContainer: {
-    position: 'absolute',
+    position: "absolute",
     top: -29,
     left: 0,
     right: 0,
     height: 110,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     zIndex: 999,
     elevation: 10,
   },
   alertText: {
-    color: '#276029',
+    color: "#276029",
     fontSize: 18,
-    fontFamily: 'Poppins-Medium',
+    fontFamily: "Poppins-Medium",
   },
   fixedHeader: {
     position: "absolute",
@@ -514,31 +558,30 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   alertContainer: {
-  position: "absolute",
-  top: 0,
-  left: 16,
-  right: 16,
-  marginTop: StatusBar.currentHeight || 30,
-  backgroundColor: "#fff",
-  padding: 12,
-  borderRadius: 8,
-  flexDirection: "row",
-  alignItems: "center",
-  justifyContent: "flex-start",
-  zIndex: 999,
-  elevation: 6,
-  shadowColor: "#000",
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.2,
-  shadowRadius: 4,
-  borderLeftWidth: 5,
-},
-alertText: {
-  fontSize: 14,
-  marginLeft: 10,
-  fontFamily: "Poppins-Medium",
-  color: "#333",
-  flexShrink: 1,
-},
-
+    position: "absolute",
+    top: 0,
+    left: 16,
+    right: 16,
+    marginTop: StatusBar.currentHeight || 30,
+    backgroundColor: "#fff",
+    padding: 12,
+    borderRadius: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    zIndex: 999,
+    elevation: 6,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    borderLeftWidth: 5,
+  },
+  alertText: {
+    fontSize: 14,
+    marginLeft: 10,
+    fontFamily: "Poppins-Medium",
+    color: "#333",
+    flexShrink: 1,
+  },
 });

@@ -25,14 +25,26 @@ const OrderSummaryScreen = ({
     { id: 2, label: "10:00AM - 11:00AM", value: "10:00AM - 11:00AM" },
     { id: 3, label: "11:00AM - 12:00PM", value: "11:00AM - 12:00PM" },
     { id: 4, label: "12:00PM - 01:00PM", value: "12:00PM - 01:00PM" },
-    { id: 5, label: "01:00PM - 02:00PM", label: "01:00PM - 02:00PM" },
-    { id: 6, label: "02:00PM - 03:00PM", label: "02:00PM - 03:00PM" },
-    { id: 7, label: "03:00PM - 04:00PM", label: "03:00PM - 04:00PM" },
-    { id: 8, label: "04:00PM - 05:00PM", label: "04:00PM - 05:00PM" },
-    { id: 9, label: "05:00PM - 06:00PM", label: "05:00PM - 06:00PM" },
-    { id: 10, label: "06:00PM - 07:00PM", label: "06:00PM - 07:00PM" },
-    { id: 11, label: "07:00PM - 08:00PM", label: "07:00PM - 08:00PM" },
-    { id: 12, label: "08:00PM - 09:00PM", label: "08:00PM - 09:00PM" },
+    { id: 5, label: "01:00PM - 02:00PM", value: "01:00PM - 02:00PM" },
+    { id: 6, label: "02:00PM - 03:00PM", value: "02:00PM - 03:00PM" },
+    { id: 7, label: "03:00PM - 04:00PM", value: "03:00PM - 04:00PM" },
+    { id: 8, label: "04:00PM - 05:00PM", value: "04:00PM - 05:00PM" },
+    { id: 9, label: "05:00PM - 06:00PM", value: "05:00PM - 06:00PM" },
+    {
+      id: 10,
+      label: "06:00PM - 07:00PM",
+      value: "06:00PM - 07:00PM",
+    },
+    {
+      id: 11,
+      label: "07:00PM - 08:00PM",
+      value: "07:00PM - 08:00PM",
+    },
+    {
+      id: 12,
+      label: "08:00PM - 09:00PM",
+      value: "08:00PM - 09:00PM",
+    },
   ];
 
   const {
@@ -94,10 +106,8 @@ const OrderSummaryScreen = ({
             )}
           </Text>
 
-          <Text style={styles.addressText}>
-            {address?.mobileNo}
-          </Text>
-          
+          <Text style={styles.addressText}>{address?.mobileNo}</Text>
+
           <Text style={styles.addressText}>
             {address?.addressLine1}, {address?.addressLine2}
           </Text>

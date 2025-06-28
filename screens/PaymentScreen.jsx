@@ -27,22 +27,37 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
 
   const navigation = useNavigation();
 
-  const { data, loading: cartLoading, error: cartError } = useQuery(GET_CART);
+  const {
+    data,
+    loading: cartLoading,
+    error: cartError,
+  } = useQuery(GET_CART);
   const cartItems = data?.getCart?.cartProducts || [];
 
-  const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const total = cartItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
   const discountedTotal = Math.max(0, total - appliedDiscount);
 
-  const [createOrder, { loading: placingOrder }] = useMutation(CREATE_ORDER, {
-    onCompleted: (data) => {
-      navigation.replace("OrderConfirmedScreen", { orderData: data.createOrder });
-    },
-    onError: (err) => {
-      setOrderError(err.message || "Failed to place order.");
-    },
-  });
+  const [createOrder, { loading: placingOrder }] = useMutation(
+    CREATE_ORDER,
+    {
+      onCompleted: (data) => {
+        navigation.replace("OrderConfirmedScreen", {
+          orderData: data.createOrder,
+        });
+      },
+      onError: (err) => {
+        setOrderError(err.message || "Failed to place order.");
+      },
+    }
+  );
 
-  const { refetch: verifyCouponRefetch, loading: verifyCouponLoading } = useQuery(VERIFY_COUPON, {
+  const {
+    refetch: verifyCouponRefetch,
+    loading: verifyCouponLoading,
+  } = useQuery(VERIFY_COUPON, {
     skip: true,
   });
 
@@ -64,7 +79,7 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
       return;
     }
 
-     if (selectedMethod === "Pay on Delivery") {
+    if (selectedMethod === "Pay on Delivery") {
       navigation.navigate("OrderConfirmedScreen", { addressId });
       return;
     }
@@ -73,14 +88,19 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
       await createOrder({
         variables: {
           addressId,
-          paymentMethod: selectedMethod === "Pay on Delivery" ? "COD" : selectedMethod,
+          paymentMethod:
+            selectedMethod === "Pay on Delivery"
+              ? "COD"
+              : selectedMethod,
           ushopId: couponApplied ? ushopId : "",
           couponCode: couponApplied ? couponCodeInput : "",
           timeSlot: selectedSlot,
         },
       });
     } catch (error) {
-      setOrderError(error.message || "Failed to place order. Please try again.");
+      setOrderError(
+        error.message || "Failed to place order. Please try again."
+      );
     }
   };
 
@@ -89,17 +109,17 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
       const { data: refetchResult } = await verifyCouponRefetch({
         ushopId,
         couponcode: couponCodeInput,
-        
       });
 
-      const response = refetchResult?.verifyCoupon || refetchResult?.varifyCoupon;
+      const response =
+        refetchResult?.verifyCoupon || refetchResult?.varifyCoupon;
 
-      if (!response || response?.msg === "Invalid Coupon!") {
+      if (!response || response === null) {
         setCouponError("Invalid Coupon!");
         setAppliedDiscount(0);
         setCouponApplied(false);
       } else {
-        const discountValue = parseFloat(response.discountAmount) || 0;
+        const discountValue = parseFloat(response.discount) || 0;
         setCouponError("Valid Coupon!");
         setAppliedDiscount(discountValue);
         setCouponApplied(true);
@@ -139,11 +159,15 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
         </View>
         <View style={styles.row}>
           <Text style={styles.label}>Discount</Text>
-          <Text style={[styles.value, { color: "green" }]}>- ₹{appliedDiscount.toFixed(2)}</Text>
+          <Text style={[styles.value, { color: "green" }]}>
+            - ₹{appliedDiscount.toFixed(2)}
+          </Text>
         </View>
         <View style={styles.row}>
           <Text style={styles.totalLabel}>Grand Total</Text>
-          <Text style={styles.totalValue}>₹{discountedTotal.toFixed(2)}</Text>
+          <Text style={styles.totalValue}>
+            ₹{discountedTotal.toFixed(2)}
+          </Text>
         </View>
       </View>
 
@@ -152,14 +176,25 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
         style={styles.couponBtn}
         onPress={() => setCouponModalVisible(true)}
       >
-        <MaterialIcons name="local-offer" size={20} color="#00796B" style={{ marginRight: 6 }} />
+        <MaterialIcons
+          name="local-offer"
+          size={20}
+          color="#00796B"
+          style={{ marginRight: 6 }}
+        />
         <Text style={styles.couponBtnText}>
           {couponApplied ? "Coupon Applied" : "Apply Coupon Code"}
         </Text>
       </TouchableOpacity>
 
       {couponApplied && (
-        <Text style={{ color: "green", textAlign: "center", marginTop: 6 }}>
+        <Text
+          style={{
+            color: "green",
+            textAlign: "center",
+            marginTop: 6,
+          }}
+        >
           Coupon Applied Successfully ✅
         </Text>
       )}
@@ -173,7 +208,9 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Enter Coupon Details</Text>
+            <Text style={styles.modalTitle}>
+              Enter Coupon Details
+            </Text>
             <TextInput
               style={styles.input}
               placeholder="Ushop ID"
@@ -187,26 +224,38 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
               value={couponCodeInput}
               onChangeText={setCouponCodeInput}
             />
-            
+
             {couponError ? (
               <Text
                 style={{
-                  color: couponError === "Valid Coupon!" ? "green" : "red",
+                  color:
+                    couponError === "Valid Coupon!" ? "green" : "red",
                   marginBottom: 10,
                 }}
               >
                 {couponError}
               </Text>
             ) : null}
-            <TouchableOpacity style={styles.applyBtn} onPress={applyCoupon}>
+            <TouchableOpacity
+              style={styles.applyBtn}
+              onPress={applyCoupon}
+            >
               {verifyCouponLoading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
                 <Text style={styles.applyBtnText}>Apply Coupon</Text>
               )}
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => setCouponModalVisible(false)}>
-              <Text style={{ color: "red", marginTop: 12, textAlign: "center" }}>
+            <TouchableOpacity
+              onPress={() => setCouponModalVisible(false)}
+            >
+              <Text
+                style={{
+                  color: "red",
+                  marginTop: 12,
+                  textAlign: "center",
+                }}
+              >
                 Cancel
               </Text>
             </TouchableOpacity>
@@ -215,15 +264,27 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
       </Modal>
 
       {/* Payment Method */}
-      <Text style={[styles.sectionTitle, { marginTop: 24 }]}>Payment Method</Text>
+      <Text style={[styles.sectionTitle, { marginTop: 24 }]}>
+        Payment Method
+      </Text>
       {["Pay Online", "Pay on Delivery"].map((method) => (
         <TouchableOpacity
           key={method}
-          style={[styles.radioContainer, selectedMethod === method && styles.selected]}
+          style={[
+            styles.radioContainer,
+            selectedMethod === method && styles.selected,
+          ]}
           onPress={() => setSelectedMethod(method)}
         >
-          <View style={[styles.radioCircle, selectedMethod === method && styles.radioCircleSelected]}>
-            {selectedMethod === method && <View style={styles.innerCircle} />}
+          <View
+            style={[
+              styles.radioCircle,
+              selectedMethod === method && styles.radioCircleSelected,
+            ]}
+          >
+            {selectedMethod === method && (
+              <View style={styles.innerCircle} />
+            )}
           </View>
           <Text style={styles.radioText}>{method}</Text>
         </TouchableOpacity>
@@ -234,7 +295,10 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
       )}
 
       <TouchableOpacity
-        style={[styles.placeOrderBtn, (!selectedMethod || placingOrder) && { opacity: 0.6 }]}
+        style={[
+          styles.placeOrderBtn,
+          (!selectedMethod || placingOrder) && { opacity: 0.6 },
+        ]}
         onPress={handlePlaceOrder}
         disabled={!selectedMethod || placingOrder}
       >
@@ -251,7 +315,6 @@ const PaymentScreen = ({ addressId, selectedSlot }) => {
 export default PaymentScreen;
 
 // Styles remain the same — use the same styles from your current file.
-
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16, backgroundColor: "#fff" },

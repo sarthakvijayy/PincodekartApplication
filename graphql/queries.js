@@ -1,67 +1,67 @@
 import { gql } from "@apollo/client";
 
 export const GET_ALL_PRODUCTS = gql`
-query GetAllProducts($take: Int, $page: Int) {
-  getAllProducts(take: $take, page: $page) {
-    products {
-      id
-      categoryId
-      brandId
-      previewImage
-      mainCategory
-      productName
-      description
-      includeGst
-      gst
-      hsnCode
-      variant {
-        variantType
-        variantName
-        skuId
-        size
-        productStyleCode
-        discountPrice
-        manufacturerPrice
-        mrpPrice
-        dukandarMargin
-        logisticCost
-        moq
-        stock
-        warrentyType
-        images
-        atributes {
-          atributeName
-          atributeValue
+  query GetAllProducts($take: Int, $page: Int) {
+    getAllProducts(take: $take, page: $page) {
+      products {
+        id
+        categoryId
+        brandId
+        previewImage
+        mainCategory
+        productName
+        description
+        includeGst
+        gst
+        hsnCode
+        variant {
+          variantType
+          variantName
+          skuId
+          size
+          productStyleCode
+          discountPrice
+          manufacturerPrice
+          mrpPrice
+          dukandarMargin
+          logisticCost
+          moq
+          stock
+          warrentyType
+          images
+          atributes {
+            atributeName
+            atributeValue
+          }
+          customatributes {
+            customAtributeName
+            customAtributeValue
+          }
+          packagingLength
+          packagingBreadth
+          packagingHeight
+          packagingWeight
         }
-        customatributes {
-          customAtributeName
-          customAtributeValue
-        }
-        packagingLength
-        packagingBreadth
-        packagingHeight
-        packagingWeight
+        wholesalerId
+        active
+        approved
+        rejected
+        rejectedReason
+        createdAt
+        updatedAt
+        previewName
+        image
+        sellingPrice
+        price
+        bestSellingProduct
+        featuredProduct
+        popularProduct
+        discount
+        reviewId
       }
-      wholesalerId
-      active
-      approved
-      rejected
-      rejectedReason
-      createdAt
-      updatedAt
-      previewName
-      image
-      sellingPrice
-      price
-      bestSellingProduct
-      featuredProduct
-      popularProduct
-      discount
-      reviewId
+      count
     }
-    count
   }
-}
 `;
 
 export const GET_ALL_CATEGORIES = gql`
@@ -273,22 +273,23 @@ export const GET_ALL_ADDRESS_QUERY = gql`
 `;
 
 export const GET_ADDRESS_QUERY = gql`
-query GetAddress($getAddressId: ID) {
-  getAddress(id: $getAddressId) {
-    id
-    userId
-    fullName
-    mobileNo
-    addressLine1
-    addressLine2
-    city
-    pincode
-    state
-    country
-    createdAt
-    updatedAt
+  query GetAddress($getAddressId: ID) {
+    getAddress(id: $getAddressId) {
+      id
+      userId
+      fullName
+      mobileNo
+      addressLine1
+      addressLine2
+      city
+      pincode
+      state
+      country
+      createdAt
+      updatedAt
+    }
   }
-}`;
+`;
 
 export const GET_ALL_REVIEWS = gql`
   query GetAllReviews {
@@ -414,20 +415,27 @@ export const GET_CURRENT_USER = gql`
 export const VERIFY_COUPON = gql`
   query VarifyCoupon($ushopId: String, $couponcode: String) {
     varifyCoupon(ushopId: $ushopId, couponcode: $couponcode) {
-      msg
+      id
+      sellerId
+      couponName
+      couponCode
+      discount
+      active
+      createdAt
+      updatedAt
     }
   }
 `;
 
-
 export const GET_ALL_HOME_PAGE_SLIDERS = gql`
-query GetAllHomePageSlider {
-  getAllHomePageSlider {
-    id
-    image
-    url
-    contant
-    createdAt
-    updatedAt
+  query GetAllHomePageSlider {
+    getAllHomePageSlider {
+      id
+      image
+      url
+      contant
+      createdAt
+      updatedAt
+    }
   }
-}`;
+`;
