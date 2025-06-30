@@ -9,33 +9,33 @@ import {
   FlatList,
   Text,
   ActivityIndicator,
+  ImageBackground,
 } from "react-native";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
 import { useQuery } from "@apollo/client";
 import { GET_ALL_CATEGORIES } from "../../graphql/queries";
-import { GET_WISHLIST_QUERY , GET_CART  } from "../../graphql/queries";
+import { GET_WISHLIST_QUERY, GET_CART } from "../../graphql/queries";
 
 const Header = () => {
   const navigation = useNavigation();
-
-
 
   const { loading, data, error } = useQuery(GET_ALL_CATEGORIES, {
     variables: { page: 0, take: 10 },
   });
 
-  const { loading: wishlistLoading, data: wishlistData, error: wishlistError }
-   = useQuery(GET_WISHLIST_QUERY, 
-  );
+  const {
+    loading: wishlistLoading,
+    data: wishlistData,
+    error: wishlistError,
+  } = useQuery(GET_WISHLIST_QUERY);
 
-  const {loading: cartLoading, data: cartData , error: cartError}
-  = useQuery(GET_CART);
-
-  
-  
-  
+  const {
+    loading: cartLoading,
+    data: cartData,
+    error: cartError,
+  } = useQuery(GET_CART);
 
   const categories = data?.getAllCategories?.categories || [];
 
@@ -50,25 +50,25 @@ const Header = () => {
         })
       }
     >
-      <Image source={{ uri: item.categoryIcon }} style={styles.categoryImage} />
+      <Image
+        source={{ uri: item.categoryIcon }}
+        style={styles.categoryImage}
+      />
 
       <Text style={styles.categoryText}>{item.categoryName}</Text>
     </TouchableOpacity>
   );
 
-  
-  const notificationCount = data?.notifications?.length ||2;
-  const wishlistCount = wishlistData?.getWishList?.wishlistProducts.length|| 0;
+  const notificationCount = data?.notifications?.length || 2;
+  const wishlistCount =
+    wishlistData?.getWishList?.wishlistProducts.length || 0;
   const cartCount = cartData?.getCart?.cartProducts?.length || 0;
 
-  console.log("data", data);
-
   return (
-    <LinearGradient
-      colors={["#184977", "#459BEC", "#fff", "#fff"]}
-      start={{ x: 1, y: 0 }}
-      end={{ x: 1, y: 1 }}
+    <ImageBackground
+      source={require("../../assets/Home/homeBg.png")}
       style={styles.container}
+      resizeMode="cover"
     >
       {/* Logo */}
 
@@ -83,10 +83,10 @@ const Header = () => {
       {/* Floating Icons */}
 
       <View style={styles.floatingIcons}>
-        
-
         {/* Wishlist */}
-        <TouchableOpacity onPress={() => navigation.navigate("WishlistCard")}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate("WishlistCard")}
+        >
           <View style={styles.iconWithBadge}>
             <Feather
               name="heart"
@@ -103,7 +103,9 @@ const Header = () => {
         </TouchableOpacity>
 
         {/* Cart */}
-        <TouchableOpacity onPress={() => navigation.navigate("CartScreen")}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate("CartScreen")}
+        >
           <View style={styles.iconWithBadge}>
             <Ionicons
               name="bag-outline"
@@ -161,7 +163,9 @@ const Header = () => {
         {loading ? (
           <ActivityIndicator size="small" color="#184977" />
         ) : error ? (
-          <Text style={{ color: "red" }}>Failed to load categories</Text>
+          <Text style={{ color: "red" }}>
+            Failed to load categories
+          </Text>
         ) : (
           <FlatList
             data={categories}
@@ -173,16 +177,15 @@ const Header = () => {
           />
         )}
       </View>
-    </LinearGradient>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     paddingTop: 40,
-
+    height: 500,
     paddingBottom: 20,
-
     paddingHorizontal: 15,
   },
 
@@ -293,7 +296,7 @@ const styles = StyleSheet.create({
   categoryText: {
     fontSize: 13,
 
-    color: "#000",
+    color: "#fff",
 
     textAlign: "center",
 
