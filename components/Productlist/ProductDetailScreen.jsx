@@ -24,6 +24,7 @@ import { ADD_TO_CART } from "../../graphql/mutations";
 import ImageViewing from "react-native-image-viewing";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import useIsLoggedIn from "../../hooks/useIsLoggedIn";
 
 const { width } = Dimensions.get("window");
 
@@ -46,6 +47,11 @@ const ProductDetailScreen = ({ route }) => {
   const [alertMessage, setAlertMessage] = useState("");
   const [alertType, setAlertType] = useState("success");
   const alertAnim = useState(new Animated.Value(-100))[0];
+  const {
+    isLoggedIn: isLoggedInUser,
+    guestCartData,
+    refreshGuestCart,
+  } = useIsLoggedIn();
 
   const showAlert = (message, type = "success") => {
     setAlertMessage(message);
@@ -128,13 +134,12 @@ const ProductDetailScreen = ({ route }) => {
         await addCart({ variables: cartItem });
         showAlert("Product added to cart successfully", "success");
       } else {
-        // 🔴 User is not logged in → store in AsyncStorage locally
         const existingCart = await AsyncStorage.getItem("guestCart");
         let updatedCart = [];
 
         if (existingCart) {
           updatedCart = JSON.parse(existingCart);
-          // Check if same product + variant + size already exists
+
           const index = updatedCart.findIndex(
             (item) => item.productId === cartItem.productId
           );
@@ -152,6 +157,7 @@ const ProductDetailScreen = ({ route }) => {
           "guestCart",
           JSON.stringify(updatedCart)
         );
+        refreshGuestCart(); // this is not working
         showAlert("Added to cart (as guest)", "success");
       }
     } catch (error) {

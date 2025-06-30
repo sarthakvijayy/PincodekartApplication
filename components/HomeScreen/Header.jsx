@@ -17,9 +17,12 @@ import { useNavigation } from "@react-navigation/native";
 import { useQuery } from "@apollo/client";
 import { GET_ALL_CATEGORIES } from "../../graphql/queries";
 import { GET_WISHLIST_QUERY, GET_CART } from "../../graphql/queries";
+import useIsLoggedIn from "../../hooks/useIsLoggedIn";
 
 const Header = () => {
   const navigation = useNavigation();
+  const { isLoggedIn: isLoggedInUser, guestCartData } =
+    useIsLoggedIn();
 
   const { loading, data, error } = useQuery(GET_ALL_CATEGORIES, {
     variables: { page: 0, take: 10 },
@@ -62,7 +65,9 @@ const Header = () => {
   const notificationCount = data?.notifications?.length || 2;
   const wishlistCount =
     wishlistData?.getWishList?.wishlistProducts.length || 0;
-  const cartCount = cartData?.getCart?.cartProducts?.length || 0;
+  const cartCount = isLoggedInUser
+    ? cartData?.getCart?.cartProducts?.length || 0
+    : guestCartData?.length || 0;
 
   return (
     <ImageBackground
@@ -84,23 +89,27 @@ const Header = () => {
 
       <View style={styles.floatingIcons}>
         {/* Wishlist */}
-        <TouchableOpacity
-          onPress={() => navigation.navigate("WishlistCard")}
-        >
-          <View style={styles.iconWithBadge}>
-            <Feather
-              name="heart"
-              size={22}
-              color="#184977"
-              style={styles.iconButton}
-            />
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>
-                <Text style={styles.badgeText}>{wishlistCount}</Text>
-              </Text>
+        {isLoggedInUser && (
+          <TouchableOpacity
+            onPress={() => navigation.navigate("WishlistCard")}
+          >
+            <View style={styles.iconWithBadge}>
+              <Feather
+                name="heart"
+                size={22}
+                color="#184977"
+                style={styles.iconButton}
+              />
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>
+                  <Text style={styles.badgeText}>
+                    {wishlistCount}
+                  </Text>
+                </Text>
+              </View>
             </View>
-          </View>
-        </TouchableOpacity>
+          </TouchableOpacity>
+        )}
 
         {/* Cart */}
         <TouchableOpacity

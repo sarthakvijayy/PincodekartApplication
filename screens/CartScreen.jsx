@@ -17,13 +17,17 @@ import { GET_CART, GET_PRODUCT } from "../graphql/queries";
 import { UPDATE_CART, REMOVE_FROM_CART } from "../graphql/mutations";
 import CartHeader from "./CartHeader";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import useIsLoggedIn from "../hooks/useIsLoggedIn";
 
 const CartScreen = () => {
   const navigation = useNavigation();
   const [showLoginModal, setShowLoginModal] = useState(false);
   const { loading, error, data, refetch } = useQuery(GET_CART);
-  const [isLoggedInUser, setIsLoggedInUser] = useState(false);
-  const [guestCartData, setGuestCartData] = useState(null);
+  const {
+    isLoggedIn: isLoggedInUser,
+    guestCartData,
+    refreshGuestCart,
+  } = useIsLoggedIn();
 
   const [updateCartMutation] = useMutation(UPDATE_CART, {
     onCompleted: () => refetch(),
@@ -65,18 +69,37 @@ const CartScreen = () => {
         "guestCart",
         JSON.stringify(parsedData)
       );
-      setGuestCartData(parsedData); // ✅ Refresh UI immediately
+      refreshGuestCart(); // Refresh UI immediately using the hook
     }
   };
 
   const removeFromCart = async (item) => {
-    await removeFromCartMutation({
-      variables: {
-        productId: item.productId,
-        variantName: item.variantName,
-        size: item.size,
-      },
-    });
+    if (isLoggedInUser) {
+      await removeFromCartMutation({
+        variables: {
+          productId: item.productId,
+          variantName: item.variantName,
+          size: item.size,
+        },
+      });
+    } else {
+      // Remove from guest cart in AsyncStorage
+      const guestCart = await AsyncStorage.getItem("guestCart");
+      let parsedData = JSON.parse(guestCart) || [];
+      parsedData = parsedData.filter(
+        (cartItem) =>
+          !(
+            cartItem.productId === item.productId &&
+            cartItem.variantName === item.variantName &&
+            cartItem.size === item.size
+          )
+      );
+      await AsyncStorage.setItem(
+        "guestCart",
+        JSON.stringify(parsedData)
+      );
+      refreshGuestCart(); // Refresh UI
+    }
   };
 
   const cartItems = data?.getCart?.cartProducts || [];
@@ -103,8 +126,6 @@ const CartScreen = () => {
 
   const totalPrice = getTotalPrice();
 
-  console.log("IS LOGGED IN USER", isLoggedInUser);
-
   const handlePlaceOrder = () => {
     if (!isLoggedInUser) {
       navigation.navigate("LoginScreen");
@@ -112,29 +133,6 @@ const CartScreen = () => {
       navigation.navigate("MyOrdersScreen");
     }
   };
-
-  // Example of getting data from AsyncStorage
-  const getDataFromStorage = async () => {
-    try {
-      const guestCart = await AsyncStorage.getItem("guestCart");
-      const token = await AsyncStorage.getItem("email");
-      console.log("TOKEN", token);
-      setIsLoggedInUser(token ? true : false);
-      if (guestCart !== null) {
-        const parsedData = JSON.parse(guestCart);
-
-        setGuestCartData(parsedData);
-        return parsedData;
-      }
-    } catch (error) {
-      console.error("Error reading from AsyncStorage:", error);
-    }
-  };
-
-  // You can call this function when component mounts or when needed
-  useEffect(() => {
-    getDataFromStorage();
-  }, []);
 
   if (loading) {
     return (

@@ -15,6 +15,7 @@ import { useNavigation } from "@react-navigation/native";
 import { useQuery } from "@apollo/client";
 import { GET_CART } from "../../graphql/queries";
 import Modal from "react-native-modal";
+import useIsLoggedIn from "../../hooks/useIsLoggedIn";
 
 const { width } = Dimensions.get("window");
 
@@ -24,6 +25,8 @@ const ProductHeader = ({
   productsByCategory = {},
 }) => {
   const navigation = useNavigation();
+  const { isLoggedIn: isLoggedInUser, guestCartData } =
+    useIsLoggedIn();
   const [isCategoryModalVisible, setCategoryModalVisible] =
     useState(false);
   const [isFilterModalVisible, setFilterModalVisible] =
@@ -31,8 +34,11 @@ const ProductHeader = ({
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("");
 
-   const {loading: cartLoading, data: cartData , error: cartError}
-    = useQuery(GET_CART);
+  const {
+    loading: cartLoading,
+    data: cartData,
+    error: cartError,
+  } = useQuery(GET_CART);
 
   const openCategoryModal = (category) => {
     setSelectedCategory(category);
@@ -54,8 +60,9 @@ const ProductHeader = ({
     setSelectedFilter("");
   };
 
-    const cartCount = cartData?.getCart?.cartProducts?.length || 0;
-
+  const cartCount = isLoggedInUser
+    ? cartData?.getCart?.cartProducts?.length || 0
+    : guestCartData?.length || 0;
 
   return (
     <>
@@ -65,7 +72,6 @@ const ProductHeader = ({
         style={styles.headerGradient}
       >
         <View style={styles.headerRow}>
-          
           <View style={styles.searchContainer}>
             <Ionicons
               name="search"
@@ -79,24 +85,25 @@ const ProductHeader = ({
               placeholderTextColor="#888"
             />
           </View>
-             <TouchableOpacity onPress={() => navigation.navigate("CartScreen")}>
-                   <View style={styles.iconWithBadge}>
-                     <Ionicons
-                       name="bag-outline"
-                       size={24}
-                       color="#184977"
-                       style={styles.iconButton}
-                     />
-                     <View style={styles.badge}>
-                       <Text style={styles.badgeText}>
-                         <Text style={styles.badgeText}>{cartCount}</Text>
-                       </Text>
-                     </View>
-                   </View>
-                 </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("CartScreen")}
+          >
+            <View style={styles.iconWithBadge}>
+              <Ionicons
+                name="bag-outline"
+                size={24}
+                color="#184977"
+                style={styles.iconButton}
+              />
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>
+                  <Text style={styles.badgeText}>{cartCount}</Text>
+                </Text>
+              </View>
+            </View>
+          </TouchableOpacity>
         </View>
       </LinearGradient>
-
     </>
   );
 };
@@ -105,20 +112,20 @@ export default ProductHeader;
 
 const styles = StyleSheet.create({
   headerGradient: {
-  position: "absolute",
-  top: 0,
-  left: 0,
-  right: 0,
-  zIndex: 100, // ensures it stays above scroll content
-  paddingTop: 30,
-  paddingBottom: 16,
-  paddingHorizontal: 9,
-  elevation: 10, // Android shadow
-  shadowColor: "#000",
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.2,
-  shadowRadius: 4,
-},
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 100, // ensures it stays above scroll content
+    paddingTop: 30,
+    paddingBottom: 16,
+    paddingHorizontal: 9,
+    elevation: 10, // Android shadow
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
 
   headerRow: {
     flexDirection: "row",
@@ -231,7 +238,6 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     marginRight: 12,
     resizeMode: "cover",
-    
   },
   productInfo: {
     flex: 1,
@@ -312,5 +318,4 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: "bold",
   },
-
 });

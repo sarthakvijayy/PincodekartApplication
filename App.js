@@ -2,7 +2,12 @@ import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import AppNavigator from "./navigation/AppNavigator";
 
-import {useFonts,Poppins_400Regular,Poppins_600SemiBold,Poppins_700Bold,} from "@expo-google-fonts/poppins";
+import {
+  useFonts,
+  Poppins_400Regular,
+  Poppins_600SemiBold,
+  Poppins_700Bold,
+} from "@expo-google-fonts/poppins";
 import { ActivityIndicator, View } from "react-native";
 import { setCustomText } from "react-native-global-props";
 import {
@@ -77,9 +82,8 @@ export default function App() {
   }
 
   return (
-      <NavigationContainer>
-        <AppNavigator />
-        
-      </NavigationContainer>
+    <NavigationContainer>
+      <AppNavigator />
+    </NavigationContainer>
   );
 }
