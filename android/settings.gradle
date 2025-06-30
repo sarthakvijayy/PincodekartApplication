@@ -21,7 +21,7 @@ extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
   }
 }
 
-rootProject.name = 'pincodekart-app'
+rootProject.name = 'PincodeKart'
 
 dependencyResolutionManagement {
   versionCatalogs {

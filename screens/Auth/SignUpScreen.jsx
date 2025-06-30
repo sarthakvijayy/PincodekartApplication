@@ -22,7 +22,7 @@ import {
 } from '@expo-google-fonts/inter';
 import { Entypo } from '@expo/vector-icons';
 import { ApolloClient, InMemoryCache, ApolloProvider, gql } from '@apollo/client';
-import { sendOtp } from '../../services/authApi'; // Axios OTP API
+import { sendOtp } from '../../services/authApi'; 
 
 
 const client = new ApolloClient({

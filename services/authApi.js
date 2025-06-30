@@ -1,3 +1,4 @@
+// services/authApi.js
 import axios from 'axios';
 
 const BASE_URL = 'https://pincodekart.com/api';
@@ -12,6 +13,6 @@ export const sendOtp = async (mobileNumber, otp) => {
     return response.data;
   } catch (error) {
     console.error('OTP Send Error:', error);
-    throw error;
+    return { success: false, message: 'Server Error' };
   }
 };

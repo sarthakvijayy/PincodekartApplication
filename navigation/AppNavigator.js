@@ -29,6 +29,7 @@ import EditProfile from '../screens/ProfileScreen/EditProfile.jsx';
 import SignUpScreen from '../screens/Auth/SignUpScreen.jsx';
 import SavedAddress from '../screens/ProfileScreen/SavedAddress.jsx';
 import OrderConfirmedScreen from '../screens/OrderConfirmedScreen.jsx';
+import OtpVerificationPhoneScreen from '../screens/Auth/OtpVerificationPhoneScreen.jsx';
 
 const httpLink = createHttpLink({
   uri: 'https://pincodekart.com/api/graphql',
@@ -82,6 +83,7 @@ const AppNavigator = () => {
         <Stack.Screen name='SignUpScreen' component={SignUpScreen} />
         <Stack.Screen name='SavedAddress' component={SavedAddress} />
         <Stack.Screen name='OrderConfirmedScreen' component={OrderConfirmedScreen} />
+        <Stack.Screen name='OtpVerificationPhoneScreen' component={OtpVerificationPhoneScreen} />
       </Stack.Navigator>
       </CartProvider>
     </ApolloProvider>
