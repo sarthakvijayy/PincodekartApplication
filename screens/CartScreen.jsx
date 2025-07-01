@@ -9,6 +9,7 @@ import {
   Image,
   Alert,
   Modal,
+  // ImageBackground,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons, AntDesign } from "@expo/vector-icons";
@@ -18,6 +19,7 @@ import { UPDATE_CART, REMOVE_FROM_CART } from "../graphql/mutations";
 import CartHeader from "./CartHeader";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import useIsLoggedIn from "../hooks/useIsLoggedIn";
+
 
 const CartScreen = () => {
   const navigation = useNavigation();
@@ -69,7 +71,7 @@ const CartScreen = () => {
         "guestCart",
         JSON.stringify(parsedData)
       );
-      refreshGuestCart(); // Refresh UI immediately using the hook
+      refreshGuestCart(); 
     }
   };
 
@@ -361,6 +363,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 18,
+    marginTop: 25,
     color: "#777",
     fontFamily: "Poppins_500Medium",
   },
@@ -380,7 +383,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   clearButton: {
-    backgroundColor: "#2A55E5",
+    backgroundColor: "#0C8CE9",
     borderRadius: 6,
     paddingVertical: 12,
     marginTop: 10,
@@ -519,7 +522,7 @@ const styles = StyleSheet.create({
     color: "#000",
   },
   placeOrderBtn: {
-    backgroundColor: "#2A55E5",
+    backgroundColor: "#0C8CE9",
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 8,

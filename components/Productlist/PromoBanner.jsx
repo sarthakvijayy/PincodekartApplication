@@ -19,7 +19,7 @@ const PromoBanner = () => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#2A55E5" />
+        <ActivityIndicator size="large" color="#0C8CE9" />
       </View>
     );
   }

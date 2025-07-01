@@ -68,14 +68,14 @@ const ProductHeader = ({
     <>
       {/* Header */}
       <LinearGradient
-        colors={["#2A55E5", "#5C84EE", "#BEDFFF"]}
+        colors={["#062183", "#419EEA"]}
         style={styles.headerGradient}
       >
         <View style={styles.headerRow}>
           <View style={styles.searchContainer}>
             <Ionicons
               name="search"
-              size={18}
+              size={24}
               color="#888"
               style={{ marginRight: 8 }}
             />
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    zIndex: 100, // ensures it stays above scroll content
+    zIndex: 100, 
     paddingTop: 30,
     paddingBottom: 16,
     paddingHorizontal: 9,
@@ -139,14 +139,16 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     alignItems: "center",
     paddingHorizontal: 12,
-    height: 42,
-    marginHorizontal: 12,
+    height: 48,
+    marginHorizontal: 10,
   },
   searchInput: {
     flex: 1,
-    fontSize: 14,
+    fontSize: 22,
     fontFamily: "Poppins_400Regular",
     color: "#333",
+    marginTop: 1,
+    paddingBottom: 5,
   },
   categoryBar: {
     backgroundColor: "#fff",
@@ -172,7 +174,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#D7E3FF",
   },
   activeCategoryText: {
-    color: "#2A55E5",
+    color: "#0C8CE9",
     fontWeight: "600",
   },
   filterContainer: {

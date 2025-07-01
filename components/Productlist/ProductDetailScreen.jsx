@@ -491,7 +491,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   variantBoxSelected: {
-    borderColor: "#2A55E5",
+    borderColor: "#0C8CE9",
     backgroundColor: "#DFF0FF",
   },
   variantText: {
@@ -516,7 +516,7 @@ const styles = StyleSheet.create({
   },
   fixedButtons: {
     position: "absolute",
-    bottom: 60,
+    bottom: 70,
     left: 0,
     right: 0,
     flexDirection: "row",
@@ -552,7 +552,7 @@ const styles = StyleSheet.create({
   },
   buyButton: {
     flex: 1,
-    backgroundColor: "#2A55E5",
+    backgroundColor: "#0C8CE9",
     padding: 12,
     borderRadius: 6,
     justifyContent: "center",

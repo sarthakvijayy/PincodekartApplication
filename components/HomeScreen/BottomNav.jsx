@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   centerIconWrapper: {
-    backgroundColor: '#2A55E5',
+    backgroundColor: '#0C8CE9',
     padding: 8,
     borderRadius: 40,
     borderWidth: 2,
@@ -108,9 +108,9 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
   },
   centerImage: {
-    paddingTop: 15,
-    width: 48,
-    height: 48,
+    paddingTop: 10,
+    width: 50,
+    height: 50,
   },
 });
 

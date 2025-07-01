@@ -61,7 +61,7 @@ const StaticHeader = ({
     <>
       {/* Header */}
       <LinearGradient
-        colors={["#73BBFF", "#73BBFF", "#73BBFF"]}
+        colors={["#062183", "#419EEA"]}
         style={styles.headerGradient}
       >
         <View style={styles.headerRow}>
@@ -69,7 +69,7 @@ const StaticHeader = ({
           <View style={styles.searchContainer}>
             <Ionicons
               name="search"
-              size={18}
+              size={24}
               color="#888"
               style={{ marginRight: 8 }}
             />
@@ -77,6 +77,7 @@ const StaticHeader = ({
               style={styles.searchInput}
               placeholder="Search for products"
               placeholderTextColor="#888"
+              
             />
 
             {/* <Ionicons
@@ -148,14 +149,16 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     alignItems: "center",
     paddingHorizontal: 20,
-    height: 42,
+    height: 50,
     // marginHorizontal: 12,
+    marginHorizontal: 10,
   },
   searchInput: {
     flex: 1,
-    fontSize: 14,
+    fontSize: 22,
     fontFamily: "Poppins_400Regular",
     color: "#333",
+    paddingBottom: 5,
   },
   categoryBar: {
     backgroundColor: "#fff",
@@ -181,7 +184,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#D7E3FF",
   },
   activeCategoryText: {
-    color: "#2A55E5",
+    color: "#0C8CE9",
     fontWeight: "600",
   },
   filterContainer: {

@@ -77,7 +77,7 @@ const [languageExpanded, setLanguageExpanded] = useState(false);
   if (loading || productsLoading) {
     return (
       <View style={styles.loader}>
-        <ActivityIndicator size="large" color="#2A55E5" />
+        <ActivityIndicator size="large" color="#0C8CE9" />
         <Text style={styles.loaderText}>Loading...</Text>
       </View>
     );
@@ -133,7 +133,7 @@ const [languageExpanded, setLanguageExpanded] = useState(false);
               ].map(({ icon, label }, i) => (
                 <TouchableOpacity key={i} style={styles.settingRow}>
                   <View style={styles.iconLabel}>
-                    <Ionicons name={icon} size={20} color="#2A55E5" />
+                    <Ionicons name={icon} size={20} color="#0C8CE9" />
                     <Text style={styles.settingText}>{label}</Text>
                   </View>
                   <Ionicons name="chevron-forward" size={18} color="#6B7280" />
@@ -150,7 +150,7 @@ const [languageExpanded, setLanguageExpanded] = useState(false);
               ].map(({ icon, label }, i) => (
                 <TouchableOpacity key={i} style={styles.settingRow}>
                   <View style={styles.iconLabel}>
-                    <Ionicons name={icon} size={20} color="#2A55E5" />
+                    <Ionicons name={icon} size={20} color="#0C8CE9" />
                     <Text style={styles.settingText}>{label}</Text>
                   </View>
                   <Ionicons name="chevron-forward" size={18} color="#6B7280" />
@@ -167,7 +167,7 @@ const [languageExpanded, setLanguageExpanded] = useState(false);
               ].map(({ icon, label }, i) => (
                 <TouchableOpacity key={i} style={styles.settingRow}>
                   <View style={styles.iconLabel}>
-                    <Ionicons name={icon} size={20} color="#2A55E5" />
+                    <Ionicons name={icon} size={20} color="#0C8CE9" />
                     <Text style={styles.settingText}>{label}</Text>
                   </View>
                   <Ionicons name="chevron-forward" size={18} color="#6B7280" />
@@ -190,7 +190,7 @@ const [languageExpanded, setLanguageExpanded] = useState(false);
                   { icon: 'headphones', label: 'Help Center' },
                 ].map(({ icon, label }, idx) => (
                   <TouchableOpacity key={idx} style={styles.quickItem}>
-                    <FontAwesome name={icon} size={24} color="#2A55E5" />
+                    <FontAwesome name={icon} size={24} color="#0C8CE9" />
                     <Text style={styles.quickLabel}>{label}</Text>
                   </TouchableOpacity>
                 ))}
@@ -229,7 +229,7 @@ const [languageExpanded, setLanguageExpanded] = useState(false);
       onPress={() => route && navigation.navigate(route)}
     >
       <View style={styles.iconLabel}>
-        <Ionicons name={icon} size={20} color="#2A55E5" />
+        <Ionicons name={icon} size={20} color="#0C8CE9" />
         <Text style={styles.settingText}>{label}</Text>
       </View>
       <Ionicons name="chevron-forward" size={18} color="#6B7280" />
@@ -246,7 +246,7 @@ const [languageExpanded, setLanguageExpanded] = useState(false);
               ].map(({ icon, label }, i) => (
                 <TouchableOpacity key={i} style={styles.settingRow}>
                   <View style={styles.iconLabel}>
-                    <Ionicons name={icon} size={20} color="#2A55E5" />
+                    <Ionicons name={icon} size={20} color="#0C8CE9" />
                     <Text style={styles.settingText}>{label}</Text>
                   </View>
                   <Ionicons name="chevron-forward" size={18} color="#6B7280" />
@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   loginBtn: {
-    backgroundColor: '#2A55E5',
+    backgroundColor: '#0C8CE9',
     paddingVertical: 10,
     borderRadius: 8,
     marginTop: 12,
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: 'Poppins_400Regular',
     marginTop: 4,
-    color: '#2A55E5',
+    color: '#0C8CE9',
    
   },
   productCard: {
@@ -382,7 +382,7 @@ const styles = StyleSheet.create({
   logoutText: {
     fontFamily: 'Poppins_600SemiBold',
     fontSize: 16,
-    color: '#2A55E5',
+    color: '#0C8CE9',
     textAlign: 'center',
   },
   bottomNav: {

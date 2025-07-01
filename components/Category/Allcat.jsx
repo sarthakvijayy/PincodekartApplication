@@ -75,7 +75,7 @@ const Allcat = () => {
       <Text
         style={[
           styles.mainText,
-          item.id === selectedCatId && { color: "#2A55E5" },
+          item.id === selectedCatId && { color: "#0C8CE9" },
         ]}
       >
         {item.categoryName}
@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
   mainCategorySelected: {
     backgroundColor: "#e8f0ff",
     borderLeftWidth: 4,
-    borderColor: "#2A55E5",
+    borderColor: "#0C8CE9",
   },
   mainIcon: { width: 40, height: 40, borderRadius: 20 },
   mainText: { marginTop: 6, fontSize: 12, color: "#444", textAlign: "center" },

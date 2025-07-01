@@ -18,6 +18,8 @@ import { useQuery } from "@apollo/client";
 import { GET_ALL_CATEGORIES } from "../../graphql/queries";
 import { GET_WISHLIST_QUERY, GET_CART } from "../../graphql/queries";
 import useIsLoggedIn from "../../hooks/useIsLoggedIn";
+import Logo from "../../assets/logo/headerLogo.svg"
+
 
 const Header = () => {
   const navigation = useNavigation();
@@ -58,7 +60,7 @@ const Header = () => {
         style={styles.categoryImage}
       />
 
-      <Text style={styles.categoryText}>{item.categoryName}</Text>
+      <Text  style={styles.categoryText} numberOfLines={2} >{item.categoryName}</Text>
     </TouchableOpacity>
   );
 
@@ -78,11 +80,7 @@ const Header = () => {
       {/* Logo */}
 
       <View style={styles.logoContainer}>
-        <Image
-          source={require("../../assets/logo/logo.png")}
-          style={styles.logo}
-          resizeMode="contain"
-        />
+        <Logo width ={100} height ={150}/>
       </View>
 
       {/* Floating Icons */}
@@ -288,7 +286,7 @@ const styles = StyleSheet.create({
 
   categoryItem: {
     alignItems: "center",
-
+    marginHorizontal: 10,
     marginRight: 15,
   },
 
@@ -302,19 +300,19 @@ const styles = StyleSheet.create({
     resizeMode: "contain",
   },
 
-  categoryText: {
-    fontSize: 13,
+categoryText: {
+  fontSize: 13,
+  color: "#fff",
+  textAlign: "center",
+  fontFamily: "Poppins-Medium",
+  lineHeight: 16,
+  maxWidth: 80,          
+  paddingHorizontal: 4,  
+},
 
-    color: "#fff",
-
-    textAlign: "center",
-
-    fontFamily: "Poppins-Medium",
-  },
 
   allCategoriesButton: {
     alignItems: "center",
-
     marginLeft: 10,
   },
 });

@@ -222,7 +222,7 @@ headerTitle: {
     marginBottom: 16,
   },
   updateText: {
-    color: '#2A55E5',
+    color: '#0C8CE9',
     fontSize: 14,
     fontFamily: 'Poppins-Medium',
     paddingHorizontal: 10,
@@ -250,11 +250,11 @@ headerTitle: {
     borderRadius: 8,
     paddingVertical: 14,
     alignItems: 'center',
-    borderColor: '#2A55E5',
+    borderColor: '#0C8CE9',
     borderWidth: 2,
   },
   saveBtnText: {
-    color: '#2A55E5',
+    color: '#0C8CE9',
     fontSize: 16,
     fontFamily: 'Poppins-SemiBold',
   },

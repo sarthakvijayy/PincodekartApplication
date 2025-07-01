@@ -123,7 +123,7 @@ const CategoryScreen = ({ route }) => {
 
         <View ref={productSectionRef} accessible>
           <Text style={styles.sectionTitle}>
-            Products in {categoryName || "selected category"}
+            Products in {categoryName}
           </Text>
 
           {loadingProducts ? (
@@ -166,6 +166,7 @@ const styles = StyleSheet.create({
   },
   productList: {
     paddingBottom: 80,
+    flexDirection: 'row',
   },
   emptyText: {
     fontFamily: "Poppins_400Regular",
@@ -193,7 +194,7 @@ radioButton: {
 },
 
 radioButtonActive: {
-  borderColor: "#2A55E5",
+  borderColor: "#0C8CE9",
 },
 
 radioCircle: {
@@ -209,7 +210,7 @@ radioCircle: {
 radioLabel: {
   fontSize: 14,
   fontFamily: "Poppins_500Medium",
-  color: "#2A55E5",
+  color: "#0C8CE9",
 },
 
 });

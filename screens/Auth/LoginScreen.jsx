@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  ImageBackground,
 } from "react-native";
 import Modal from "react-native-modal";
 import { useNavigation } from "@react-navigation/native";
@@ -88,19 +89,18 @@ const LoginScreen = () => {
   }
 
   return (
+      
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}
       style={styles.container}
     >
+      <ImageBackground
+          source={require("../../assets/shop_images/shop_img2.png")}
+          style={styles.container}
+          resizeMode="cover"
+        >
       <View style={styles.content}>
-        <View style={styles.animationWrapper}>
-          <LottieView
-            source={require("../../assets/animations/login-anim.json")}
-            autoPlay
-            loop
-            style={styles.lottie}
-          />
-        </View>
+        
 
         <Image
           source={require("../../assets/logo/logo.png")}
@@ -135,7 +135,9 @@ const LoginScreen = () => {
             <Text style={styles.continueText}>Continue</Text>
           )}
         </TouchableOpacity>
+        
       </View>
+      
 
       {/* Footer */}
       <View style={styles.bottomSection}>
@@ -146,13 +148,15 @@ const LoginScreen = () => {
         </Text>
       </View>
 
+      
+
       {/* Alert Modal */}
       <Modal
         isVisible={showAlertModal}
         onBackdropPress={() => setShowAlertModal(false)}
         useNativeDriver
       >
-        <View style={styles.modalBox}>
+        {/* <View style={styles.modalBox}>
           <Text style={styles.modalTitle}>Alert</Text>
           <Text style={styles.modalMessage}>{alertMessage}</Text>
           <TouchableOpacity
@@ -161,8 +165,9 @@ const LoginScreen = () => {
           >
             <Text style={styles.modalButtonText}>OK</Text>
           </TouchableOpacity>
-        </View>
+        </View> */}
       </Modal>
+      
 
       {/* OTP Bottom Sheet */}
       <Modal
@@ -191,7 +196,7 @@ const LoginScreen = () => {
             onChangeText={setOtp}
           />
 
-          <Text style={styles.resendOtp}>Resend OTP in 55s</Text>
+          <Text style={styles.resendOtp}>Resend OTP</Text>
 
           <TouchableOpacity
             style={[styles.modalButton, { marginTop: 20 }]}
@@ -201,17 +206,46 @@ const LoginScreen = () => {
           </TouchableOpacity>
         </View>
       </Modal>
+      </ImageBackground>
     </KeyboardAvoidingView>
+    
+
   );
 };
 
 export default LoginScreen;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
-  content: { marginTop: 60, alignItems: "center", paddingHorizontal: 24 },
-  logo: { width: 170, height: 90, marginBottom: 30 },
-  title: { fontSize: 22, fontFamily: "Inter_700Bold", color: "#000" },
+  container: { flex: 1,
+     backgroundColor: "#fff",
+
+      
+    },
+  content: { 
+  marginTop: 60,
+  alignItems: "center",
+  paddingHorizontal: 20, 
+  backgroundColor: "rgba(255, 255, 255, 0.80)", 
+  borderRadius: 20,
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.2,
+  shadowRadius: 8,
+  elevation: 8,
+  marginHorizontal: 20,
+  marginTop: '50%',
+  paddingBottom: 20, 
+},
+  logo: {
+    width: 170,
+    height: 90,
+    marginBottom: 30
+  },
+  title: {
+    fontSize: 22,
+    fontFamily: "Inter_700Bold",
+    color: "#000"
+   },
   subText: {
     fontSize: 14,
     color: "#555",
@@ -222,7 +256,7 @@ const styles = StyleSheet.create({
   inputWrapper: {
     flexDirection: "row",
     alignItems: "center",
-    borderColor: "#e0e0e0",
+    borderColor: "#0c0c0c",
     borderWidth: 1,
     borderRadius: 10,
     paddingHorizontal: 12,
@@ -243,7 +277,7 @@ const styles = StyleSheet.create({
     color: "#000",
   },
   continueBtn: {
-    backgroundColor: "#5c5cff",
+    backgroundColor: "#0679E3",
     width: "100%",
     borderRadius: 10,
     paddingVertical: 14,
@@ -254,7 +288,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: "Inter_700Bold",
   },
-  disabled: { backgroundColor: "#ccc" },
+  disabled: { 
+    backgroundColor: "#ccc"
+  },
   loaderContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
   bottomSection: {
     position: "absolute",
@@ -266,7 +302,7 @@ const styles = StyleSheet.create({
   terms: {
     textAlign: "center",
     fontSize: 12,
-    color: "#888",
+    color: "#000",
     fontFamily: "Inter_400Regular",
   },
   link: { color: "#5c5cff", fontFamily: "Inter_500Medium" },

@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#2A55E5',
+    color: '#0C8CE9',
     textAlign: 'center',
   },
 });

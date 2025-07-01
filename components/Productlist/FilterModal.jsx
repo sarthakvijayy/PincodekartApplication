@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_400Regular',
   },
   activeTabText: {
-    color: '#2A55E5',
+    color: '#0C8CE9',
     fontFamily: 'Poppins_500Medium',
   },
   optionsPane: {
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
   },
   optionSelected: {
     backgroundColor: '#E3EBFD',
-    borderColor: '#2A55E5',
+    borderColor: '#0C8CE9',
   },
   optionText: {
     fontSize: 14,
@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_500Medium',
   },
   doneButton: {
-    backgroundColor: '#2A55E5',
+    backgroundColor: '#0C8CE9',
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 8,
