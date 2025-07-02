@@ -19,8 +19,6 @@ import { UPDATE_CART, REMOVE_FROM_CART } from "../graphql/mutations";
 import CartHeader from "./CartHeader";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import useIsLoggedIn from "../hooks/useIsLoggedIn";
-
-
 const CartScreen = () => {
   const navigation = useNavigation();
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -30,21 +28,17 @@ const CartScreen = () => {
     guestCartData,
     refreshGuestCart,
   } = useIsLoggedIn();
-
   const [updateCartMutation] = useMutation(UPDATE_CART, {
     onCompleted: () => refetch(),
   });
-
   const [removeFromCartMutation] = useMutation(REMOVE_FROM_CART, {
     onCompleted: () => refetch(),
   });
-
   const updateQuantity = async (item, newQty) => {
     if (newQty < 1 || newQty > 5) {
       Alert.alert("Limit", "Quantity must be between 1 and 5");
       return;
     }
-
     if (isLoggedInUser) {
       await updateCartMutation({
         variables: {
@@ -55,7 +49,6 @@ const CartScreen = () => {
     } else {
       const guestCart = await AsyncStorage.getItem("guestCart");
       let parsedData = JSON.parse(guestCart) || [];
-
       parsedData = parsedData.map((cartItem) => {
         if (
           cartItem.productId === item.productId &&
@@ -66,15 +59,13 @@ const CartScreen = () => {
         }
         return cartItem;
       });
-
       await AsyncStorage.setItem(
         "guestCart",
         JSON.stringify(parsedData)
       );
-      refreshGuestCart(); 
+      refreshGuestCart();
     }
   };
-
   const removeFromCart = async (item) => {
     if (isLoggedInUser) {
       await removeFromCartMutation({
@@ -85,7 +76,6 @@ const CartScreen = () => {
         },
       });
     } else {
-      // Remove from guest cart in AsyncStorage
       const guestCart = await AsyncStorage.getItem("guestCart");
       let parsedData = JSON.parse(guestCart) || [];
       parsedData = parsedData.filter(
@@ -100,19 +90,16 @@ const CartScreen = () => {
         "guestCart",
         JSON.stringify(parsedData)
       );
-      refreshGuestCart(); // Refresh UI
+      refreshGuestCart();
     }
   };
-
   const cartItems = data?.getCart?.cartProducts || [];
-  const isLoggedIn = !error && data?.getCart; // If query has no error and cart exists
-
+  const isLoggedIn = !error && data?.getCart;
   const getTotalItems = () =>
     cartItems.reduce(
       (total, item) => total + (item.quantity ?? 1),
       0
     );
-
   const getTotalPrice = () =>
     isLoggedInUser
       ? cartItems.reduce((total, item) => {
@@ -125,9 +112,7 @@ const CartScreen = () => {
           const qty = item.quantity ?? 1;
           return total + price * qty;
         }, 0);
-
   const totalPrice = getTotalPrice();
-
   const handlePlaceOrder = () => {
     if (!isLoggedInUser) {
       navigation.navigate("LoginScreen");
@@ -135,7 +120,6 @@ const CartScreen = () => {
       navigation.navigate("MyOrdersScreen");
     }
   };
-
   if (loading) {
     return (
       <View style={styles.center}>
@@ -143,7 +127,6 @@ const CartScreen = () => {
       </View>
     );
   }
-
   return (
     <View style={styles.container}>
       <CartHeader />
@@ -166,12 +149,11 @@ const CartScreen = () => {
         ListEmptyComponent={
           <View style={styles.center}>
             <Text style={styles.emptyText}>
-              🛒 Your cart is empty.
+              :shopping_trolley: Your cart is empty.
             </Text>
           </View>
         }
       />
-
       <View style={styles.summaryContainer}>
         <View style={styles.amountRow}>
           <Text style={styles.amountText}>₹{totalPrice}</Text>
@@ -195,7 +177,6 @@ const CartScreen = () => {
           </TouchableOpacity>
         </View>
       </View>
-
       {/* Bottom Modal for Login Prompt */}
       <Modal
         animationType="slide"
@@ -211,11 +192,9 @@ const CartScreen = () => {
             <Text style={styles.modalSubtitle}>
               Please log in to place your order
             </Text>
-
             <View style={styles.amountBox}>
               <Text style={styles.amountWhite}>₹{totalPrice}</Text>
             </View>
-
             <TouchableOpacity
               style={styles.loginButton}
               onPress={() => {
@@ -227,7 +206,6 @@ const CartScreen = () => {
                 Login & Place Order
               </Text>
             </TouchableOpacity>
-
             <TouchableOpacity
               onPress={() => setShowLoginModal(false)}
             >
@@ -239,7 +217,6 @@ const CartScreen = () => {
     </View>
   );
 };
-
 export default CartScreen;
 
 export const CartItemCard = ({
@@ -251,36 +228,28 @@ export const CartItemCard = ({
   const [qty, setQty] = useState(1);
   const [price, setPrice] = useState(0);
   const [product, setProduct] = useState(null);
-
   const { data, loading, error } = useQuery(GET_PRODUCT, {
     variables: { getProductId: item.productId },
   });
-
   useEffect(() => {
     setQty(item.quantity ?? 1);
     setPrice(item.price || product?.sellingPrice || 0);
     setProduct(data?.getProduct);
   }, [item, data]);
-
   if (loading) return <ActivityIndicator style={{ padding: 16 }} />;
   if (error) return <Text>Error loading product</Text>;
-
   // const product = data?.getProduct;
   // const price = item.price || product?.sellingPrice || 0;
   // const qty = item.quantity ?? 1;
-
   const variantImage = product?.variant?.find(
     (variant) =>
       variant.variantName?.toLowerCase().trim() ===
       item.variantName?.toLowerCase().trim()
   )?.images?.[0];
-
   const imageUrl = variantImage || product?.previewImage;
-
   return (
     <View style={styles.cardContainer}>
       <Image source={{ uri: imageUrl }} style={styles.productImage} />
-
       <View style={styles.productDetails}>
         {!isSummary && (
           <TouchableOpacity
@@ -294,17 +263,14 @@ export const CartItemCard = ({
             />
           </TouchableOpacity>
         )}
-
         <Text style={styles.brandName}>
           {product?.brand || "Brand"}
         </Text>
         <Text numberOfLines={2} style={styles.productTitle}>
           {product?.productName}
         </Text>
-
         <Text style={styles.badge}>Size: {item.size}</Text>
         <Text style={styles.badge}>Qty: {item.quantity}</Text>
-
         <View style={styles.bottomRow}>
           <View style={styles.priceRow}>
             <Text style={styles.sellingPrice}>₹{price}</Text>
@@ -314,10 +280,8 @@ export const CartItemCard = ({
             <Text style={styles.discount}>30% OFF</Text>
           </View>
         </View>
-
         <Text style={styles.greenDelivery}>Open Box Delivery</Text>
         <Text style={styles.deliveryBy}>Delivery by 24 Oct 2024</Text>
-
         {!isSummary && (
           <View style={styles.qtyWrapper}>
             <TouchableOpacity
@@ -329,9 +293,7 @@ export const CartItemCard = ({
             >
               <AntDesign name="minus" size={14} color="#000" />
             </TouchableOpacity>
-
             <Text style={styles.qtyNumber}>{qty}</Text>
-
             <TouchableOpacity
               onPress={() => {
                 updateQuantity(item, qty + 1);
@@ -347,8 +309,7 @@ export const CartItemCard = ({
     </View>
   );
 };
-
-// 🔵 Styles
+// :large_blue_circle: Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -363,7 +324,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 18,
-    marginTop: 25,
+    marginTop: "50%",
     color: "#777",
     fontFamily: "Poppins_500Medium",
   },
@@ -475,7 +436,7 @@ const styles = StyleSheet.create({
   },
   detailsBtn: {
     marginTop: 10,
-    backgroundColor: "#3b49f4",
+    backgroundColor: "#3B49F4",
     paddingVertical: 8,
     borderRadius: 6,
     alignItems: "center",
@@ -494,7 +455,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   qtyBtn: {
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#F0F0F0",
     padding: 5,
     borderRadius: 20,
   },
