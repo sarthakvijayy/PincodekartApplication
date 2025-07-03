@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   View,
@@ -62,16 +63,16 @@ const Kitchens = () => {
   }
 
   const banner = catData?.getCategory?.categoryImage;
-  const bannerList = [banner, banner, banner]; // Placeholder if only one image
+  const bannerList = [banner, banner, banner]; 
   const products = productData?.getProductsByCat || [];
 
   return (
     <View style={styles.dealsSection}>
       <LinearGradient
-        colors={['#F3C2C2', '#FF3C3C']}
+        colors={['#FFF1EB', '#FF9472']} 
         style={styles.gradientBackground}
       >
-        {/* Swipable Banner Images */}
+        {/* Swipable Banners */}
         <ScrollView
           horizontal
           pagingEnabled
@@ -90,49 +91,41 @@ const Kitchens = () => {
 
         {/* Product Scroll Section */}
         <View style={styles.productSection}>
+          <Text style={{ fontSize: 18, fontWeight: '700', color: '#333', marginBottom: 10 }}>
+            Top Deals
+          </Text>
+
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.cardScrollContainer}
-           
           >
-            {products.slice(0, 10).map((item, index) => {
-              const isFirst = index === 0;
-              const isLast = index === products.slice(0, 10).length - 1;
-
-              return (
-                <TouchableOpacity
-                  key={item.id}
-                  style={[
-                    styles.dealCard,
-                    // {
-                    //   marginLeft: isFirst ? 16 : 8,
-                    //   marginRight: isLast ? 16 : 0,
-                    // },
-                  ]}
-                  onPress={() => handlePress(item.id)}
-                >
-                  <Image
-                    source={{
-                      uri:
-                        item?.variant?.[0]?.images?.[0] || item.previewImage || '',
-                    }}
-                    style={styles.dealImage}
-                    resizeMode="cover"
-                  />
-                  <View style={styles.dealInfo}>
-                    <Text style={styles.dealTitle} numberOfLines={1}>
-                      {item.productName}
-                    </Text>
-                    <Text style={styles.dealDiscount}>
-                      {item.discount
-                        ? `UPTO ${item.discount}% OFF`
-                        : 'Special Deal'}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              );
-            })}
+            {products.slice(0, 10).map((item) => (
+              <TouchableOpacity
+                key={item.id}
+                style={styles.dealCard}
+                onPress={() => handlePress(item.id)}
+              >
+                <Image
+                  source={{
+                    uri:
+                      item?.variant?.[0]?.images?.[0] || item.previewImage || '',
+                  }}
+                  style={styles.dealImage}
+                  resizeMode="cover"
+                />
+                <View style={styles.dealInfo}>
+                  <Text style={styles.dealTitle} numberOfLines={1}>
+                    {item.productName}
+                  </Text>
+                  <Text style={styles.dealDiscount}>
+                    {item.discount
+                      ? `UPTO ${item.discount}% OFF`
+                      : 'Special Deal'}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            ))}
           </ScrollView>
         </View>
       </LinearGradient>
@@ -142,6 +135,7 @@ const Kitchens = () => {
 
 export default Kitchens;
 
+// ⛔️ DO NOT CHANGE STYLES
 const styles = StyleSheet.create({
   dealsSection: {
     backgroundColor: '#D600C0',
@@ -162,11 +156,11 @@ const styles = StyleSheet.create({
   },
   productSection: {
     marginTop: 20,
-   marginHorizontal: 20,
+    marginHorizontal: 20,
   },
   cardScrollContainer: {
     paddingBottom: 10,
-    gap: 20
+    gap: 20,
   },
   dealCard: {
     width: 140,
@@ -178,8 +172,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
-    // backgroundColor: "red",
-    // paddingHorizontal: 4
   },
   dealImage: {
     width: '100%',
@@ -206,25 +198,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// 6703c845a24ddf9a40b16c37

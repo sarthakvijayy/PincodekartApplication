@@ -17,7 +17,7 @@ import { useQuery } from "@apollo/client";
 import { GET_ALL_CATEGORIES } from "../../graphql/queries";
 import { GET_WISHLIST_QUERY, GET_CART } from "../../graphql/queries";
 import useIsLoggedIn from "../../hooks/useIsLoggedIn";
-// import Logo from "../../assets/logo/headerLogo.svg"
+// import Logo from "../../assets/logo/headerLogo.svg";
 const Header = () => {
   const navigation = useNavigation();
   const { isLoggedIn: isLoggedInUser, guestCartData } =

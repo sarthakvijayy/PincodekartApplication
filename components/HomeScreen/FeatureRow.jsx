@@ -1,19 +1,32 @@
 import React from 'react';
-import { View, Text, Image, ScrollView, StyleSheet, Dimensions } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  Dimensions,
+} from 'react-native';
 
 const features = [
   {
     title: 'Free Delivery',
-    image: require('../../assets/feature/freedelivery.png'),
+    image: require('../../assets/feature/fdel.png'),
+    bgColor: '#FAE0BF',
   },
   {
-    title: 'Open Box Services',
-    image: require('../../assets/feature/openbox.png'),
+    title: 'Open Box Service',
+    image: require('../../assets/feature/obd.png'),
+    bgColor: '#FED4D4',
   },
   {
-    title: 'Same Day Delivery',
-    image: require('../../assets/feature/sametime.png'),
+    title: 'Same Time Return',
+    image: require('../../assets/feature/stdel.png'),
+    bgColor: '#BAECD9',
+  },
+  {
+    title: 'Pay on Delivery',
+    image: require('../../assets/feature/cod.png'),
+    bgColor: '#E5E1F8',
   },
 ];
 
@@ -21,57 +34,54 @@ const { width } = Dimensions.get('window');
 
 const FeatureRow = () => {
   return (
-    <LinearGradient
-      colors={['#184977', '#459BEC', '#73BBFF', '#DFF0FF']}
-      start={{ x: 1, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.wrapper}
-    >
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
+    <View style={styles.wrapper}>
+      <View style={styles.row}>
         {features.map((item, index) => (
-          <View key={index} style={styles.card}>
+          <View key={index} style={[styles.card, { backgroundColor: item.bgColor }]}>
             <Image source={item.image} style={styles.icon} resizeMode="contain" />
             <Text style={styles.title}>{item.title}</Text>
           </View>
         ))}
-      </ScrollView>
-    </LinearGradient>
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   wrapper: {
+    backgroundColor: '#fff',
     paddingVertical: 10,
+    paddingHorizontal: 5,
   },
-  
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
   card: {
-    width: width / 3.3,
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    marginHorizontal: 6,
+    width: (width - 32) / 4,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 15,
+    paddingVertical: 12,
+    paddingHorizontal: 4,
     shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 4,
+    shadowOpacity: 0.08,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 3,
+    elevation: 2,
   },
   icon: {
-    width: 50,
-    height: 50,
-    marginBottom: 10,
+    width: 40,
+    height: 40,
+    marginBottom: 6,
   },
   title: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#0C8CE9',
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#184977',
     textAlign: 'center',
+    fontFamily: 'Poppins-Medium',
+    
   },
 });
 

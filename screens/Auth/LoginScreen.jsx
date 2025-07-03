@@ -9,7 +9,9 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  TouchableWithoutFeedback,
   ImageBackground,
+  Keyboard,
 } from "react-native";
 import Modal from "react-native-modal";
 import { useNavigation } from "@react-navigation/native";
@@ -58,7 +60,7 @@ const LoginScreen = () => {
       console.log("OTP SENT:", otpCode);
       console.log("API Response:", response);
 
-      // Show OTP modal regardless (mock)
+      
       setShowOtpModal(true);
       setAlertMessage("OTP sent successfully!");
       setShowAlertModal(true);
@@ -140,6 +142,16 @@ const LoginScreen = () => {
       
 
       {/* Footer */}
+     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+  <KeyboardAvoidingView
+    style={{ flex: 1 }}
+    behavior={Platform.OS === "ios" ? "padding" : undefined}
+    keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
+  >
+    <View style={{ flex: 1 }}>
+      {/* Your form or screen content here */}
+
+      {/* Bottom terms section */}
       <View style={styles.bottomSection}>
         <Text style={styles.terms}>
           By continuing, you agree to our{" "}
@@ -147,6 +159,10 @@ const LoginScreen = () => {
           <Text style={styles.link}>Privacy policy</Text>
         </Text>
       </View>
+    </View>
+  </KeyboardAvoidingView>
+</TouchableWithoutFeedback>
+
 
       
 
@@ -218,8 +234,6 @@ export default LoginScreen;
 const styles = StyleSheet.create({
   container: { flex: 1,
      backgroundColor: "#fff",
-
-      
     },
   content: { 
   marginTop: 60,
@@ -292,13 +306,15 @@ const styles = StyleSheet.create({
     backgroundColor: "#ccc"
   },
   loaderContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
-  bottomSection: {
-    position: "absolute",
-    bottom: 20,
-    left: 20,
-    right: 20,
-    alignItems: "center",
-  },
+bottomSection: {
+  position: "absolute",
+  bottom: 20,
+  left: 20,
+  right: 20,
+  alignItems: "center",
+  zIndex: 10, 
+},
+
   terms: {
     textAlign: "center",
     fontSize: 12,

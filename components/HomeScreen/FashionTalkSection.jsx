@@ -1,32 +1,24 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Dimensions,
-  TouchableOpacity,
-  ActivityIndicator,
-} from 'react-native';
+import {View,Text,Image,ScrollView,StyleSheet,Dimensions,TouchableOpacity,ActivityIndicator,} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { useQuery } from '@apollo/client';
 import { GET_PRODUCTS_BY_CATEGORY, GET_CATEGORY_BY_ID } from '../../graphql/queries';
+import { Ionicons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
-const BANNER_HEIGHT = (width - 32) * 0.5;
-
-const CATEGORY_ID = "6703c958a24ddf9a40b16c3e";
+const BANNER_HEIGHT = (width - 32) * 0.45;
+const CARD_WIDTH = 160;
+const CATEGORY_ID = '6703c958a24ddf9a40b16c3e';
 
 const FashionTalkSection = () => {
   const navigation = useNavigation();
 
-  const { data: catData, loading: catLoading, error: catError } = useQuery(GET_CATEGORY_BY_ID, {
+  const { data: catData, loading: catLoading } = useQuery(GET_CATEGORY_BY_ID, {
     variables: { getCategoryId: CATEGORY_ID },
   });
 
-  const { data: productData, loading: productLoading, error: productError } = useQuery(
+  const { data: productData, loading: productLoading } = useQuery(
     GET_PRODUCTS_BY_CATEGORY,
     {
       variables: { catId: CATEGORY_ID },
@@ -34,9 +26,7 @@ const FashionTalkSection = () => {
   );
 
   const handlePress = (id) => {
-    navigation.navigate('ProductDetail', { 
-      id: id,
-       });
+    navigation.navigate('ProductDetail', { id });
   };
 
   if (catLoading || productLoading) {
@@ -47,23 +37,25 @@ const FashionTalkSection = () => {
     );
   }
 
-  if (catError || productError) {
-    return (
-      <View style={styles.loader}>
-        <Text style={{ color: 'red' }}>{catError?.message || productError?.message}</Text>
-      </View>
-    );
-  }
-
   const banner = catData?.getCategory?.categoryImage;
-  const bannerList = [banner, banner, banner]; // You can replace this with 3 different images if available
+  const bannerList = [banner, banner, banner];
   const products = productData?.getProductsByCat || [];
 
   return (
     <View style={styles.sectionWrapper}>
-      <LinearGradient colors={['#F3DCAF', '#FFB320']} style={styles.gradientBackground}>
+      <LinearGradient
+        colors={['#fffbe5', '#ffeabf', '#ffe1a8']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.gradientBackground}
+      >
+        {/* Section Title */}
+        <View style={styles.titleRow}>
+          <Ionicons name="sparkles-outline" size={20} color="#E76F51" />
+          <Text style={styles.sectionTitle}>Fashion Picks For You</Text>
+        </View>
 
-        {/* Swipable Banner Section */}
+        {/* Banner Scroll */}
         <ScrollView
           horizontal
           pagingEnabled
@@ -80,34 +72,30 @@ const FashionTalkSection = () => {
           ))}
         </ScrollView>
 
-        {/* Product Cards */}
-        <View style={styles.productSection}>
+        {/* Product Horizontal Cards */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.dealsRow}
-          snapToInterval={140 + 12}
-          decelerationRate="fast"
         >
-          {products.slice(0, 5).map((item) => (
+          {products.slice(0, 6).map((item) => (
             <TouchableOpacity key={item.id} style={styles.dealCard} onPress={() => handlePress(item.id)}>
               <Image
                 source={{ uri: item?.variant?.[0]?.images?.[0] || item.previewImage }}
                 style={styles.dealImage}
-                resizeMode="cover"
               />
               <View style={styles.dealInfo}>
-                <Text style={styles.dealTitle} numberOfLines={1}>
+                <Text style={styles.dealTitle} numberOfLines={2}>
                   {item.productName}
                 </Text>
-                <Text style={styles.dealDiscount}>
-                  {item.discount ? `UPTO ${item.discount}% OFF` : 'Special Deal'}
-                </Text>
+                <Text style={styles.dealPrice}>₹{item.price || '999'}</Text>
+                {item.discount && (
+                  <Text style={styles.dealDiscount}>Save {item.discount}%</Text>
+                )}
               </View>
             </TouchableOpacity>
           ))}
         </ScrollView>
-        </View>
       </LinearGradient>
     </View>
   );
@@ -117,62 +105,84 @@ export default FashionTalkSection;
 
 const styles = StyleSheet.create({
   sectionWrapper: {
+    marginBottom: 24,
+    borderRadius: 14,
     overflow: 'hidden',
+    marginHorizontal: 16,
+    backgroundColor: '#fff',
+    elevation: 2,
   },
   gradientBackground: {
-    paddingVertical: 15,
+    paddingVertical: 20,
+    paddingHorizontal: 12,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+    gap: 6,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontFamily: 'Poppins_600SemiBold',
+    color: '#2b2b2b',
   },
   bannerScroll: {
-    paddingLeft: 16,
+    paddingLeft: 4,
+    marginBottom: 18,
   },
   bannerImage: {
-    width: width - 32,
+    width: width - 64,
     height: BANNER_HEIGHT,
     marginRight: 16,
-    borderRadius: 16,
-    overflow: 'hidden',
-  },
-   productSection: {
-    marginTop: 20,
-   marginHorizontal: 20,
+    borderRadius: 12,
+    backgroundColor: '#ccc',
   },
   dealsRow: {
-   paddingBottom: 10,
-    gap: 20
+    paddingLeft: 4,
+    gap: 12,
   },
   dealCard: {
-    width: 140,
-    backgroundColor: '#ffffff',
-    borderRadius: 10,
+    width: CARD_WIDTH,
+    backgroundColor: '#fff',
+    borderRadius: 12,
     overflow: 'hidden',
     elevation: 3,
     shadowColor: '#000',
     shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 1 },
     shadowRadius: 4,
   },
   dealImage: {
     width: '100%',
     height: 120,
+    backgroundColor: '#f2f2f2',
   },
   dealInfo: {
-    padding: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 6,
     alignItems: 'center',
   },
   dealTitle: {
-    fontSize: 15,
-    fontWeight: '600',
+    fontSize: 13,
+    fontFamily: 'Poppins_500Medium',
     color: '#333',
     textAlign: 'center',
   },
-  dealDiscount: {
-    fontSize: 13,
-    color: '#184977',
+  dealPrice: {
+    fontSize: 14,
+    fontFamily: 'Poppins_600SemiBold',
+    color: '#E76F51',
     marginTop: 4,
-    fontWeight: 'bold',
+  },
+  dealDiscount: {
+    fontSize: 11,
+    color: '#2A9D8F',
+    fontFamily: 'Poppins_500Medium',
+    marginTop: 2,
   },
   loader: {
-    padding: 20,
+    padding: 30,
     justifyContent: 'center',
     alignItems: 'center',
   },

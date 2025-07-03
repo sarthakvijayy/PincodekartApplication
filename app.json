@@ -27,7 +27,10 @@
         "foregroundImage": "./assets/splash-icon1.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.sarthakvijay.pincodekartApp"
+      "package": "com.sarthakvijay.pincodekartApp",
+      "targetSdkVersion": 34,
+      "permissions": [],
+      "usesCleartextTraffic": true
     },
 
     "web": {

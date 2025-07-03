@@ -14,9 +14,10 @@ import RecommendedCarousel from '../../components/Productlist/RecommendedCoursol
 import BottomNav from '../HomeScreen/BottomNav';
 import { useNavigation } from '@react-navigation/native';
 import { request, gql } from 'graphql-request';
+import StaticHeader from '../HomeScreen/StaticHeader';
 
 const GRAPHQL_ENDPOINT = 'https://pincodekart.com/api/graphql';
-const IMAGE_BASE_URL = ''; // If you have a base URL for images, set it here
+const IMAGE_BASE_URL = ''; 
 
 const PRODUCTS_QUERY = gql`
   query Products($page: Int, $take: Int) {
@@ -112,7 +113,7 @@ const ProductShowcaseScreen = () => {
     <View style={styles.container}>
       {/* Fixed Header */}
       <View style={styles.fixedHeader}>
-        <ProductHeader />
+        <StaticHeader />
       </View>
 
       {loading ? (

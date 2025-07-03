@@ -25,6 +25,7 @@ import ImageViewing from "react-native-image-viewing";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import useIsLoggedIn from "../../hooks/useIsLoggedIn";
+import StaticHeader from "../HomeScreen/StaticHeader";
 
 const { width } = Dimensions.get("window");
 
@@ -216,7 +217,7 @@ const ProductDetailScreen = ({ route }) => {
       )}
 
       <View style={styles.fixedHeader}>
-        <ProductHeader />
+        <StaticHeader />
       </View>
 
       <ScrollView

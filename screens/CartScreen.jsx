@@ -9,6 +9,7 @@ import {
   Image,
   Alert,
   Modal,
+  Dimensions,
   // ImageBackground,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
@@ -19,8 +20,11 @@ import { UPDATE_CART, REMOVE_FROM_CART } from "../graphql/mutations";
 import CartHeader from "./CartHeader";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import useIsLoggedIn from "../hooks/useIsLoggedIn";
+
+const {height} = Dimensions.get("window")
 const CartScreen = () => {
   const navigation = useNavigation();
+
   const [showLoginModal, setShowLoginModal] = useState(false);
   const { loading, error, data, refetch } = useQuery(GET_CART);
   const {
@@ -59,10 +63,7 @@ const CartScreen = () => {
         }
         return cartItem;
       });
-      await AsyncStorage.setItem(
-        "guestCart",
-        JSON.stringify(parsedData)
-      );
+      await AsyncStorage.setItem("guestCart", JSON.stringify(parsedData));
       refreshGuestCart();
     }
   };
@@ -86,20 +87,14 @@ const CartScreen = () => {
             cartItem.size === item.size
           )
       );
-      await AsyncStorage.setItem(
-        "guestCart",
-        JSON.stringify(parsedData)
-      );
+      await AsyncStorage.setItem("guestCart", JSON.stringify(parsedData));
       refreshGuestCart();
     }
   };
   const cartItems = data?.getCart?.cartProducts || [];
   const isLoggedIn = !error && data?.getCart;
   const getTotalItems = () =>
-    cartItems.reduce(
-      (total, item) => total + (item.quantity ?? 1),
-      0
-    );
+    cartItems.reduce((total, item) => total + (item.quantity ?? 1), 0);
   const getTotalPrice = () =>
     isLoggedInUser
       ? cartItems.reduce((total, item) => {
@@ -148,9 +143,13 @@ const CartScreen = () => {
         contentContainerStyle={{ paddingBottom: 150 }}
         ListEmptyComponent={
           <View style={styles.center}>
-            <Text style={styles.emptyText}>
-              :shopping_trolley: Your cart is empty.
-            </Text>
+            <Ionicons
+              name="bag-outline"
+              size={22}
+              color="#777"
+              style={styles.iconButton}
+            />
+            <Text style={styles.emptyText}>Your cart is empty.</Text>
           </View>
         }
       />
@@ -168,9 +167,7 @@ const CartScreen = () => {
             ]}
             onPress={handlePlaceOrder}
             disabled={
-              isLoggedInUser
-                ? cartItems.length < 1
-                : guestCartData?.length < 1
+              isLoggedInUser ? cartItems.length < 1 : guestCartData?.length < 1
             }
           >
             <Text style={styles.placeOrderText}>Place Order</Text>
@@ -186,9 +183,7 @@ const CartScreen = () => {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>
-              You are not logged in
-            </Text>
+            <Text style={styles.modalTitle}>You are not logged in</Text>
             <Text style={styles.modalSubtitle}>
               Please log in to place your order
             </Text>
@@ -202,13 +197,9 @@ const CartScreen = () => {
                 navigation.navigate("LoginScreen");
               }}
             >
-              <Text style={styles.loginButtonText}>
-                Login & Place Order
-              </Text>
+              <Text style={styles.loginButtonText}>Login & Place Order</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => setShowLoginModal(false)}
-            >
+            <TouchableOpacity onPress={() => setShowLoginModal(false)}>
               <Text style={styles.modalCancelText}>Cancel</Text>
             </TouchableOpacity>
           </View>
@@ -256,16 +247,10 @@ export const CartItemCard = ({
             style={styles.trashIcon}
             onPress={() => removeFromCart(item)}
           >
-            <Ionicons
-              name="trash-outline"
-              size={20}
-              color="#FF3E3E"
-            />
+            <Ionicons name="trash-outline" size={20} color="#FF3E3E" />
           </TouchableOpacity>
         )}
-        <Text style={styles.brandName}>
-          {product?.brand || "Brand"}
-        </Text>
+        <Text style={styles.brandName}>{product?.brand || "Brand"}</Text>
         <Text numberOfLines={2} style={styles.productTitle}>
           {product?.productName}
         </Text>
@@ -274,9 +259,7 @@ export const CartItemCard = ({
         <View style={styles.bottomRow}>
           <View style={styles.priceRow}>
             <Text style={styles.sellingPrice}>₹{price}</Text>
-            <Text style={styles.mrp}>
-              ₹{product?.price || price + 400}
-            </Text>
+            <Text style={styles.mrp}>₹{product?.price || price + 400}</Text>
             <Text style={styles.discount}>30% OFF</Text>
           </View>
         </View>
@@ -318,13 +301,17 @@ const styles = StyleSheet.create({
     paddingTop: 28,
   },
   center: {
-    flex: 1,
+    // flex: 1,
+    height: height,
+    flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
+    gap: 10
+     
   },
   emptyText: {
     fontSize: 18,
-    marginTop: "50%",
+    // marginTop: "50%",
     color: "#777",
     fontFamily: "Poppins_500Medium",
   },
@@ -393,6 +380,13 @@ const styles = StyleSheet.create({
     color: "#333",
     fontFamily: "Poppins-Regular",
     marginVertical: 2,
+  },
+  iconButton: {
+    // backgroundColor: "#DFF0FF",
+    padding: 1,
+    borderRadius: 20,
+
+    // elevation: 4,
   },
   badge: {
     backgroundColor: "#FFF",

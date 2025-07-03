@@ -10,7 +10,7 @@ import {
   Dimensions,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons , Feather } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useQuery } from "@apollo/client";
 import { GET_CART } from "../../graphql/queries";
@@ -64,54 +64,35 @@ const StaticHeader = ({
         colors={["#062183", "#419EEA"]}
         style={styles.headerGradient}
       >
-        <View style={styles.headerRow}>
-          
-          <View style={styles.searchContainer}>
-            <Ionicons
-              name="search"
-              size={24}
-              color="#888"
-              style={{ marginRight: 8 }}
-            />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search for products"
-              placeholderTextColor="#888"
-              
-            />
-
-            {/* <Ionicons
-              name="mic"
-              size={18}
-              color="#888"
-              style={{ marginRight: 8 }}
-            />
-            <Ionicons
-              name="camera"
-              size={18}
-              color="#888"
-              style={{ marginRight: 8 }}
-            /> */}
-
-          </View>
-             {/* <TouchableOpacity onPress={() => navigation.navigate("CartScreen")}>
-                   <View style={styles.iconWithBadge}>
-                     <Ionicons
-                       name="bag-outline"
-                       size={24}
-                       color="#184977"
-                       style={styles.iconButton}
-                     />
-                     <View style={styles.badge}>
-                       <Text style={styles.badgeText}>
-                         <Text style={styles.badgeText}>{cartCount}</Text>
-                       </Text>
-                     </View>
-                   </View>
-                 </TouchableOpacity> */}
-
-                 
-        </View>
+       <View style={styles.searchContainer}>
+        <Feather
+          name="search"
+          size={20}
+          color="#666"
+          style={{ marginLeft: 10 }}
+        />
+        <TextInput
+          placeholder="Search for products."
+          placeholderTextColor="#666"
+          style={styles.searchInput}
+        />
+        <TouchableOpacity>
+          <Ionicons
+            name="mic-outline"
+            size={22}
+            color="#666"
+            style={{ marginRight: 10 }}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Feather
+            name="camera"
+            size={22}
+            color="#666"
+            style={{ marginRight: 10 }}
+          />
+        </TouchableOpacity>
+      </View>
       </LinearGradient>
 
     </>
@@ -142,23 +123,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
-  searchContainer: {
-    flex: 1,
+ searchContainer: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
     flexDirection: "row",
-    backgroundColor: "#F5F6FA",
-    borderRadius: 15,
     alignItems: "center",
-    paddingHorizontal: 20,
-    height: 50,
-    // marginHorizontal: 12,
-    marginHorizontal: 10,
+    marginTop: 20,
+    paddingHorizontal: 5,
   },
   searchInput: {
     flex: 1,
-    fontSize: 22,
-    fontFamily: "Poppins_400Regular",
-    color: "#333",
-    paddingBottom: 5,
+    height: 45,
+    paddingHorizontal: 10,
+    fontSize: 16,
+    fontFamily: "Poppins-Regular",
   },
   categoryBar: {
     backgroundColor: "#fff",
