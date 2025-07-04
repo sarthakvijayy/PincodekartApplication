@@ -18,9 +18,9 @@ const OrderSummaryScreen = ({
   onProceed,
   setSelectedSlot,
   selectedSlot,
-isbuynow
+  isbuynow,
 }) => {
-  const {buyNowData} = useIsLoggedIn()
+  const { buyNowData } = useIsLoggedIn();
   // const [selectedSlot, setSelectedSlot] = useState("09AM - 10AM");
 
   const deliverySlots = [
@@ -65,10 +65,16 @@ isbuynow
     error: cartError,
   } = useQuery(GET_CART);
 
-  console.log("buyNowData", buyNowData)
- 
-  const cartItems = isbuynow ? [buyNowData] :  cartData?.getCart?.cartProducts || [];
+  console.log("buyNowData111111", buyNowData);
+  console.log("isbuynow11111", isbuynow);
 
+  const cartItems = isbuynow
+    ? buyNowData
+      ? [buyNowData]
+      : []
+    : cartData?.getCart?.cartProducts || [];
+
+  console.log("cartItems11111", cartItems);
   const subtotal = cartItems.reduce(
     (total, item) => total + item.price * item.quantity,
     0
@@ -77,14 +83,14 @@ isbuynow
   const shippingFee = subtotal >= 500 ? 0 : 40;
   const total = subtotal - discount + shippingFee;
 
-  if (cartLoading || addressLoading) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#3D5AFE" />
-        <Text>Loading...</Text>
-      </View>
-    );
-  }
+  // if (cartLoading || addressLoading) {
+  //   return (
+  //     <View style={styles.center}>
+  //       <ActivityIndicator size="large" color="#3D5AFE" />
+  //       <Text>Loading...</Text>
+  //     </View>
+  //   );
+  // }
 
   if (cartError || addressError) {
     return (

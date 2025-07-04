@@ -16,9 +16,8 @@ import { useNavigation } from "@react-navigation/native";
 import { MaterialIcons } from "@expo/vector-icons"; // Coupon icon
 import useIsLoggedIn from "../hooks/useIsLoggedIn";
 
-
-const PaymentScreen = ({ addressId, selectedSlot , isbuynow }) => { 
-  const {buyNowData} = useIsLoggedIn()
+const PaymentScreen = ({ addressId, selectedSlot, isbuynow }) => {
+  const { buyNowData } = useIsLoggedIn();
   const [selectedMethod, setSelectedMethod] = useState(null);
   const [couponModalVisible, setCouponModalVisible] = useState(false);
   const [couponCodeInput, setCouponCodeInput] = useState("");
@@ -35,7 +34,11 @@ const PaymentScreen = ({ addressId, selectedSlot , isbuynow }) => {
     loading: cartLoading,
     error: cartError,
   } = useQuery(GET_CART);
-  const cartItems = isbuynow ? [buyNowData] : data?.getCart?.cartProducts || [];
+  const cartItems = isbuynow
+    ? buyNowData
+      ? [buyNowData]
+      : []
+    : data?.getCart?.cartProducts || [];
 
   const total = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
