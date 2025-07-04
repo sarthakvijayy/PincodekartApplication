@@ -28,6 +28,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.sarthakvijay.pincodekartApp",
+      "versionCode": 2,
       "targetSdkVersion": 34,
       "permissions": [],
       "usesCleartextTraffic": true

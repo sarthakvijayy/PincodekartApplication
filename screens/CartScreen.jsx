@@ -112,7 +112,7 @@ const CartScreen = () => {
     if (!isLoggedInUser) {
       navigation.navigate("LoginScreen");
     } else {
-      navigation.navigate("MyOrdersScreen");
+      navigation.navigate("MyOrdersScreen", {isbuynow : false});
     }
   };
   if (loading) {

@@ -11,13 +11,16 @@ import RNPickerSelect from "react-native-picker-select";
 import { useQuery } from "@apollo/client";
 import { GET_CART, GET_ADDRESS_QUERY } from "../graphql/queries";
 import { CartItemCard } from "./CartScreen";
+import useIsLoggedIn from "../hooks/useIsLoggedIn";
 
 const OrderSummaryScreen = ({
   selectedAddressId,
   onProceed,
   setSelectedSlot,
   selectedSlot,
+isbuynow
 }) => {
+  const {buyNowData} = useIsLoggedIn()
   // const [selectedSlot, setSelectedSlot] = useState("09AM - 10AM");
 
   const deliverySlots = [
@@ -62,7 +65,9 @@ const OrderSummaryScreen = ({
     error: cartError,
   } = useQuery(GET_CART);
 
-  const cartItems = cartData?.getCart?.cartProducts || [];
+  console.log("buyNowData", buyNowData)
+ 
+  const cartItems = isbuynow ? [buyNowData] :  cartData?.getCart?.cartProducts || [];
 
   const subtotal = cartItems.reduce(
     (total, item) => total + item.price * item.quantity,

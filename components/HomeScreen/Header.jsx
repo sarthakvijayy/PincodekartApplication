@@ -178,6 +178,7 @@ const styles = StyleSheet.create({
     height: 500,
     paddingBottom: 20,
     paddingHorizontal: 15,
+    backgroundColor: '#062183',
   },
   logoContainer: {
     alignItems: "flex-start",

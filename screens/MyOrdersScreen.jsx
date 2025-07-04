@@ -17,10 +17,13 @@ const steps = ["Address", "Order Summary", "Payment", "Confirmed"];
 const { width } = Dimensions.get("window");
 const stepWidth = (width - 32) / steps.length;
 
-const MyOrdersScreen = () => {
+const MyOrdersScreen = ({route}) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [selectedSlot, setSelectedSlot] = useState(null);
+
+  const {isbuynow} = route.params
+
 
   const renderStepContent = () => {
     switch (currentStep) {
@@ -39,6 +42,7 @@ const MyOrdersScreen = () => {
             setSelectedSlot={setSelectedSlot}
             selectedSlot={selectedSlot}
             onProceed={() => setCurrentStep(2)}
+            isbuynow = {isbuynow}
           />
         );
       case 2:
@@ -46,7 +50,8 @@ const MyOrdersScreen = () => {
           <PaymentScreen
             addressId={selectedAddressId}
             selectedSlot={selectedSlot}
-            setCurrentStep={setCurrentStep} // 👈 Passed for step control from inside
+            setCurrentStep={setCurrentStep}
+            isbuynow = {isbuynow}
           />
         );
       case 3:

@@ -167,28 +167,51 @@ const ProductDetailScreen = ({ route }) => {
     }
   };
 
-  const handleBuyNow = () => {
-    const orderPayload = {
+  const handleBuyNow = async ()  => {
+    if(!isLoggedInUser){
+      navigation.navigate('LoginScreen');
+    }else{
+      const buyButton = {
       productId: id,
-      productName: product.productName,
+      quantity: 1,
       variantName: selectedColorVariant.variantName,
       size:
         typeof selectedSizeVariant === "object"
-          ? selectedSizeVariant.size?.[0] ||
-            selectedSizeVariant.variantName
+          ? selectedSizeVariant.size?.[0]
           : selectedSizeVariant,
       price: parseFloat(selectedColorVariant?.mrpPrice) || 0,
-      quantity: 1,
       image:
         selectedSizeVariant?.images?.[0] ||
         selectedColorVariant?.images?.[0] ||
         product?.previewImage,
-    };
+      productName: product?.productName,
+      }
+      await AsyncStorage.setItem("buynow", JSON.stringify(buyButton));
 
-    navigation.navigate("MyOrderScreen", {
-      fromBuyNow: true,
-      item: orderPayload,
-    });
+      navigation.navigate('MyOrdersScreen' , {isbuynow : true})
+    }
+    // const orderPayload = {
+    //   productId: id,
+    //   productName: product.productName,
+    //   variantName: selectedColorVariant.variantName,
+    //   size:
+    //     typeof selectedSizeVariant === "object"
+    //       ? selectedSizeVariant.size?.[0] ||
+    //         selectedSizeVariant.variantName
+    //       : selectedSizeVariant,
+    //   price: parseFloat(selectedColorVariant?.mrpPrice) || 0,
+    //   quantity: 1,
+    //   image:
+    //     selectedSizeVariant?.images?.[0] ||
+    //     selectedColorVariant?.images?.[0] ||
+    //     product?.previewImage,
+    // };
+
+
+    // navigation.navigate("MyOrderScreen", {
+    //   fromBuyNow: true,
+    //   item: orderPayload,
+    // });
   };
 
   return (

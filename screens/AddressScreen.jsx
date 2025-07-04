@@ -9,12 +9,16 @@ import {
 } from "../graphql/mutations";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useRoute } from "@react-navigation/native";
+import useIsLoggedIn from "../hooks/useIsLoggedIn";
 
 const AddressScreen = ({
   selectedAddressId,
   setSelectedAddressId,
   onProceed,
+  
 }) => {
+  const {buyNowData} = useIsLoggedIn()
+  console.log("addressbuy", buyNowData)
   const route = useRoute();
   const [isEdit, setIsEdit] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -32,6 +36,7 @@ const AddressScreen = ({
     country: "",
     tag: "Home",
   });
+  
 
   const updateSelectedAddressId =
     route?.params?.setSelectedAddressId || setSelectedAddressId;
