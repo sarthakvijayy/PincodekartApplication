@@ -51,15 +51,17 @@ const styles = StyleSheet.create({
   wrapper: {
     backgroundColor: '#fff',
     paddingVertical: 10,
-    paddingHorizontal: 5,
+    paddingHorizontal: 10,
+    
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    gap: 3,
   },
   card: {
     width: (width - 32) / 4,
-    borderRadius: 16,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 12,

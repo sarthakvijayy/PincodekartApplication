@@ -65,7 +65,7 @@ const OrderSummaryScreen = ({
     error: cartError,
   } = useQuery(GET_CART);
 
-  console.log("buyNowData111111", buyNowData);
+  console.log("buyNowData", buyNowData);
   console.log("isbuynow11111", isbuynow);
 
   const cartItems = isbuynow

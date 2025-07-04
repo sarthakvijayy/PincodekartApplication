@@ -1,73 +1,234 @@
-import React, { useRef, useState } from "react";
-import { FlatList, StyleSheet, View, Animated } from "react-native";
-import Header from "../components/HomeScreen/Header";
-import StaticHeader from "../components/HomeScreen/StaticHeader";
-import BottomNav from "../components/HomeScreen/BottomNav";
-// import BannerCarousel from '../components/HomeScreen/BannerCarousel';
-import FeatureRow from "../components/HomeScreen/FeatureRow";
-import DealsSection from "../components/HomeScreen/DealsSection";
-import FashionTalkSection from "../components/HomeScreen/FashionTalkSection";
-import DealsOfDaySection from "../components/HomeScreen/DealsOfTheDay";
-import Laptops from "../components/HomeScreen/Laptops&Monitors";
-import WomenFoot from "../components/HomeScreen/WomenFoot";
-import FruitsAndVeg from "../components/HomeScreen/FruitsAndVeg";
-import Kids from "../components/HomeScreen/Kids";
-import Wellness from "../components/HomeScreen/Wellness";
-import Mobiles from "../components/HomeScreen/Mobiles";
-import Kitchens from "../components/HomeScreen/Kitchens";
-import HomeDecor from "../components/HomeScreen/HomeDecor";
-import Stationary from "../components/HomeScreen/Stationary";
-import Medicines from "../components/HomeScreen/Medicines";
-import Sports from "../components/HomeScreen/Sports";
-import KidsFootwear from "../components/HomeScreen/KidsFootwear";
-import Cosmatics from "../components/HomeScreen/Cosmatics";
-import Toys from "../components/HomeScreen/Toys";
-import Jewellery from "../components/HomeScreen/Jewellery";
-import Furniture from "../components/HomeScreen/Furniture";
-import CarAccesories from "../components/HomeScreen/CarAccesories";
-import Cars from "../components/HomeScreen/Cars";
-import Nursery from "../components/HomeScreen/Nursery";
-import Gifts from "../components/HomeScreen/Gifts";
-import Bikes from "../components/HomeScreen/Bike";
-import Cycles from "../components/HomeScreen/Cycles";
-import Pet from "../components/HomeScreen/Pet";
+import React, { useRef, useState } from 'react';
+import { FlatList, StyleSheet, View, Animated } from 'react-native';
+
+import Header from '../components/HomeScreen/Header';
+import StaticHeader from '../components/HomeScreen/StaticHeader';
+import BottomNav from '../components/HomeScreen/BottomNav';
+import FeatureRow from '../components/HomeScreen/FeatureRow';
+import CategorySection from '../screens/CategoryHomeScreen'; // shared dynamic section
+
 const sections = [
-  // { key: 'banner', component: BannerCarousel },
-  { key: "feature", component: FeatureRow },
-  { key: "deals", component: DealsSection },
-  { key: "fashion", component: FashionTalkSection },
-  { key: "dealsOfDay", component: DealsOfDaySection },
-  { key: "laptops", component: Laptops },
-  { key: "womenFoot", component: WomenFoot },
-  { key: "fruits", component: FruitsAndVeg },
-  { key: "kids", component: Kids },
-  { key: "wellness", component: Wellness },
-  { key: "mobiles", component: Mobiles },
-  { key: "kitchen", component: Kitchens },
-  { key: "decor", component: HomeDecor },
-  { key: "stationary", component: Stationary },
-  { key: "medicines", component: Medicines },
-  { key: "sports", component: Sports },
-  { key: "kidsFootwear", component: KidsFootwear },
-  { key: "cosmetics", component: Cosmatics },
-  { key: "toys", component: Toys },
-  { key: "jewellery", component: Jewellery },
-  { key: "furniture", component: Furniture },
-  { key: "carAccesories", component: CarAccesories },
-  { key: "cars", component: Cars },
-  { key: "nursery", component: Nursery },
-  { key: "gifts", component: Gifts },
-  { key: "bikes", component: Bikes },
-  { key: "cycles", component: Cycles },
-  { key: "pet", component: Pet },
+  { key: 'featureRow', component: FeatureRow },
+
+  {
+    key: 'Books & Media',
+    component: () => (
+      <CategorySection
+        categoryId="6703c845a24ddf9a40b16c37"
+        gradientColors={['#FFDEE9', '#B5FFFC']}
+        hideTitle={true}
+        bannerRepeatCount={3}
+      />
+    ),
+  },
+  {
+    key: 'Kids',
+    component: () => (
+      <CategorySection
+        categoryId="6703c958a24ddf9a40b16c3e"
+        gradientColors={['#D4FC79', '#96E6A1']}
+        hideTitle={true}
+        bannerRepeatCount={3}
+      />
+    ),
+  },
+  {
+    key: 'Kitchens',
+    component: () => (
+      <CategorySection
+        categoryId="6703c999a24ddf9a40b16c40"
+        gradientColors={['#FDCB82', '#F7CE68']}
+        hideTitle={true}
+        bannerRepeatCount={3}
+      />
+    ),
+  },
+  {
+    key: 'Stationary',
+    component: () => (
+      <CategorySection
+        categoryId="6703c9f2a24ddf9a40b16c41"
+        gradientColors={['#A1FFCE', '#FAFFD1']}
+        hideTitle={true}
+        bannerRepeatCount={3}
+      />
+    ),
+  },
+  {
+    key: 'Home Decor',
+    component: () => (
+      <CategorySection
+        categoryId="6703ca10a24ddf9a40b16c42"
+        gradientColors={['#FBD3E9', '#BB377D']}
+        hideTitle={true}
+        bannerRepeatCount={3}
+      />
+    ),
+  },
+  {
+    key: 'Mobile',
+    component: () => (
+      <CategorySection
+        categoryId="6703ca2ca24ddf9a40b16c43"
+        gradientColors={['#89F7FE', '#66A6FF']}
+        hideTitle={true}
+        bannerRepeatCount={3}
+      />
+    ),
+  },
+  {
+    key: 'Kids Footwear',
+    component: () => (
+      <CategorySection
+        categoryId="6703ca3ca24ddf9a40b16c44"
+        gradientColors={['#FF9A9E', '#FAD0C4']}
+        hideTitle={true}
+        bannerRepeatCount={3}
+      />
+    ),
+  },
+  {
+    key: 'Beauty & Cosmetics',
+    component: () => (
+      <CategorySection
+        categoryId="6703ca4da24ddf9a40b16c45"
+        gradientColors={['#FCCB90', '#D57EEB']}
+        hideTitle={true}
+        bannerRepeatCount={3}
+      />
+    ),
+  },
+  {
+    key: 'Toys & Games',
+    component: () => (
+      <CategorySection
+        categoryId="6703ca5ba24ddf9a40b16c46"
+        gradientColors={['#FDCB82', '#F7CE68']}
+        hideTitle={true}
+        bannerRepeatCount={3}
+      />
+    ),
+  },
+  {
+    key: 'Fashion Jwellery',
+    component: () => (
+      <CategorySection
+        categoryId="6703ca83a24ddf9a40b16c47"
+        gradientColors={['#A1C4FD', '#C2E9FB']}
+        hideTitle={true}
+        bannerRepeatCount={3}
+      />
+    ),
+  },
+  {
+    key: 'Furniture Zone',
+    component: () => (
+      <CategorySection
+        categoryId="6745a7dacf4c4ee3f70f1cea"
+        gradientColors={['#84FAB0', '#8FD3F4']}
+        hideTitle={true}
+        bannerRepeatCount={3}
+      />
+    ),
+  },
+  {
+    key: 'Electronics',
+    component: () => (
+      <CategorySection
+        categoryId="6745a812cf4c4ee3f70f1ceb"
+        gradientColors={['#BBD2C5', '#536976']}
+        hideTitle={true}
+        bannerRepeatCount={3}
+      />
+    ),
+  },
+  {
+    key: 'Motors',
+    component: () => (
+      <CategorySection
+        categoryId="6745a86ccf4c4ee3f70f1ced"
+        gradientColors={['#F3E7E9', '#E3EEFF']}
+        hideTitle={true}
+        bannerRepeatCount={3}
+      />
+    ),
+  },
+  {
+    key: 'Automobiles',
+    component: () => (
+      <CategorySection
+        categoryId="6745a856cf4c4ee3f70f1cec"
+        gradientColors={['#43C6AC', '#F8FFAE']}
+        hideTitle={true}
+        bannerRepeatCount={3}
+      />
+    ),
+  },
+  {
+    key: 'Gift Items',
+    component: () => (
+      <CategorySection
+        categoryId="6745a8abcf4c4ee3f70f1cef"
+        gradientColors={['#FCE38A', '#F38181']}
+        hideTitle={true}
+        bannerRepeatCount={3}
+      />
+    ),
+  },
+  {
+    key: 'Pet Supplies',
+    component: () => (
+      <CategorySection
+        categoryId="6745a909cf4c4ee3f70f1cf2"
+        gradientColors={['#A18CD1', '#FBC2EB']}
+        hideTitle={true}
+        bannerRepeatCount={3}
+      />
+    ),
+  },
+  
+  {
+    key: 'Men Footwears',
+    component: () => (
+      <CategorySection
+        categoryId="6745a923cf4c4ee3f70f1cf3"
+        gradientColors={['#FDCB82', '#F7CE68']}
+        hideTitle={true}
+        bannerRepeatCount={3}
+      />
+    ),
+  },
+  {
+    key: 'Bag Bazaar',
+    component: () => (
+      <CategorySection
+        categoryId="67dd5d8686d19a479a72542f"
+        gradientColors={['#89F7FE', '#66A6FF']}
+        hideTitle={true}
+        bannerRepeatCount={3}
+      />
+    ),
+  },
+  {
+    key: 'Women Fashions',
+    component: () => (
+      <CategorySection
+        categoryId="67dd5ec886d19a479a725436"
+        gradientColors={['#FFDEE9', '#B5FFFC']}
+        hideTitle={true}
+        bannerRepeatCount={3}
+      />
+    ),
+  },
 ];
+
 const HomeScreen = () => {
   const [showStickyHeader, setShowStickyHeader] = useState(false);
   const scrollY = useRef(new Animated.Value(0)).current;
   const lastOffsetY = useRef(0);
+
   const handleScroll = (event) => {
     const currentY = event.nativeEvent.contentOffset.y;
-    // Only show StaticHeader when scrolling up and past 150px
     if (currentY < lastOffsetY.current && currentY > 150) {
       setShowStickyHeader(true);
     } else if (currentY <= 150 || currentY > lastOffsetY.current) {
@@ -75,6 +236,7 @@ const HomeScreen = () => {
     }
     lastOffsetY.current = currentY;
   };
+
   return (
     <View style={styles.screenContainer}>
       {showStickyHeader && (
@@ -82,57 +244,70 @@ const HomeScreen = () => {
           <StaticHeader />
         </View>
       )}
+
       <FlatList
         ListHeaderComponent={<Header />}
         data={sections}
         renderItem={({ item }) => {
           const Component = item.component;
-          return <Component />;
+          return <Animated.View style={{ opacity: scrollY.interpolate({
+            inputRange: [0, 300],
+            outputRange: [1, 0.8],
+            extrapolate: 'clamp',
+          }) }}>
+            <Component />
+          </Animated.View>;
         }}
         keyExtractor={(item) => item.key}
         showsVerticalScrollIndicator={false}
         scrollEventThrottle={16}
-        onScroll={handleScroll}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: false, listener: handleScroll }
+        )}
         initialNumToRender={1}
         maxToRenderPerBatch={4}
         windowSize={6}
         contentContainerStyle={{ paddingBottom: 100 }}
       />
+
       <View style={styles.bottomNavContainer}>
         <BottomNav />
       </View>
     </View>
   );
 };
+
 export default HomeScreen;
+
 const styles = StyleSheet.create({
   screenContainer: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
   },
   stickyHeaderContainer: {
-    position: "absolute",
+    position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     zIndex: 999,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     paddingVertical: 8,
     elevation: 12,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 3,
   },
   bottomNavContainer: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
     height: 80,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     elevation: 10,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,

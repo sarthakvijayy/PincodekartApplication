@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   Dimensions,
   TouchableOpacity,
   ActivityIndicator,
+  Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
@@ -15,12 +16,11 @@ import { useQuery } from '@apollo/client';
 import { GET_PRODUCTS_BY_CATEGORY, GET_CATEGORY_BY_ID } from '../../graphql/queries';
 
 const { width } = Dimensions.get('window');
-
-
-const CATEGORY_ID = "6703c999a24ddf9a40b16c40";
+const CATEGORY_ID = '6703c999a24ddf9a40b16c40';
 
 const DealsOfDaySection = () => {
   const navigation = useNavigation();
+  const scrollX = useRef(new Animated.Value(0)).current;
 
   const { data: catData, loading: catLoading, error: catError } = useQuery(GET_CATEGORY_BY_ID, {
     variables: { getCategoryId: CATEGORY_ID },
@@ -34,7 +34,7 @@ const DealsOfDaySection = () => {
   );
 
   const handlePress = (id) => {
-    navigation.navigate('ProductDetail', { id: id });
+    navigation.navigate('ProductDetail', { id });
   };
 
   if (catLoading || productLoading) {
@@ -59,12 +59,17 @@ const DealsOfDaySection = () => {
   return (
     <View style={styles.sectionWrapper}>
       <LinearGradient colors={['#F3C2C2', '#FF3C3C']} style={styles.gradientBackground}>
-
-        {/* Swipable Banner */}
-        <ScrollView
+        
+        {/* 🔄 Swipable Banner (No dots or title) */}
+        <Animated.ScrollView
           horizontal
           pagingEnabled
           showsHorizontalScrollIndicator={false}
+          onScroll={Animated.event(
+            [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+            { useNativeDriver: false }
+          )}
+          scrollEventThrottle={16}
           style={styles.bannerScroll}
         >
           {[1, 2, 3].map((_, index) => (
@@ -75,36 +80,60 @@ const DealsOfDaySection = () => {
               resizeMode="cover"
             />
           ))}
-        </ScrollView>
+        </Animated.ScrollView>
 
-        {/* Horizontal Products Scroll */}
+        {/* 🛍️ Animated Product Cards */}
         <View style={styles.productSection}>
-        <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.cardScrollContainer}
-                  snapToInterval={160 + 16}
-                  decelerationRate="fast"
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.cardScrollContainer}
+            snapToInterval={160 + 16}
+            decelerationRate="fast"
+          >
+            {products.map((item, index) => {
+              const fadeAnim = useRef(new Animated.Value(0)).current;
+              const translateY = useRef(new Animated.Value(20)).current;
+
+              Animated.timing(fadeAnim, {
+                toValue: 1,
+                duration: 500,
+                delay: index * 100,
+                useNativeDriver: true,
+              }).start();
+
+              Animated.timing(translateY, {
+                toValue: 0,
+                duration: 500,
+                delay: index * 100,
+                useNativeDriver: true,
+              }).start();
+
+              return (
+                <Animated.View
+                  key={item.id}
+                  style={{ opacity: fadeAnim, transform: [{ translateY }] }}
                 >
-                  {products.slice(0, 5).map((item) => (
-                    <TouchableOpacity key={item.id} style={styles.dealCard} onPress={() => handlePress(item.id)}>
-                      <Image
-                        source={{ uri: item?.variant?.[0]?.images?.[0] || item.previewImage }}
-                        style={styles.dealImage}
-                        resizeMode="cover"
-                      />
-                      <View style={styles.dealInfo}>
-                        <Text style={styles.dealTitle} numberOfLines={1}>
-                          {item.productName}
-                        </Text>
-                        <Text style={styles.dealDiscount}>
-                          {item.discount ? `UPTO ${item.discount}% OFF` : 'Special Deal'}
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-                </View>
+                  <TouchableOpacity style={styles.dealCard} onPress={() => handlePress(item.id)}>
+                    <Image
+                      source={{ uri: item?.variant?.[0]?.images?.[0] || item.previewImage }}
+                      style={styles.dealImage}
+                      resizeMode="cover"
+                    />
+                    <View style={styles.dealInfo}>
+                      <Text style={styles.dealTitle} numberOfLines={1}>
+                        {item.productName}
+                      </Text>
+                      <Text style={styles.dealDiscount}>
+                        {item.discount ? `UPTO ${item.discount}% OFF` : 'Special Deal'}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                </Animated.View>
+              );
+            })}
+          </ScrollView>
+        </View>
       </LinearGradient>
     </View>
   );
@@ -130,13 +159,13 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: 'hidden',
   },
-   cardScrollContainer: {
-     paddingBottom: 10,
-      gap: 10
+  cardScrollContainer: {
+    paddingBottom: 10,
+    gap: 10,
   },
-   productSection: {
+  productSection: {
     marginTop: 20,
-   marginHorizontal: 20,
+    marginHorizontal: 20,
   },
   dealCard: {
     width: 140,

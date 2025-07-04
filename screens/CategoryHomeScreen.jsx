@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   View,
@@ -13,22 +12,23 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { useQuery } from '@apollo/client';
-import {
-  GET_PRODUCTS_BY_CATEGORY,
-  GET_CATEGORY_BY_ID,
-} from '../../graphql/queries';
+import { GET_PRODUCTS_BY_CATEGORY, GET_CATEGORY_BY_ID } from '../graphql/queries';
 
 const { width } = Dimensions.get('window');
 const BANNER_HEIGHT = 180;
-const CATEGORY_ID = '6745a812cf4c4ee3f70f1ceb';
 
-const Kitchens = () => {
+const CategoryHomeScreen = ({
+  categoryId,
+  gradientColors = ['#FFF', '#EEE'],
+  hideTitle = false,
+  bannerRepeatCount = 3,
+}) => {
   const navigation = useNavigation();
 
   const { data: catData, loading: catLoading, error: catError } = useQuery(
     GET_CATEGORY_BY_ID,
     {
-      variables: { getCategoryId: CATEGORY_ID },
+      variables: { getCategoryId: categoryId },
     }
   );
 
@@ -37,7 +37,7 @@ const Kitchens = () => {
     loading: productLoading,
     error: productError,
   } = useQuery(GET_PRODUCTS_BY_CATEGORY, {
-    variables: { catId: CATEGORY_ID },
+    variables: { catId: categoryId },
   });
 
   const handlePress = (id) => {
@@ -63,44 +63,42 @@ const Kitchens = () => {
   }
 
   const banner = catData?.getCategory?.categoryImage;
-  const bannerList = [banner, banner, banner]; 
-  const products = productData?.getProductsByCat || [];
+  const products = productData?.getProductsByCat?.slice(0, 10) || [];
 
   return (
-    <View style={styles.dealsSection}>
-      <LinearGradient
-        colors={['#FFF1EB', '#FF9472']} 
-        style={styles.gradientBackground}
-      >
-        {/* Swipable Banners */}
+    <View style={styles.sectionWrapper}>
+      <LinearGradient colors={gradientColors} style={styles.gradientBackground}>
         <ScrollView
           horizontal
           pagingEnabled
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.bannerScroll}
         >
-          {bannerList.map((img, idx) => (
+          {Array.from({ length: bannerRepeatCount }).map((_, index) => (
             <Image
-              key={idx}
-              source={{ uri: img }}
+              key={index}
+              source={{ uri: banner }}
               style={styles.bannerImage}
               resizeMode="cover"
             />
           ))}
         </ScrollView>
 
-        {/* Product Scroll Section */}
         <View style={styles.productSection}>
-          {/* <Text style={{ fontSize: 18, fontWeight: '700', color: '#333', marginBottom: 10 }}>
-            Top Deals
-          </Text> */}
+          {!hideTitle && (
+            <Text style={styles.sectionTitle}>
+              {catData?.getCategory?.categoryName || 'Deals'}
+            </Text>
+          )}
 
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.cardScrollContainer}
+            snapToInterval={160 + 16}
+            decelerationRate="fast"
           >
-            {products.slice(0, 10).map((item) => (
+            {products.map((item) => (
               <TouchableOpacity
                 key={item.id}
                 style={styles.dealCard}
@@ -108,8 +106,7 @@ const Kitchens = () => {
               >
                 <Image
                   source={{
-                    uri:
-                      item?.variant?.[0]?.images?.[0] || item.previewImage || '',
+                    uri: item?.variant?.[0]?.images?.[0] || item.previewImage,
                   }}
                   style={styles.dealImage}
                   resizeMode="cover"
@@ -133,16 +130,15 @@ const Kitchens = () => {
   );
 };
 
-export default Kitchens;
+export default CategoryHomeScreen;
 
-// ⛔️ DO NOT CHANGE STYLES
 const styles = StyleSheet.create({
-  dealsSection: {
-    backgroundColor: '#D600C0',
+  sectionWrapper: {
+    overflow: 'hidden',
+    marginBottom: 0,
   },
   gradientBackground: {
-    paddingTop: 10,
-    paddingBottom: 20,
+    paddingVertical: 15,
   },
   bannerScroll: {
     paddingLeft: 16,
@@ -154,16 +150,24 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: 'hidden',
   },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#333',
+    marginBottom: 10,
+    marginLeft: 5,
+  },
+  cardScrollContainer: {
+    paddingBottom: 10,
+    gap: 10,
+  },
   productSection: {
     marginTop: 20,
     marginHorizontal: 20,
   },
-  cardScrollContainer: {
-    paddingBottom: 10,
-    gap: 20,
-  },
   dealCard: {
     width: 140,
+    marginRight: 12,
     backgroundColor: '#ffffff',
     borderRadius: 10,
     overflow: 'hidden',
@@ -198,5 +202,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  
 });
