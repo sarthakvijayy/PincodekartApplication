@@ -1,17 +1,19 @@
 const colors = {
   
-  primary     :         '#007bff',       // Blue
-  secondary   :         '#6c757d',     // Grey
-  success     :         '#28a745',       // Green
-  danger      :         '#dc3545',        // Red
-  warning     :         '#ffc107',       // Yellow
-  info        :         '#17a2b8',          // Light Blue
-  light       :         '#f8f9fa',         // Light Grey
-  dark        :         '#343a40',          // Dark Grey
-  white       :         '#ffffff',
-  black       :         '#000000',
-  background  :         '#f2f2f2',
-  text        :         '#212529',
+PK_Primary : '#0679E3',
+PK_Secondary : '#FFA333',
+PK_Grey1 : '#212B31',
+PK_Grey2 : '#4D555A',
+PK_Grey3: '#7A8083',
+PK_Grey4: '#A6AAAD',
+PK_Grey5: '#D3D5D6',
+PK_Grey6: '#F4F4F5',
+PK_Black: '#121920',
+PK_White: '#FFFFFF',
+PK_Error: '#D44C4E',
+PK_Attention : '#EBB811',
+PK_Approval : '#2EB865',
+PK_Link: '#3658D6',
 };
 
 export default colors;

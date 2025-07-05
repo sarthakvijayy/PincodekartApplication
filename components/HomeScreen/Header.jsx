@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   TextInput,
@@ -9,33 +9,57 @@ import {
   Text,
   ActivityIndicator,
   ImageBackground,
+  Keyboard,
 } from "react-native";
 import { Feather, Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
-import { useQuery } from "@apollo/client";
-import { GET_ALL_CATEGORIES } from "../../graphql/queries";
-import { GET_WISHLIST_QUERY, GET_CART } from "../../graphql/queries";
+import { useQuery, useLazyQuery } from "@apollo/client";
+import { GET_ALL_CATEGORIES, SEARCH_PRODUCTS, GET_WISHLIST_QUERY, GET_CART } from "../../graphql/queries";
 import useIsLoggedIn from "../../hooks/useIsLoggedIn";
-// import Logo from "../../assets/logo/headerLogo.svg";
+
 const Header = () => {
   const navigation = useNavigation();
-  const { isLoggedIn: isLoggedInUser, guestCartData } =
-    useIsLoggedIn();
+  const [searchTerm, setSearchTerm] = useState("");
+  const { isLoggedIn: isLoggedInUser, guestCartData } = useIsLoggedIn();
+
   const { loading, data, error } = useQuery(GET_ALL_CATEGORIES, {
     variables: { page: 0, take: 10 },
   });
   const {
     loading: wishlistLoading,
     data: wishlistData,
-    error: wishlistError,
   } = useQuery(GET_WISHLIST_QUERY);
   const {
     loading: cartLoading,
     data: cartData,
-    error: cartError,
   } = useQuery(GET_CART);
+
+  const [triggerSearch] = useLazyQuery(SEARCH_PRODUCTS);
+
+  const handleSearch = () => {
+    if (searchTerm.trim()) {
+      Keyboard.dismiss();
+      triggerSearch({
+        variables: {
+          query: searchTerm,
+          page: 1,
+          take: 10,
+        },
+        onCompleted: (data) => {
+          navigation.navigate("", {
+            searchResults: data.homeSearch.products,
+            query: searchTerm,
+          });
+        },
+        onError: (error) => {
+          console.log("Search Error:", error.message);
+        },
+      });
+    }
+  };
+
   const categories = data?.getAllCategories?.categories || [];
+
   const renderCategory = ({ item }) => (
     <TouchableOpacity
       key={item.id}
@@ -47,21 +71,19 @@ const Header = () => {
         })
       }
     >
-      <Image
-        source={{ uri: item.categoryIcon }}
-        style={styles.categoryImage}
-      />
+      <Image source={{ uri: item.categoryIcon }} style={styles.categoryImage} />
       <Text style={styles.categoryText} numberOfLines={2}>
         {item.categoryName}
       </Text>
     </TouchableOpacity>
   );
-  const notificationCount = data?.notifications?.length || 2;
+
   const wishlistCount =
     wishlistData?.getWishList?.wishlistProducts.length || 0;
   const cartCount = isLoggedInUser
     ? cartData?.getCart?.cartProducts?.length || 0
     : guestCartData?.length || 0;
+
   return (
     <ImageBackground
       source={require("../../assets/Home/homeBg.png")}
@@ -70,94 +92,56 @@ const Header = () => {
     >
       {/* Logo */}
       <View style={styles.logoContainer}>
-        {/* <Logo width ={100} height ={150}/> */}
-        <Image
-          source={require("../../assets/logo/logo.png")}
-          // style={styles.container}
-          resizeMode="cover"
-        />
+        <Image source={require("../../assets/logo/logo.png")} resizeMode="cover" />
       </View>
+
       {/* Floating Icons */}
       <View style={styles.floatingIcons}>
-        {/* Wishlist */}
         {isLoggedInUser && (
-          <TouchableOpacity
-            onPress={() => navigation.navigate("WishlistCard")}
-          >
+          <TouchableOpacity onPress={() => navigation.navigate("WishlistCard")}>
             <View style={styles.iconWithBadge}>
-              <Feather
-                name="heart"
-                size={22}
-                color="#184977"
-                style={styles.iconButton}
-              />
+              <Feather name="heart" size={22} color="#184977" style={styles.iconButton} />
               <View style={styles.badge}>
-                <Text style={styles.badgeText}>
-                  <Text style={styles.badgeText}>
-                    {wishlistCount}
-                  </Text>
-                </Text>
+                <Text style={styles.badgeText}>{wishlistCount}</Text>
               </View>
             </View>
           </TouchableOpacity>
         )}
-        {/* Cart */}
-        <TouchableOpacity
-          onPress={() => navigation.navigate("CartScreen")}
-        >
+        <TouchableOpacity onPress={() => navigation.navigate("CartScreen")}>
           <View style={styles.iconWithBadge}>
-            <Ionicons
-              name="bag-outline"
-              size={24}
-              color="#184977"
-              style={styles.iconButton}
-            />
+            <Ionicons name="bag-outline" size={24} color="#184977" style={styles.iconButton} />
             <View style={styles.badge}>
-              <Text style={styles.badgeText}>
-                <Text style={styles.badgeText}>{cartCount}</Text>
-              </Text>
+              <Text style={styles.badgeText}>{cartCount}</Text>
             </View>
           </View>
         </TouchableOpacity>
       </View>
+
       {/* Search Bar */}
       <View style={styles.searchContainer}>
-        <Feather
-          name="search"
-          size={20}
-          color="#666"
-          style={{ marginLeft: 10 }}
-        />
+        <Feather name="search" size={20} color="#666" style={{ marginLeft: 10 }} />
         <TextInput
           placeholder="Search for products."
           placeholderTextColor="#666"
           style={styles.searchInput}
+          value={searchTerm}
+          onChangeText={setSearchTerm}
+          onSubmitEditing={handleSearch}
         />
-        <TouchableOpacity>
-          <Ionicons
-            name="mic-outline"
-            size={22}
-            color="#666"
-            style={{ marginRight: 10 }}
-          />
+        <TouchableOpacity onPress={handleSearch}>
+          <Ionicons name="mic-outline" size={22} color="#666" style={{ marginRight: 10 }} />
         </TouchableOpacity>
         <TouchableOpacity>
-          <Feather
-            name="camera"
-            size={22}
-            color="#666"
-            style={{ marginRight: 10 }}
-          />
+          <Feather name="camera" size={22} color="#666" style={{ marginRight: 10 }} />
         </TouchableOpacity>
       </View>
+
       {/* Categories */}
       <View style={styles.categoriesWrapper}>
         {loading ? (
           <ActivityIndicator size="small" color="#184977" />
         ) : error ? (
-          <Text style={{ color: "red" }}>
-            Failed to load categories
-          </Text>
+          <Text style={{ color: "red" }}>Failed to load categories</Text>
         ) : (
           <FlatList
             data={categories}
@@ -172,6 +156,7 @@ const Header = () => {
     </ImageBackground>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     paddingTop: 40,
@@ -182,10 +167,6 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     alignItems: "flex-start",
-  },
-  logo: {
-    width: 190,
-    height: 70,
   },
   floatingIcons: {
     flexDirection: "row",
@@ -265,4 +246,5 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
 });
+
 export default Header;

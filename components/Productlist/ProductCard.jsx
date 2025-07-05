@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -9,6 +9,12 @@ import {
   ActivityIndicator,
   useWindowDimensions,
 } from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
 import { AntDesign, Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
@@ -30,8 +36,20 @@ const ProductCard = ({
   initialWishlisted = false,
 }) => {
   const [isWishlisted, setIsWishlisted] = useState(initialWishlisted);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const navigation = useNavigation();
   const { width } = useWindowDimensions();
+
+  // Card scale animation
+  const scale = useSharedValue(0.9);
+
+  useEffect(() => {
+    scale.value = withSpring(1, { damping: 10 });
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
 
   const [addToWishlist, { loading: adding }] = useMutation(ADD_TO_WISHLIST);
   const [removeFromWishlist, { loading: removing }] = useMutation(
@@ -57,18 +75,27 @@ const ProductCard = ({
     }
   };
 
-  const imageSource = typeof image === "string" ? { uri: image } : image;
+  const parsePrice = (price) =>
+    typeof price === "number" ? price : parseFloat(price) || null;
+
+  const displayPrice = parsePrice(originalPrice) || parsePrice(mrpPrice);
+  const displayMrp = parsePrice(mrpPrice);
+
+  const imageSource =
+    typeof image === "string" && image.trim() !== ""
+      ? { uri: image }
+      : require("../../assets/images/dairy.png");
+
   const loading = adding || removing;
 
   return (
     <TouchableOpacity
       onPress={() => navigation.navigate("ProductDetail", { id })}
       activeOpacity={0.9}
-      style={[styles.cardContainer, { width: width / 2 - 14 }]} // Responsive
+      style={[styles.cardContainer, { width: width / 2 - 16 }]}
     >
-      <View style={styles.card}>
-        <Text style={styles.sponsored}>Pincodekart</Text>
-
+      <Animated.View style={[styles.card, animatedStyle]}>
+        {/* Top Right Icons */}
         <View style={styles.iconRow}>
           <TouchableOpacity onPress={handleWishlistToggle} disabled={loading}>
             {loading ? (
@@ -85,7 +112,7 @@ const ProductCard = ({
           <TouchableOpacity
             onPress={() =>
               Share.share({
-                message: `Check this out: ${title} for ₹${originalPrice}`,
+                message: `Check this out: ${title} for ₹${displayPrice || "N/A"}`,
               })
             }
           >
@@ -93,27 +120,58 @@ const ProductCard = ({
           </TouchableOpacity>
         </View>
 
-        <Image source={imageSource} style={styles.productImage} />
-        <Text style={styles.rating}>⭐ {rating}</Text>
+        {/* Image with lazy loading */}
+        <View style={styles.imageWrapper}>
+          {!imageLoaded && (
+            <ActivityIndicator size="small" color="#ccc" style={styles.loader} />
+          )}
+          <Image
+            source={imageSource}
+            style={[
+              styles.productImage,
+              { opacity: imageLoaded ? 1 : 0.3 },
+            ]}
+            onLoad={() => setImageLoaded(true)}
+          />
+        </View>
 
+        {/* Rating */}
+        {rating && <Text style={styles.rating}>⭐ {rating}</Text>}
+
+        {/* Title */}
         <Text style={styles.title} numberOfLines={2}>
           {title}
         </Text>
 
+        {/* Price */}
         <View style={styles.priceRow}>
-          <Text style={styles.price}>₹{mrpPrice || "PRICE"} </Text>
+          <Text style={styles.price}>
+            ₹{displayPrice ? displayPrice.toFixed(0) : "N/A"}
+          </Text>
+          {displayMrp &&
+            displayPrice &&
+            displayMrp > displayPrice && (
+              <Text style={styles.strikePrice}>₹{displayMrp.toFixed(0)}</Text>
+            )}
         </View>
 
+        {/* Discount */}
+        {discount && (
+          <Text style={styles.discount}>UPTO {discount}% OFF</Text>
+        )}
+
+        {/* Tags */}
         <View style={styles.labels}>
           <Text style={styles.hotDeal}>HOT DEAL</Text>
           <Text style={styles.delivery}>Open Box Delivery</Text>
         </View>
-      </View>
+      </Animated.View>
     </TouchableOpacity>
   );
 };
 
 export default ProductCard;
+
 
 const styles = StyleSheet.create({
   cardContainer: {
@@ -122,7 +180,7 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: "#fff",
-    borderRadius: 10,
+    borderRadius: 16,
     padding: 10,
     minHeight: 280,
     justifyContent: "space-between",
@@ -132,11 +190,6 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
   },
-  sponsored: {
-    fontSize: 11,
-    color: "#000",
-    fontFamily: "Poppins_400Regular",
-  },
   iconRow: {
     position: "absolute",
     top: 10,
@@ -144,13 +197,22 @@ const styles = StyleSheet.create({
     zIndex: 10,
     flexDirection: "row",
     gap: 10,
+    backgroundColor: "#fff",
+    padding: 4,
+    borderRadius: 8,
+    elevation: 2,
+  },
+  imageWrapper: {
+    alignItems: "center",
+    marginTop: 16,
   },
   productImage: {
-    width: "100%",
-    height: 140,
+    width: 170,
+    height: 180,
     borderRadius: 8,
-    resizeMode: "cover",
-    marginTop: 16,
+    borderWidth: 0.5,
+    borderColor: "#ccc",
+    resizeMode: "contain",
   },
   rating: {
     fontSize: 12,
@@ -162,21 +224,34 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#222",
     fontFamily: "Poppins_500Medium",
-    marginTop: 4,
+    marginTop: 6,
     height: 36,
     lineHeight: 18,
   },
   priceRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 4,
     flexWrap: "wrap",
+    marginTop: 4,
+    gap: 8,
   },
   price: {
     fontSize: 15,
     fontWeight: "bold",
     color: "#000",
     fontFamily: "Poppins_700Bold",
+  },
+  strikePrice: {
+    fontSize: 12,
+    color: "#999",
+    textDecorationLine: "line-through",
+    fontFamily: "Poppins_400Regular",
+  },
+  discount: {
+    fontSize: 11,
+    color: "#FF4D4D",
+    fontWeight: "600",
+    marginTop: 4,
   },
   labels: {
     flexDirection: "row",
@@ -192,6 +267,11 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     borderRadius: 4,
   },
+    loader: {
+    position: "absolute",
+    top: "40%",
+  },
+
   delivery: {
     backgroundColor: "#E0F7EA",
     color: "#2E7D32",

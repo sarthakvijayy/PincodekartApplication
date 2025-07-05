@@ -1,18 +1,11 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Dimensions,
-  TouchableOpacity,
-  ActivityIndicator,
-} from 'react-native';
+import {View,Text,Image,ScrollView,StyleSheet,Dimensions,TouchableOpacity,ActivityIndicator,} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { useQuery } from '@apollo/client';
 import { GET_PRODUCTS_BY_CATEGORY, GET_CATEGORY_BY_ID } from '../graphql/queries';
+import colors from '../constants/colors';
+
 
 const { width } = Dimensions.get('window');
 const BANNER_HEIGHT = 180;
@@ -20,6 +13,7 @@ const BANNER_HEIGHT = 180;
 const CategoryHomeScreen = ({
   categoryId,
   gradientColors = ['#FFF', '#EEE'],
+  backgroundColor,
   hideTitle = false,
   bannerRepeatCount = 3,
 }) => {
@@ -65,9 +59,17 @@ const CategoryHomeScreen = ({
   const banner = catData?.getCategory?.categoryImage;
   const products = productData?.getProductsByCat?.slice(0, 10) || [];
 
+  const Wrapper = backgroundColor
+    ? View
+    : LinearGradient;
+
+  const wrapperProps = backgroundColor
+    ? { style: [styles.gradientBackground, { backgroundColor }] }
+    : { colors: gradientColors, style: styles.gradientBackground };
+
   return (
     <View style={styles.sectionWrapper}>
-      <LinearGradient colors={gradientColors} style={styles.gradientBackground}>
+      <Wrapper {...wrapperProps}>
         <ScrollView
           horizontal
           pagingEnabled
@@ -125,7 +127,7 @@ const CategoryHomeScreen = ({
             ))}
           </ScrollView>
         </View>
-      </LinearGradient>
+      </Wrapper>
     </View>
   );
 };
@@ -166,37 +168,47 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
   },
   dealCard: {
-    width: 140,
-    marginRight: 12,
-    backgroundColor: '#ffffff',
-    borderRadius: 10,
-    overflow: 'hidden',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-  },
-  dealImage: {
-    width: '100%',
-    height: 120,
-  },
-  dealInfo: {
-    padding: 10,
-    alignItems: 'center',
-  },
-  dealTitle: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#333',
-    textAlign: 'center',
-  },
-  dealDiscount: {
-    fontSize: 13,
-    color: '#184977',
-    marginTop: 4,
-    fontWeight: 'bold',
-  },
+  width: 160,
+  borderRadius: 20,
+  backgroundColor: '#fff',
+  marginRight: 16,
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.1,
+  shadowRadius: 4,
+  elevation: 4,
+  alignItems: 'center',
+  overflow: 'hidden',
+  paddingBottom: 16,
+},
+
+dealImage: {
+  width: '100%',
+  height: 140,
+  borderTopLeftRadius: 20,
+  borderTopRightRadius: 20,
+},
+
+dealInfo: {
+  marginTop: 10,
+  alignItems: 'center',
+  paddingHorizontal: 10,
+},
+
+dealTitle: {
+  fontSize: 16,
+  fontWeight: '600',
+  color: '#1A1A1A',
+  textAlign: 'center',
+},
+
+dealDiscount: {
+  fontSize: 13,
+  color: '#888',
+  marginTop: 4,
+  textAlign: 'center',
+},
+
   loader: {
     padding: 20,
     justifyContent: 'center',

@@ -150,7 +150,7 @@ export default ProductShowcaseScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F6FA',
+    backgroundColor: '#F4F4F5',
   },
   fixedHeader: {
     position: 'absolute',

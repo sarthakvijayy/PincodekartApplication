@@ -439,3 +439,66 @@ export const GET_ALL_HOME_PAGE_SLIDERS = gql`
     }
   }
 `;
+
+export const SEARCH_PRODUCTS = gql`
+query HomeSearch($query: String, $page: Int, $take: Int) {
+  homeSearch(query: $query, page: $page, take: $take) {
+    products {
+      id
+      categoryId
+      brandId
+      previewImage
+      mainCategory
+      productName
+      description
+      includeGst
+      gst
+      hsnCode
+      variant {
+        variantType
+        variantName
+        skuId
+        size
+        productStyleCode
+        discountPrice
+        manufacturerPrice
+        mrpPrice
+        dukandarMargin
+        logisticCost
+        moq
+        stock
+        warrentyType
+        images
+        atributes {
+          atributeName
+          atributeValue
+        }
+        customatributes {
+          customAtributeName
+          customAtributeValue
+        }
+        packagingLength
+        packagingBreadth
+        packagingHeight
+        packagingWeight
+      }
+      wholesalerId
+      active
+      approved
+      rejected
+      rejectedReason
+      createdAt
+      updatedAt
+      previewName
+      image
+      sellingPrice
+      price
+      bestSellingProduct
+      featuredProduct
+      popularProduct
+      discount
+      reviewId
+    }
+    count
+  }
+}`;

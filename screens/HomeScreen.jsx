@@ -1,21 +1,30 @@
-import React, { useRef, useState } from 'react';
-import { FlatList, StyleSheet, View, Animated } from 'react-native';
-
+import React, { useRef, useState, useEffect } from 'react';
+import {
+  FlatList,
+  StyleSheet,
+  View,
+  Animated,
+  TouchableOpacity,
+  Text,
+} from 'react-native';
+import { useCart } from './CartContext';
 import Header from '../components/HomeScreen/Header';
 import StaticHeader from '../components/HomeScreen/StaticHeader';
 import BottomNav from '../components/HomeScreen/BottomNav';
 import FeatureRow from '../components/HomeScreen/FeatureRow';
-import CategorySection from '../screens/CategoryHomeScreen'; // shared dynamic section
+import CategorySection from '../screens/CategoryHomeScreen';
+import { useNavigation } from '@react-navigation/native';
+import colors from '../constants/colors';
+
 
 const sections = [
   { key: 'featureRow', component: FeatureRow },
-
   {
     key: 'Books & Media',
     component: () => (
       <CategorySection
         categoryId="6703c845a24ddf9a40b16c37"
-        gradientColors={['#FFDEE9', '#B5FFFC']}
+        backgroundColor={colors.PK_Grey6}
         hideTitle={true}
         bannerRepeatCount={3}
       />
@@ -26,7 +35,7 @@ const sections = [
     component: () => (
       <CategorySection
         categoryId="6703c958a24ddf9a40b16c3e"
-        gradientColors={['#D4FC79', '#96E6A1']}
+        backgroundColor={colors.PK_Grey6}
         hideTitle={true}
         bannerRepeatCount={3}
       />
@@ -37,7 +46,7 @@ const sections = [
     component: () => (
       <CategorySection
         categoryId="6703c999a24ddf9a40b16c40"
-        gradientColors={['#FDCB82', '#F7CE68']}
+        backgroundColor={colors.PK_Grey6}
         hideTitle={true}
         bannerRepeatCount={3}
       />
@@ -48,7 +57,7 @@ const sections = [
     component: () => (
       <CategorySection
         categoryId="6703c9f2a24ddf9a40b16c41"
-        gradientColors={['#A1FFCE', '#FAFFD1']}
+        backgroundColor={colors.PK_Grey6}
         hideTitle={true}
         bannerRepeatCount={3}
       />
@@ -59,7 +68,7 @@ const sections = [
     component: () => (
       <CategorySection
         categoryId="6703ca10a24ddf9a40b16c42"
-        gradientColors={['#FBD3E9', '#BB377D']}
+        backgroundColor={colors.PK_Grey6}
         hideTitle={true}
         bannerRepeatCount={3}
       />
@@ -70,7 +79,7 @@ const sections = [
     component: () => (
       <CategorySection
         categoryId="6703ca2ca24ddf9a40b16c43"
-        gradientColors={['#89F7FE', '#66A6FF']}
+        backgroundColor={colors.PK_Grey6}
         hideTitle={true}
         bannerRepeatCount={3}
       />
@@ -81,7 +90,7 @@ const sections = [
     component: () => (
       <CategorySection
         categoryId="6703ca3ca24ddf9a40b16c44"
-        gradientColors={['#FF9A9E', '#FAD0C4']}
+        backgroundColor={colors.PK_Grey6}
         hideTitle={true}
         bannerRepeatCount={3}
       />
@@ -92,7 +101,7 @@ const sections = [
     component: () => (
       <CategorySection
         categoryId="6703ca4da24ddf9a40b16c45"
-        gradientColors={['#FCCB90', '#D57EEB']}
+        backgroundColor={colors.PK_Grey6}
         hideTitle={true}
         bannerRepeatCount={3}
       />
@@ -103,7 +112,7 @@ const sections = [
     component: () => (
       <CategorySection
         categoryId="6703ca5ba24ddf9a40b16c46"
-        gradientColors={['#FDCB82', '#F7CE68']}
+        backgroundColor={colors.PK_Grey6}
         hideTitle={true}
         bannerRepeatCount={3}
       />
@@ -114,7 +123,7 @@ const sections = [
     component: () => (
       <CategorySection
         categoryId="6703ca83a24ddf9a40b16c47"
-        gradientColors={['#A1C4FD', '#C2E9FB']}
+        backgroundColor={colors.PK_Grey6}
         hideTitle={true}
         bannerRepeatCount={3}
       />
@@ -125,7 +134,7 @@ const sections = [
     component: () => (
       <CategorySection
         categoryId="6745a7dacf4c4ee3f70f1cea"
-        gradientColors={['#84FAB0', '#8FD3F4']}
+        backgroundColor={colors.PK_Grey6}
         hideTitle={true}
         bannerRepeatCount={3}
       />
@@ -136,7 +145,7 @@ const sections = [
     component: () => (
       <CategorySection
         categoryId="6745a812cf4c4ee3f70f1ceb"
-        gradientColors={['#BBD2C5', '#536976']}
+        backgroundColor={colors.PK_Grey6}
         hideTitle={true}
         bannerRepeatCount={3}
       />
@@ -147,7 +156,7 @@ const sections = [
     component: () => (
       <CategorySection
         categoryId="6745a86ccf4c4ee3f70f1ced"
-        gradientColors={['#F3E7E9', '#E3EEFF']}
+        backgroundColor={colors.PK_Grey6}
         hideTitle={true}
         bannerRepeatCount={3}
       />
@@ -158,7 +167,7 @@ const sections = [
     component: () => (
       <CategorySection
         categoryId="6745a856cf4c4ee3f70f1cec"
-        gradientColors={['#43C6AC', '#F8FFAE']}
+        backgroundColor={colors.PK_Grey6}
         hideTitle={true}
         bannerRepeatCount={3}
       />
@@ -169,7 +178,7 @@ const sections = [
     component: () => (
       <CategorySection
         categoryId="6745a8abcf4c4ee3f70f1cef"
-        gradientColors={['#FCE38A', '#F38181']}
+       backgroundColor={colors.PK_Grey6}
         hideTitle={true}
         bannerRepeatCount={3}
       />
@@ -180,19 +189,18 @@ const sections = [
     component: () => (
       <CategorySection
         categoryId="6745a909cf4c4ee3f70f1cf2"
-        gradientColors={['#A18CD1', '#FBC2EB']}
+        backgroundColor={colors.PK_Grey6}
         hideTitle={true}
         bannerRepeatCount={3}
       />
     ),
   },
-  
   {
     key: 'Men Footwears',
     component: () => (
       <CategorySection
         categoryId="6745a923cf4c4ee3f70f1cf3"
-        gradientColors={['#FDCB82', '#F7CE68']}
+        backgroundColor={colors.PK_Grey6}
         hideTitle={true}
         bannerRepeatCount={3}
       />
@@ -203,7 +211,7 @@ const sections = [
     component: () => (
       <CategorySection
         categoryId="67dd5d8686d19a479a72542f"
-        gradientColors={['#89F7FE', '#66A6FF']}
+        backgroundColor={colors.PK_Grey6}
         hideTitle={true}
         bannerRepeatCount={3}
       />
@@ -214,7 +222,7 @@ const sections = [
     component: () => (
       <CategorySection
         categoryId="67dd5ec886d19a479a725436"
-        gradientColors={['#FFDEE9', '#B5FFFC']}
+        backgroundColor={colors.PK_Grey6}
         hideTitle={true}
         bannerRepeatCount={3}
       />
@@ -237,6 +245,13 @@ const HomeScreen = () => {
     lastOffsetY.current = currentY;
   };
 
+  const navigation = useNavigation();
+  const { cartItems } = useCart();
+  const cartItemCount = cartItems.length;
+
+  console.log('Cart items:', cartItems);
+
+
   return (
     <View style={styles.screenContainer}>
       {showStickyHeader && (
@@ -250,13 +265,19 @@ const HomeScreen = () => {
         data={sections}
         renderItem={({ item }) => {
           const Component = item.component;
-          return <Animated.View style={{ opacity: scrollY.interpolate({
-            inputRange: [0, 300],
-            outputRange: [1, 0.8],
-            extrapolate: 'clamp',
-          }) }}>
-            <Component />
-          </Animated.View>;
+          return (
+            <Animated.View
+              style={{
+                opacity: scrollY.interpolate({
+                  inputRange: [0, 300],
+                  outputRange: [1, 0.8],
+                  extrapolate: 'clamp',
+                }),
+              }}
+            >
+              <Component />
+            </Animated.View>
+          );
         }}
         keyExtractor={(item) => item.key}
         showsVerticalScrollIndicator={false}
@@ -268,8 +289,19 @@ const HomeScreen = () => {
         initialNumToRender={1}
         maxToRenderPerBatch={4}
         windowSize={6}
-        contentContainerStyle={{ paddingBottom: 100 }}
+        contentContainerStyle={{ paddingBottom: 120 }}
       />
+
+      {/* 🛒 Cart Status Banner (Persistent) */}
+      {cartItemCount > 0 && (
+        <View style={styles.cartBanner}>
+          <TouchableOpacity onPress={() => navigation.navigate('CartScreen')}>
+            <Text style={styles.cartBannerText}>
+              🛒 {cartItemCount} product{cartItemCount > 1 ? 's' : ''} in cart • View Cart
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       <View style={styles.bottomNavContainer}>
         <BottomNav />
@@ -298,6 +330,28 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 3,
+  },
+  cartBanner: {
+    position: 'absolute',
+    bottom: 80,
+    left: 20,
+    right: 20,
+    backgroundColor: '#1E90FF',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1000,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  cartBannerText: {
+    color: 'white',
+    fontWeight: '600',
+    fontSize: 16,
   },
   bottomNavContainer: {
     position: 'absolute',

@@ -31,13 +31,24 @@ const features = [
 ];
 
 const { width } = Dimensions.get('window');
+const CARD_GAP = 8;
+const CARD_WIDTH = (width - CARD_GAP * 5 - 20) / 4; // 20 = horizontal padding
 
 const FeatureRow = () => {
   return (
     <View style={styles.wrapper}>
       <View style={styles.row}>
         {features.map((item, index) => (
-          <View key={index} style={[styles.card, { backgroundColor: item.bgColor }]}>
+          <View
+            key={index}
+            style={[
+              styles.card,
+              {
+                backgroundColor: item.bgColor,
+                marginRight: index < features.length - 1 ? CARD_GAP : 0,
+              },
+            ]}
+          >
             <Image source={item.image} style={styles.icon} resizeMode="contain" />
             <Text style={styles.title}>{item.title}</Text>
           </View>
@@ -50,22 +61,20 @@ const FeatureRow = () => {
 const styles = StyleSheet.create({
   wrapper: {
     backgroundColor: '#fff',
-    paddingVertical: 10,
+    paddingVertical: 12,
     paddingHorizontal: 10,
-    
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 3,
   },
   card: {
-    width: (width - 32) / 4,
+    width: CARD_WIDTH,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 12,
-    paddingHorizontal: 4,
+    paddingHorizontal: 6,
     shadowColor: '#000',
     shadowOpacity: 0.08,
     shadowOffset: { width: 0, height: 1 },
@@ -73,17 +82,17 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   icon: {
-    width: 40,
-    height: 40,
+    width: 34,
+    height: 34,
     marginBottom: 6,
   },
   title: {
-    fontSize: 12,
+    fontSize: 11.5,
     fontWeight: '500',
     color: '#184977',
     textAlign: 'center',
     fontFamily: 'Poppins-Medium',
-    
+    lineHeight: 16,
   },
 });
 
