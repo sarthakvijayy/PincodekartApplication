@@ -138,3 +138,222 @@
 //     shadowRadius: 4,
 //   },
 // });
+
+
+
+
+
+
+
+
+// Categories
+
+// {
+//     key: 'Books & Media',
+//     component: () => (
+//       <CategorySection
+//         categoryId="6703c845a24ddf9a40b16c37"
+//         backgroundColor={colors.PK_Grey6}
+//         hideTitle={true}
+//         bannerRepeatCount={3}
+//       />
+//     ),
+//   },
+//   {
+//     key: 'Kids',
+//     component: () => (
+//       <CategorySection
+//         categoryId="6703c958a24ddf9a40b16c3e"
+//         backgroundColor={colors.PK_Grey6}
+//         hideTitle={true}
+//         bannerRepeatCount={3}
+//       />
+//     ),
+//   },
+//   {
+//     key: 'Kitchens',
+//     component: () => (
+//       <CategorySection
+//         categoryId="6703c999a24ddf9a40b16c40"
+//         backgroundColor={colors.PK_Grey6}
+//         hideTitle={true}
+//         bannerRepeatCount={3}
+//       />
+//     ),
+//   },
+//   {
+//     key: 'Stationary',
+//     component: () => (
+//       <CategorySection
+//         categoryId="6703c9f2a24ddf9a40b16c41"
+//         backgroundColor={colors.PK_Grey6}
+//         hideTitle={true}
+//         bannerRepeatCount={3}
+//       />
+//     ),
+//   },
+//   {
+//     key: 'Home Decor',
+//     component: () => (
+//       <CategorySection
+//         categoryId="6703ca10a24ddf9a40b16c42"
+//         backgroundColor={colors.PK_Grey6}
+//         hideTitle={true}
+//         bannerRepeatCount={3}
+//       />
+//     ),
+//   },
+//   {
+//     key: 'Mobile',
+//     component: () => (
+//       <CategorySection
+//         categoryId="6703ca2ca24ddf9a40b16c43"
+//         backgroundColor={colors.PK_Grey6}
+//         hideTitle={true}
+//         bannerRepeatCount={3}
+//       />
+//     ),
+//   },
+//   {
+//     key: 'Kids Footwear',
+//     component: () => (
+//       <CategorySection
+//         categoryId="6703ca3ca24ddf9a40b16c44"
+//         backgroundColor={colors.PK_Grey6}
+//         hideTitle={true}
+//         bannerRepeatCount={3}
+//       />
+//     ),
+//   },
+//   {
+//     key: 'Beauty & Cosmetics',
+//     component: () => (
+//       <CategorySection
+//         categoryId="6703ca4da24ddf9a40b16c45"
+//         backgroundColor={colors.PK_Grey6}
+//         hideTitle={true}
+//         bannerRepeatCount={3}
+//       />
+//     ),
+//   },
+//   {
+//     key: 'Toys & Games',
+//     component: () => (
+//       <CategorySection
+//         categoryId="6703ca5ba24ddf9a40b16c46"
+//         backgroundColor={colors.PK_Grey6}
+//         hideTitle={true}
+//         bannerRepeatCount={3}
+//       />
+//     ),
+//   },
+//   {
+//     key: 'Fashion Jwellery',
+//     component: () => (
+//       <CategorySection
+//         categoryId="6703ca83a24ddf9a40b16c47"
+//         backgroundColor={colors.PK_Grey6}
+//         hideTitle={true}
+//         bannerRepeatCount={3}
+//       />
+//     ),
+//   },
+//   {
+//     key: 'Furniture Zone',
+//     component: () => (
+//       <CategorySection
+//         categoryId="6745a7dacf4c4ee3f70f1cea"
+//         backgroundColor={colors.PK_Grey6}
+//         hideTitle={true}
+//         bannerRepeatCount={3}
+//       />
+//     ),
+//   },
+//   {
+//     key: 'Electronics',
+//     component: () => (
+//       <CategorySection
+//         categoryId="6745a812cf4c4ee3f70f1ceb"
+//         backgroundColor={colors.PK_Grey6}
+//         hideTitle={true}
+//         bannerRepeatCount={3}
+//       />
+//     ),
+//   },
+//   {
+//     key: 'Motors',
+//     component: () => (
+//       <CategorySection
+//         categoryId="6745a86ccf4c4ee3f70f1ced"
+//         backgroundColor={colors.PK_Grey6}
+//         hideTitle={true}
+//         bannerRepeatCount={3}
+//       />
+//     ),
+//   },
+//   {
+//     key: 'Automobiles',
+//     component: () => (
+//       <CategorySection
+//         categoryId="6745a856cf4c4ee3f70f1cec"
+//         backgroundColor={colors.PK_Grey6}
+//         hideTitle={true}
+//         bannerRepeatCount={3}
+//       />
+//     ),
+//   },
+//   {
+//     key: 'Gift Items',
+//     component: () => (
+//       <CategorySection
+//         categoryId="6745a8abcf4c4ee3f70f1cef"
+//        backgroundColor={colors.PK_Grey6}
+//         hideTitle={true}
+//         bannerRepeatCount={3}
+//       />
+//     ),
+//   },
+//   {
+//     key: 'Pet Supplies',
+//     component: () => (
+//       <CategorySection
+//         categoryId="6745a909cf4c4ee3f70f1cf2"
+//         backgroundColor={colors.PK_Grey6}
+//         hideTitle={true}
+//         bannerRepeatCount={3}
+//       />
+//     ),
+//   },
+//   {
+//     key: 'Men Footwears',
+//     component: () => (
+//       <CategorySection
+//         categoryId="6745a923cf4c4ee3f70f1cf3"
+//         backgroundColor={colors.PK_Grey6}
+//         hideTitle={true}
+//         bannerRepeatCount={3}
+//       />
+//     ),
+//   },
+//   {
+//     key: 'Bag Bazaar',
+//     component: () => (
+//       <CategorySection
+//         categoryId="67dd5d8686d19a479a72542f"
+//         backgroundColor={colors.PK_Grey6}
+//         hideTitle={true}
+//         bannerRepeatCount={3}
+//       />
+//     ),
+//   },
+//   {
+//     key: 'Women Fashions',
+//     component: () => (
+//       <CategorySection
+//         categoryId="67dd5ec886d19a479a725436"
+//         backgroundColor={colors.PK_Grey6}
+//         hideTitle={true}
+//         bannerRepeatCount={3}
+//       />
+//     ),
+//   },

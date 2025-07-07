@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   FlatList,
   StyleSheet,
@@ -6,6 +6,8 @@ import {
   Animated,
   TouchableOpacity,
   Text,
+  Dimensions,
+  Platform,
 } from 'react-native';
 import { useCart } from './CartContext';
 import Header from '../components/HomeScreen/Header';
@@ -16,10 +18,11 @@ import CategorySection from '../screens/CategoryHomeScreen';
 import { useNavigation } from '@react-navigation/native';
 import colors from '../constants/colors';
 
+const { width, height } = Dimensions.get('window');
 
 const sections = [
   { key: 'featureRow', component: FeatureRow },
-  {
+ {
     key: 'Books & Media',
     component: () => (
       <CategorySection
@@ -228,12 +231,27 @@ const sections = [
       />
     ),
   },
+
+  {
+    key: 'Women Fashions',
+    component: () => (
+      <CategorySection
+        categoryId="67dd5ec886d19a479a725436"
+        backgroundColor={colors.PK_Grey6}
+        hideTitle={true}
+        bannerRepeatCount={3}
+      />
+    ),
+  },
 ];
 
 const HomeScreen = () => {
   const [showStickyHeader, setShowStickyHeader] = useState(false);
   const scrollY = useRef(new Animated.Value(0)).current;
   const lastOffsetY = useRef(0);
+  const navigation = useNavigation();
+  const { cartItems } = useCart();
+  const cartItemCount = cartItems.length;
 
   const handleScroll = (event) => {
     const currentY = event.nativeEvent.contentOffset.y;
@@ -245,22 +263,15 @@ const HomeScreen = () => {
     lastOffsetY.current = currentY;
   };
 
-  const navigation = useNavigation();
-  const { cartItems } = useCart();
-  const cartItemCount = cartItems.length;
-
-  console.log('Cart items:', cartItems);
-
-
   return (
     <View style={styles.screenContainer}>
       {showStickyHeader && (
-        <View style={styles.stickyHeaderContainer}>
+        <Animated.View style={[styles.stickyHeaderContainer, { opacity: 0.95 }]}> 
           <StaticHeader />
-        </View>
+        </Animated.View>
       )}
 
-      <FlatList
+      <Animated.FlatList
         ListHeaderComponent={<Header />}
         data={sections}
         renderItem={({ item }) => {
@@ -268,6 +279,15 @@ const HomeScreen = () => {
           return (
             <Animated.View
               style={{
+                transform: [
+                  {
+                    scale: scrollY.interpolate({
+                      inputRange: [0, 200],
+                      outputRange: [1, 0.98],
+                      extrapolate: 'clamp',
+                    }),
+                  },
+                ],
                 opacity: scrollY.interpolate({
                   inputRange: [0, 300],
                   outputRange: [1, 0.8],
@@ -292,15 +312,14 @@ const HomeScreen = () => {
         contentContainerStyle={{ paddingBottom: 120 }}
       />
 
-      {/* 🛒 Cart Status Banner (Persistent) */}
       {cartItemCount > 0 && (
-        <View style={styles.cartBanner}>
+        <Animated.View style={styles.cartBanner}>
           <TouchableOpacity onPress={() => navigation.navigate('CartScreen')}>
             <Text style={styles.cartBannerText}>
               🛒 {cartItemCount} product{cartItemCount > 1 ? 's' : ''} in cart • View Cart
             </Text>
           </TouchableOpacity>
-        </View>
+        </Animated.View>
       )}
 
       <View style={styles.bottomNavContainer}>
@@ -319,7 +338,7 @@ const styles = StyleSheet.create({
   },
   stickyHeaderContainer: {
     position: 'absolute',
-    top: 0,
+    top: Platform.OS === 'ios' ? 44 : 0,
     left: 0,
     right: 0,
     zIndex: 999,
@@ -351,7 +370,7 @@ const styles = StyleSheet.create({
   cartBannerText: {
     color: 'white',
     fontWeight: '600',
-    fontSize: 16,
+    fontSize: width < 360 ? 14 : 16,
   },
   bottomNavContainer: {
     position: 'absolute',

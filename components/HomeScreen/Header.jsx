@@ -14,8 +14,14 @@ import {
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useQuery, useLazyQuery } from "@apollo/client";
-import { GET_ALL_CATEGORIES, SEARCH_PRODUCTS, GET_WISHLIST_QUERY, GET_CART } from "../../graphql/queries";
+import {
+  GET_ALL_CATEGORIES,
+  SEARCH_PRODUCTS,
+  GET_WISHLIST_QUERY,
+  GET_CART,
+} from "../../graphql/queries";
 import useIsLoggedIn from "../../hooks/useIsLoggedIn";
+import { StatusBar } from "expo-status-bar";
 
 const Header = () => {
   const navigation = useNavigation();
@@ -25,14 +31,8 @@ const Header = () => {
   const { loading, data, error } = useQuery(GET_ALL_CATEGORIES, {
     variables: { page: 0, take: 10 },
   });
-  const {
-    loading: wishlistLoading,
-    data: wishlistData,
-  } = useQuery(GET_WISHLIST_QUERY);
-  const {
-    loading: cartLoading,
-    data: cartData,
-  } = useQuery(GET_CART);
+  const { data: wishlistData } = useQuery(GET_WISHLIST_QUERY);
+  const { data: cartData } = useQuery(GET_CART);
 
   const [triggerSearch] = useLazyQuery(SEARCH_PRODUCTS);
 
@@ -46,8 +46,8 @@ const Header = () => {
           take: 10,
         },
         onCompleted: (data) => {
-          navigation.navigate("", {
-            searchResults: data.homeSearch.products,
+          navigation.navigate("SearchResultsScreen", {
+            searchResults: data?.homeSearch?.products,
             query: searchTerm,
           });
         },
@@ -78,82 +78,84 @@ const Header = () => {
     </TouchableOpacity>
   );
 
-  const wishlistCount =
-    wishlistData?.getWishList?.wishlistProducts.length || 0;
+  const wishlistCount = wishlistData?.getWishList?.wishlistProducts?.length || 0;
   const cartCount = isLoggedInUser
     ? cartData?.getCart?.cartProducts?.length || 0
     : guestCartData?.length || 0;
 
   return (
-    <ImageBackground
-      source={require("../../assets/Home/homeBg.png")}
-      style={styles.container}
-      resizeMode="cover"
-    >
-      {/* Logo */}
-      <View style={styles.logoContainer}>
-        <Image source={require("../../assets/logo/logo.png")} resizeMode="cover" />
-      </View>
+    <>
+      <StatusBar style="light" />
+      <ImageBackground
+        source={require("../../assets/Home/homeBg.png")}
+        style={styles.container}
+        resizeMode="cover"
+      >
+        {/* Logo */}
+        <View style={styles.logoContainer}>
+          <Image source={require("../../assets/logo/logo.png")} resizeMode="cover" />
+        </View>
 
-      {/* Floating Icons */}
-      <View style={styles.floatingIcons}>
-        {isLoggedInUser && (
-          <TouchableOpacity onPress={() => navigation.navigate("WishlistCard")}>
+        {/* Floating Icons */}
+        <View style={styles.floatingIcons}>
+          {isLoggedInUser && (
+            <TouchableOpacity onPress={() => navigation.navigate("WishlistCard")}>
+              <View style={styles.iconWithBadge}>
+                <Feather name="heart" size={22} color="#184977" style={styles.iconButton} />
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>{wishlistCount}</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity onPress={() => navigation.navigate("CartScreen")}>
             <View style={styles.iconWithBadge}>
-              <Feather name="heart" size={22} color="#184977" style={styles.iconButton} />
+              <Ionicons name="bag-outline" size={24} color="#184977" style={styles.iconButton} />
               <View style={styles.badge}>
-                <Text style={styles.badgeText}>{wishlistCount}</Text>
+                <Text style={styles.badgeText}>{cartCount}</Text>
               </View>
             </View>
           </TouchableOpacity>
-        )}
-        <TouchableOpacity onPress={() => navigation.navigate("CartScreen")}>
-          <View style={styles.iconWithBadge}>
-            <Ionicons name="bag-outline" size={24} color="#184977" style={styles.iconButton} />
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>{cartCount}</Text>
-            </View>
-          </View>
-        </TouchableOpacity>
-      </View>
+        </View>
 
-      {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        <Feather name="search" size={20} color="#666" style={{ marginLeft: 10 }} />
-        <TextInput
-          placeholder="Search for products."
-          placeholderTextColor="#666"
-          style={styles.searchInput}
-          value={searchTerm}
-          onChangeText={setSearchTerm}
-          onSubmitEditing={handleSearch}
-        />
-        <TouchableOpacity onPress={handleSearch}>
-          <Ionicons name="mic-outline" size={22} color="#666" style={{ marginRight: 10 }} />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Feather name="camera" size={22} color="#666" style={{ marginRight: 10 }} />
-        </TouchableOpacity>
-      </View>
-
-      {/* Categories */}
-      <View style={styles.categoriesWrapper}>
-        {loading ? (
-          <ActivityIndicator size="small" color="#184977" />
-        ) : error ? (
-          <Text style={{ color: "red" }}>Failed to load categories</Text>
-        ) : (
-          <FlatList
-            data={categories}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={renderCategory}
-            contentContainerStyle={{ paddingVertical: 10 }}
+        {/* Search Bar */}
+        <View style={styles.searchContainer}>
+          <Feather name="search" size={20} color="#666" style={{ marginLeft: 10 }} />
+          <TextInput
+            placeholder="Search for products."
+            placeholderTextColor="#666"
+            style={styles.searchInput}
+            value={searchTerm}
+            onChangeText={setSearchTerm}
+            onSubmitEditing={handleSearch}
           />
-        )}
-      </View>
-    </ImageBackground>
+          <TouchableOpacity onPress={handleSearch}>
+            <Ionicons name="mic-outline" size={22} color="#666" style={{ marginRight: 10 }} />
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <Feather name="camera" size={22} color="#666" style={{ marginRight: 10 }} />
+          </TouchableOpacity>
+        </View>
+
+        {/* Categories */}
+        <View style={styles.categoriesWrapper}>
+          {loading ? (
+            <ActivityIndicator size="small" color="#184977" />
+          ) : error ? (
+            <Text style={{ color: "red" }}>Failed to load categories</Text>
+          ) : (
+            <FlatList
+              data={categories}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              keyExtractor={(item) => item.id.toString()}
+              renderItem={renderCategory}
+              contentContainerStyle={{ paddingVertical: 10 }}
+            />
+          )}
+        </View>
+      </ImageBackground>
+    </>
   );
 };
 
@@ -163,7 +165,7 @@ const styles = StyleSheet.create({
     height: 500,
     paddingBottom: 20,
     paddingHorizontal: 15,
-    backgroundColor: '#062183',
+    backgroundColor: "#062183",
   },
   logoContainer: {
     alignItems: "flex-start",
