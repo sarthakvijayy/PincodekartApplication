@@ -10,7 +10,7 @@ import {
 import { useCart } from './CartContext';
 import Header from '../components/HomeScreen/Header';
 import StaticHeader from '../components/HomeScreen/StaticHeader';
-import BottomNav from '../components/HomeScreen/BottomNav';
+
 import FeatureRow from '../components/HomeScreen/FeatureRow';
 import CategorySection from '../screens/CategoryHomeScreen';
 import { useNavigation } from '@react-navigation/native';
@@ -303,9 +303,7 @@ const HomeScreen = () => {
         </View>
       )}
 
-      <View style={styles.bottomNavContainer}>
-        <BottomNav />
-      </View>
+      
     </View>
   );
 };
@@ -353,17 +351,5 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 16,
   },
-  bottomNavContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 80,
-    backgroundColor: '#fff',
-    elevation: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
+
 });

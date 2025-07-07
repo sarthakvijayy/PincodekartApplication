@@ -8,9 +8,10 @@ import ProductCards from '../components/Productlist/ProductHeader.jsx';
 import ProductShowcaseScreen from '../components/Productlist/ProductShowcaseScreen.jsx';
 import CategoryModal from '../components/Productlist/CategoryModal.jsx';
 import ProductDetailScreen from '../components/Productlist/ProductDetailScreen.jsx';
-import BottomNav from '../components/HomeScreen/BottomNav.jsx';
+
 import MyOrdersScreen from '../screens/MyOrdersScreen.jsx';
 import ProfileScreen from '../screens/ProfileScreen.jsx';
+import TabNavigator from './TabNav';
 import { ApolloClient, InMemoryCache, ApolloProvider, createHttpLink } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import Allcat from '../components/Category/Allcat.jsx';
@@ -58,18 +59,14 @@ const AppNavigator = () => {
   return (
     <ApolloProvider client={client}>
       <CartProvider>
-      <Stack.Navigator initialRouteName="HomeScreen" screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="HomeScreen" component={HomeScreen} />
-        <Stack.Screen name="CartScreen" component={CartScreen} />
+      <Stack.Navigator initialRouteName="MainTabs" screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="MainTabs" component={TabNavigator} />
         <Stack.Screen name="LoginScreen" component={LoginScreen} />
         <Stack.Screen name="ProductCards" component={ProductCards} />
-        <Stack.Screen name="ProductShowcase" component={ProductShowcaseScreen} />
         <Stack.Screen name="CategoryModal" component={CategoryModal} options={{ presentation: 'transparentModal' }} />
         <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
-        <Stack.Screen name="BottomNav" component={BottomNav} />
+
         <Stack.Screen name="MyOrdersScreen" component={MyOrdersScreen} />
-        <Stack.Screen name="Profile" component={ProfileScreen} />
-        <Stack.Screen name="Allcat" component={Allcat} />
         <Stack.Screen name='WishlistCard' component={WishlistCard} />
         <Stack.Screen name='Notification' component={Notification} />
         <Stack.Screen name="CategoryScreen" component={CategoryScreen} />

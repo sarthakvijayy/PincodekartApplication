@@ -18,7 +18,7 @@ import {
   GET_PRODUCTS_BY_CATEGORY,
 } from "../../graphql/queries";
 import CategoryHeader from "./CategoryHeader";
-import BottomNav from "../HomeScreen/BottomNav";
+
 import ProductCard from "../Productlist/ProductCard";
 import FilterModal from "../Productlist/FilterModal";
 
@@ -146,7 +146,7 @@ const CategoryScreen = ({ route }) => {
         </View>
       </ScrollView>
 
-      <BottomNav />
+      
     </View>
   );
 };

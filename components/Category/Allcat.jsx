@@ -16,7 +16,7 @@ import {
   GET_ALL_CATEGORIES,
   GET_PRODUCTS_BY_CATEGORY,
 } from "../../graphql/queries";
-import BottomNav from "../HomeScreen/BottomNav";
+
 
 
 const { width } = Dimensions.get("window");
@@ -151,7 +151,7 @@ const Allcat = () => {
         </View>
       </View>
 
-      <BottomNav />
+      
     </View>
   );
 };

@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { useMutation, useQuery, useLazyQuery } from '@apollo/client';
 import ProductCard from '../../components/Productlist/ProductCard';
-import BottomNav from '../HomeScreen/BottomNav';
+
 import { GET_WISHLIST_QUERY, GET_PRODUCT } from '../../graphql/queries';
 import { ADD_TO_WISHLIST, REMOVE_FROM_WISHLIST } from '../../graphql/mutations';
 
@@ -130,9 +130,7 @@ const WishlistCard = () => {
       )}
 
       {/* Fixed Bottom Navigation */}
-      <View style={styles.bottomNav}>
-        <BottomNav navigation={navigation} />
-      </View>
+      
     </View>
   );
 };
@@ -166,17 +164,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 150,
     fontFamily: 'Poppins-Regular',
-  },
-  bottomNav: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: '#fff',
-    borderTopWidth: 0.5,
-    borderColor: '#ccc',
-    paddingBottom: 8,
-    paddingTop: 4,
   },
   centeredContainer: {
     flex: 1,
