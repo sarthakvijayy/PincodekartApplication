@@ -96,7 +96,7 @@ const Allcat = () => {
         source={{ uri: item.categoryIcon }}
         style={styles.subCategoryIcon}
       />
-      <Text style={styles.subCategoryText} numberOfLines={2}>
+      <Text style={styles.subCategoryText} numberOfLines={2} ellipsizeMode="tail">
         {item.categoryName}
       </Text>
     </TouchableOpacity>
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
   mainIcon: { width: 40, height: 40, borderRadius: 20 },
   mainText: { marginTop: 6, fontSize: 12, color: "#444", textAlign: "center" },
 
-  right: { flex: 1, padding: 12 },
+  right: { flex: 1, },
 
   sectionTitle: {
     fontSize: 16,
@@ -211,6 +211,10 @@ const styles = StyleSheet.create({
     fontSize: 13,
     textAlign: "center",
     marginTop: 6,
+    maxWidth: 80,
+    flexWrap: 'wrap',
+    minHeight: 36,
+    alignSelf: 'center',
   },
 
   rowWrap: { justifyContent: "space-between" },
