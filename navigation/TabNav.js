@@ -16,11 +16,31 @@ import ProfileScreen from '../screens/ProfileScreen';
 import footMidIcon from '../assets/Footer/footmid.png';
 
 const Tab = createBottomTabNavigator();
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
+
+// Responsive dimensions
+const getResponsiveDimensions = () => {
+  const isSmallScreen = width < 375;
+  const isMediumScreen = width >= 375 && width < 768;
+  const isLargeScreen = width >= 768;
+  const isTablet = width >= 768;
+
+  return {
+    tabBarHeight: isTablet ? 80 : 70,
+    iconSize: isTablet ? 28 : 24,
+    centerIconSize: isTablet ? 70 : 60,
+    centerImageSize: isTablet ? 40 : 35,
+    fontSize: isTablet ? 14 : 12,
+    badgeSize: isTablet ? 20 : 16,
+    badgeFontSize: isTablet ? 12 : 10,
+    centerIconTop: isTablet ? 15 : 10,
+  };
+};
 
 const TabNavigator = () => {
   const { isLoggedIn: isLoggedInUser, guestCartData } = useIsLoggedIn();
   const { data: cartData } = useQuery(GET_CART);
+  const dimensions = getResponsiveDimensions();
 
   const cartItemCount = isLoggedInUser
     ? cartData?.getCart?.cartProducts?.length || 0
@@ -39,16 +59,18 @@ const TabNavigator = () => {
           borderTopColor: '#eee',
           borderBottomWidth: 1,
           borderBottomColor: '#eee',
-          height: 70,
+          height: dimensions.tabBarHeight,
           shadowColor: '#000',
           shadowOpacity: 0.08,
           shadowRadius: 6,
           shadowOffset: { width: 0, height: 2 },
           elevation: 6,
+          paddingBottom: width >= 768 ? 8 : 4,
+          paddingTop: width >= 768 ? 8 : 4,
         },
         tabBarShowLabel: true,
         tabBarLabelStyle: {
-          fontSize: 12,
+          fontSize: dimensions.fontSize,
           fontFamily: 'Poppins_500Medium',
           marginTop: 2,
         },
@@ -63,7 +85,7 @@ const TabNavigator = () => {
           tabBarIcon: ({ focused, color }) => (
             <Ionicons
               name={focused ? 'home' : 'home-outline'}
-              size={24}
+              size={dimensions.iconSize}
               color={color}
             />
           ),
@@ -77,7 +99,7 @@ const TabNavigator = () => {
           tabBarIcon: ({ focused, color }) => (
             <Ionicons
               name={focused ? 'flame' : 'flame-outline'}
-              size={24}
+              size={dimensions.iconSize}
               color={color}
             />
           ),
@@ -89,10 +111,18 @@ const TabNavigator = () => {
         component={Allcat}
         options={{
           tabBarIcon: ({ focused }) => (
-            <View style={styles.centerIconWrapper}>
+            <View style={[styles.centerIconWrapper, {
+              width: dimensions.centerIconSize,
+              height: dimensions.centerIconSize,
+              borderRadius: dimensions.centerIconSize / 2,
+              top: dimensions.centerIconTop,
+            }]}>
               <Image
                 source={footMidIcon}
-                style={styles.centerImage}
+                style={[styles.centerImage, {
+                  width: dimensions.centerImageSize,
+                  height: dimensions.centerImageSize,
+                }]}
                 resizeMode="contain"
               />
             </View>
@@ -109,13 +139,19 @@ const TabNavigator = () => {
             <View style={{ position: 'relative' }}>
               <Ionicons
                 name={focused ? 'cart' : 'cart-outline'}
-                size={24}
+                size={dimensions.iconSize}
                 color={color}
               />
               {cartItemCount > 0 && (
-                <View style={styles.badge}>
-                  <Text style={styles.badgeText}>
-                    {cartItemCount}
+                <View style={[styles.badge, {
+                  minWidth: dimensions.badgeSize,
+                  height: dimensions.badgeSize,
+                  borderRadius: dimensions.badgeSize / 2,
+                }]}>
+                  <Text style={[styles.badgeText, {
+                    fontSize: dimensions.badgeFontSize,
+                  }]}>
+                    {cartItemCount > 99 ? '99+' : cartItemCount}
                   </Text>
                 </View>
               )}
@@ -131,7 +167,7 @@ const TabNavigator = () => {
           tabBarIcon: ({ focused, color }) => (
             <Ionicons
               name={focused ? 'person' : 'person-outline'}
-              size={24}
+              size={dimensions.iconSize}
               color={color}
             />
           ),
@@ -144,9 +180,6 @@ const TabNavigator = () => {
 const styles = StyleSheet.create({
   centerIconWrapper: {
     backgroundColor: '#0C8CE9',
-    width: 60,
-    height: 60,
-    borderRadius: 30,
     borderWidth: 3,
     borderColor: '#F58220',
     justifyContent: 'center',
@@ -156,21 +189,16 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 3 },
-    top: 10,
     position: 'relative',
   },
   centerImage: {
-    width: 35,
-    height: 35,
+    // Size will be set dynamically
   },
   badge: {
     position: 'absolute',
     top: -6,
     right: -10,
     backgroundColor: 'red',
-    borderRadius: 8,
-    minWidth: 16,
-    height: 16,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 4,
@@ -178,7 +206,6 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     color: '#fff',
-    fontSize: 10,
     fontWeight: 'bold',
   },
 });
