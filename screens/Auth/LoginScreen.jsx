@@ -60,7 +60,6 @@
 //       console.log("OTP SENT:", otpCode);
 //       console.log("API Response:", response);
 
-      
 //       setShowOtpModal(true);
 //       setAlertMessage("OTP sent successfully!");
 //       setShowAlertModal(true);
@@ -91,7 +90,7 @@
 //   }
 
 //   return (
-      
+
 //     <KeyboardAvoidingView
 //       behavior={Platform.OS === "ios" ? "padding" : undefined}
 //       style={styles.container}
@@ -102,7 +101,6 @@
 //           resizeMode="cover"
 //         >
 //       <View style={styles.content}>
-        
 
 //         <Image
 //           source={require("../../assets/logo/logo.png")}
@@ -137,9 +135,8 @@
 //             <Text style={styles.continueText}>Continue</Text>
 //           )}
 //         </TouchableOpacity>
-        
+
 //       </View>
-      
 
 //       {/* Footer */}
 //      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -163,9 +160,6 @@
 //   </KeyboardAvoidingView>
 // </TouchableWithoutFeedback>
 
-
-      
-
 //       {/* Alert Modal */}
 //       <Modal
 //         isVisible={showAlertModal}
@@ -183,7 +177,6 @@
 //           </TouchableOpacity>
 //         </View> */}
 //       </Modal>
-      
 
 //       {/* OTP Bottom Sheet */}
 //       <Modal
@@ -224,7 +217,6 @@
 //       </Modal>
 //       </ImageBackground>
 //     </KeyboardAvoidingView>
-    
 
 //   );
 // };
@@ -235,11 +227,11 @@
 //   container: { flex: 1,
 //      backgroundColor: "#fff",
 //     },
-//   content: { 
+//   content: {
 //   marginTop: 60,
 //   alignItems: "center",
-//   paddingHorizontal: 20, 
-//   backgroundColor: "rgba(255, 255, 255, 0.80)", 
+//   paddingHorizontal: 20,
+//   backgroundColor: "rgba(255, 255, 255, 0.80)",
 //   borderRadius: 20,
 //   shadowColor: "#000",
 //   shadowOffset: { width: 0, height: 4 },
@@ -248,7 +240,7 @@
 //   elevation: 8,
 //   marginHorizontal: 20,
 //   marginTop: '50%',
-//   paddingBottom: 20, 
+//   paddingBottom: 20,
 // },
 //   logo: {
 //     width: 170,
@@ -302,7 +294,7 @@
 //     fontSize: 16,
 //     fontFamily: "Inter_700Bold",
 //   },
-//   disabled: { 
+//   disabled: {
 //     backgroundColor: "#ccc"
 //   },
 //   loaderContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
@@ -312,7 +304,7 @@
 //   left: 20,
 //   right: 20,
 //   alignItems: "center",
-//   zIndex: 10, 
+//   zIndex: 10,
 // },
 
 //   terms: {
@@ -399,11 +391,7 @@
 //   },
 // });
 
-
-
-
-
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -416,20 +404,21 @@ import {
   ActivityIndicator,
   Keyboard,
   TouchableWithoutFeedback,
-} from 'react-native';
-import Modal from 'react-native-modal';
-import { useNavigation } from '@react-navigation/native';
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import {
   useFonts,
   Inter_400Regular,
   Inter_500Medium,
   Inter_700Bold,
-} from '@expo-google-fonts/inter';
-import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+} from "@expo-google-fonts/inter";
+import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import Toast from "react-native-toast-message";
+import { Ionicons } from "@expo/vector-icons";
 
 const client = new ApolloClient({
-  uri: 'https://pincodekart.com/api/graphql',
+  uri: "https://pincodekart.com/api/graphql",
   cache: new InMemoryCache(),
 });
 
@@ -444,11 +433,12 @@ const LOGIN_USER = gql`
 
 const LoginScreen = () => {
   const navigation = useNavigation();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showModal, setShowModal] = useState(false);
-  const [alertMessage, setAlertMessage] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const [fontsLoaded] = useFonts({
     Inter_400Regular,
@@ -464,10 +454,93 @@ const LoginScreen = () => {
     );
   }
 
+  // Email validation function
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email.trim()) {
+      return "Email is required";
+    }
+    if (!emailRegex.test(email)) {
+      return "Please enter a valid email address";
+    }
+    if (email.length > 254) {
+      return "Email is too long";
+    }
+    return "";
+  };
+
+  // Password validation function
+  const validatePassword = (password) => {
+    if (!password) {
+      return "Password is required";
+    }
+    if (password.length < 6) {
+      return "Password must be at least 6 characters long";
+    }
+    if (password.length > 128) {
+      return "Password is too long";
+    }
+    return "";
+  };
+
+  // Validation on blur (when user switches inputs)
+  const handleEmailChange = (text) => {
+    setEmail(text);
+    // Clear error when user starts typing again
+    if (emailError) {
+      setEmailError("");
+    }
+  };
+
+  const handleEmailBlur = () => {
+    setEmailError(validateEmail(email));
+  };
+
+  const handlePasswordChange = (text) => {
+    setPassword(text);
+    // Clear error when user starts typing again
+    if (passwordError) {
+      setPasswordError("");
+    }
+  };
+
+  const handlePasswordBlur = () => {
+    setPasswordError(validatePassword(password));
+  };
+
+  const showToast = (type, message) => {
+    Toast.show({
+      type: type,
+      text1: message,
+      position: "bottom",
+      visibilityTime: 4000,
+    });
+  };
+
+  // Clear all errors
+  const clearErrors = () => {
+    setEmailError("");
+    setPasswordError("");
+  };
+
+  // Validate all fields
+  const validateForm = () => {
+    const emailValidation = validateEmail(email);
+    const passwordValidation = validatePassword(password);
+
+    setEmailError(emailValidation);
+    setPasswordError(passwordValidation);
+
+    return !emailValidation && !passwordValidation;
+  };
+
   const handleLogin = async () => {
-    if (!email.trim() || !password) {
-      setAlertMessage('Please fill in all fields.');
-      setShowModal(true);
+    // Clear previous errors
+    clearErrors();
+
+    // Validate form
+    if (!validateForm()) {
+      showToast("error", "Please fix the errors above");
       return;
     }
 
@@ -477,72 +550,149 @@ const LoginScreen = () => {
     try {
       const { data } = await client.query({
         query: LOGIN_USER,
-        variables: { email, password },
+        variables: { email: email.trim(), password },
+        errorPolicy: "all",
       });
 
       if (data?.userlogin?.id) {
-        await AsyncStorage.setItem('email', `${data?.userlogin?.email}`);
-        setAlertMessage(`Welcome back, ${data.userlogin.email}`);
-        setShowModal(true);
+        // Store user data
+        await AsyncStorage.setItem("userEmail", data.userlogin.email);
+        await AsyncStorage.setItem("userId", data.userlogin.id.toString());
+        await AsyncStorage.setItem("isLoggedIn", "true");
 
-        // Navigate to HomeScreen after 3 seconds
+        showToast("success", `Welcome back, ${data.userlogin.email}`);
+
+        // Navigate to HomeScreen after 2 seconds
         setTimeout(() => {
-          setShowModal(false);
           navigation.reset({
             index: 0,
-            routes: [{ name: 'HomeScreen' }],
+            routes: [{ name: "HomeScreen" }],
           });
-        }, 3000);
+        }, 2000);
       } else {
-        setAlertMessage('Invalid credentials. Please try again.');
-        setShowModal(true);
+        showToast("error", "Invalid email or password. Please try again.");
       }
     } catch (error) {
-      console.error('Login error:', error);
-      setAlertMessage('Something went wrong. Please try again later.');
-      setShowModal(true);
+      console.error("Login error:", error);
+
+      // Handle specific GraphQL errors
+      if (error.graphQLErrors && error.graphQLErrors.length > 0) {
+        const graphQLError = error.graphQLErrors[0];
+        if (graphQLError.message.includes("Invalid credentials")) {
+          showToast(
+            "error",
+            "Invalid email or password. Please check your credentials."
+          );
+        } else if (graphQLError.message.includes("User not found")) {
+          showToast(
+            "error",
+            "No account found with this email. Please sign up."
+          );
+        } else {
+          showToast(
+            "error",
+            graphQLError.message || "Login failed. Please try again."
+          );
+        }
+      } else if (error.networkError) {
+        // Handle network errors
+        if (error.networkError.statusCode === 401) {
+          showToast(
+            "error",
+            "Invalid credentials. Please check your email and password."
+          );
+        } else if (error.networkError.statusCode === 404) {
+          showToast("error", "Service not available. Please try again later.");
+        } else if (error.networkError.statusCode >= 500) {
+          showToast("error", "Server error. Please try again later.");
+        } else {
+          showToast(
+            "error",
+            "Network error. Please check your internet connection."
+          );
+        }
+      } else {
+        // Generic error handling
+        showToast("error", "Something went wrong. Please try again later.");
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
+  const isFormValid = !emailError && !passwordError && email.trim() && password;
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView
         style={styles.innerContainer}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
         <Image
-          source={require('../../assets/logo/logo.png')}
+          source={require("../../assets/logo/logo.png")}
           style={styles.logo}
           resizeMode="contain"
         />
 
         <View style={styles.inputBox}>
-          <TextInput
-            placeholder="Enter Your E-Mail"
-            placeholderTextColor="#c0c0c0"
-            style={styles.input}
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
-          <TextInput
-            placeholder="Password"
-            placeholderTextColor="#c0c0c0"
-            style={styles.input}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
+          <View style={styles.inputContainer}>
+            <TextInput
+              placeholder="Enter Your E-Mail"
+              placeholderTextColor="#c0c0c0"
+              style={[styles.input, emailError && styles.inputError]}
+              value={email}
+              onChangeText={handleEmailChange}
+              onBlur={handleEmailBlur}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              autoComplete="email"
+            />
+            {emailError ? (
+              <Text style={styles.errorText}>{emailError}</Text>
+            ) : null}
+          </View>
+
+          <View style={styles.inputContainer}>
+            <View style={styles.passwordContainer}>
+              <TextInput
+                placeholder="Password"
+                placeholderTextColor="#c0c0c0"
+                style={[
+                  styles.input,
+                  styles.passwordInput,
+                  passwordError && styles.inputError,
+                ]}
+                value={password}
+                onChangeText={handlePasswordChange}
+                onBlur={handlePasswordBlur}
+                secureTextEntry={!showPassword}
+                autoComplete="password"
+              />
+              <TouchableOpacity
+                style={styles.eyeIcon}
+                onPress={() => setShowPassword(!showPassword)}
+              >
+                <Ionicons
+                  name={showPassword ? "eye" : "eye-off"}
+                  size={24}
+                  color="#666"
+                />
+              </TouchableOpacity>
+            </View>
+            {passwordError ? (
+              <Text style={styles.errorText}>{passwordError}</Text>
+            ) : null}
+          </View>
         </View>
 
         <TouchableOpacity
-          style={[styles.loginButton, isLoading && styles.disabledButton]}
+          style={[
+            styles.loginButton,
+            (!isFormValid || isLoading) && styles.disabledButton,
+          ]}
           onPress={handleLogin}
-          disabled={isLoading}
+          disabled={!isFormValid || isLoading}
         >
           {isLoading ? (
             <ActivityIndicator color="#fff" />
@@ -551,29 +701,15 @@ const LoginScreen = () => {
           )}
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => navigation.navigate('SignUpScreen')}>
+        <TouchableOpacity onPress={() => navigation.navigate("SignUpScreen")}>
           <Text style={styles.signUpText}>
-            Don't have an account?{' '}
-            <Text style={styles.bold}>Sign Up</Text>
+            Don't have an account? <Text style={styles.bold}>Sign Up</Text>
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => navigation.navigate('ForgetPassword')}>
+        <TouchableOpacity onPress={() => navigation.navigate("ForgetPassword")}>
           <Text style={styles.forgotPassword}>Forgot Password? Click Here</Text>
         </TouchableOpacity>
-
-        <Modal isVisible={showModal} onBackdropPress={() => setShowModal(false)}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Alert</Text>
-            <Text style={styles.modalMessage}>{alertMessage}</Text>
-            <TouchableOpacity
-              style={styles.modalButton}
-              onPress={() => setShowModal(false)}
-            >
-              <Text style={styles.modalButtonText}>OK</Text>
-            </TouchableOpacity>
-          </View>
-        </Modal>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );
@@ -584,100 +720,91 @@ export default LoginScreen;
 const styles = StyleSheet.create({
   innerContainer: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
     paddingHorizontal: 24,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   loaderContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   logo: {
     width: 200,
     height: 80,
-    alignSelf: 'center',
+    alignSelf: "center",
     marginBottom: 40,
   },
   inputBox: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
     padding: 20,
     borderRadius: 12,
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: "#e0e0e0",
+  },
+  inputContainer: {
+    marginBottom: 16,
   },
   input: {
     borderBottomWidth: 1,
-    borderBottomColor: '#c0c0c0',
-    color: '#000',
+    borderBottomColor: "#c0c0c0",
+    color: "#000",
     fontSize: 16,
-    fontFamily: 'Inter_400Regular',
-    marginBottom: 16,
+    fontFamily: "Inter_400Regular",
     paddingVertical: 8,
   },
+  inputError: {
+    borderBottomColor: "#ff4444",
+  },
+  passwordContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  passwordInput: {
+    flex: 1,
+  },
+  eyeIcon: {
+    padding: 8,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  errorText: {
+    color: "#ff4444",
+    fontSize: 12,
+    fontFamily: "Inter_400Regular",
+    marginTop: 4,
+    marginLeft: 4,
+  },
   loginButton: {
-    backgroundColor: '#F58220',
+    backgroundColor: "#F58220",
     paddingVertical: 14,
     borderRadius: 10,
     marginBottom: 20,
   },
   disabledButton: {
-    backgroundColor: '#ccc',
+    backgroundColor: "#ccc",
   },
   loginText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    textAlign: 'center',
-    fontFamily: 'Inter_700Bold',
+    textAlign: "center",
+    fontFamily: "Inter_700Bold",
   },
   signUpText: {
-    color: '#000',
-    textAlign: 'center',
+    color: "#000",
+    textAlign: "center",
     fontSize: 14,
-    fontFamily: 'Inter_400Regular',
+    fontFamily: "Inter_400Regular",
     marginBottom: 10,
   },
   bold: {
-    fontFamily: 'Inter_700Bold',
+    fontFamily: "Inter_700Bold",
   },
   forgotPassword: {
-    fontFamily: 'Inter_700Bold',
-    textAlign: 'center',
+    fontFamily: "Inter_700Bold",
+    textAlign: "center",
     fontSize: 14,
-    color: '#000',
-  },
-  modalContainer: {
-    backgroundColor: 'white',
-    padding: 24,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 5,
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontFamily: 'Inter_700Bold',
-    color: '#333',
-    marginBottom: 8,
-  },
-  modalMessage: {
-    fontSize: 16,
-    fontFamily: 'Inter_400Regular',
-    color: '#555',
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  modalButton: {
-    backgroundColor: '#F58220',
-    paddingVertical: 10,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-  },
-  modalButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontFamily: 'Inter_500Medium',
+    color: "#000",
   },
 });
-
