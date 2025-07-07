@@ -4,7 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useQuery } from "@apollo/client";
 import { GET_ALL_ORDERS, GET_ORDER } from "../graphql/queries";
-import BottomNav from "../components/HomeScreen/BottomNav";
+
 
 const PAGE_SIZE = 10;
 
@@ -202,7 +202,7 @@ const MyOrdersProfile = ({route}) => {
         </TouchableOpacity>
       </View>
 
-      <BottomNav />
+      
 
       {data?.getOrder?.orderProducts?.length === 0 && !loading ? (
         <View style={{ alignItems: "center", marginTop: 40 }}>

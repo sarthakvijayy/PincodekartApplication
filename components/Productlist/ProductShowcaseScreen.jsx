@@ -11,7 +11,7 @@ import ProductHeader from '../../components/Productlist/ProductHeader';
 import PromoBanner from '../../components/Productlist/PromoBanner';
 import ProductCard from '../../components/Productlist/ProductCard';
 import RecommendedCarousel from '../../components/Productlist/RecommendedCoursol';
-import BottomNav from '../HomeScreen/BottomNav';
+
 import { useNavigation } from '@react-navigation/native';
 import { request, gql } from 'graphql-request';
 import StaticHeader from '../HomeScreen/StaticHeader';
@@ -138,7 +138,7 @@ const ProductShowcaseScreen = () => {
             showsVerticalScrollIndicator={false}
             ListFooterComponent={<RecommendedCarousel />}
           />
-          <BottomNav />
+  
         </>
       )}
     </View>

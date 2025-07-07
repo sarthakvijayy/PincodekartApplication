@@ -17,7 +17,7 @@ import { Ionicons, MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useQuery } from '@apollo/client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import BottomNav from '../components/HomeScreen/BottomNav';
+
 import { GET_ALL_PRODUCTS, GET_CURRENT_USER } from '../graphql/queries';
 
 const { width } = Dimensions.get('window');
@@ -263,9 +263,7 @@ const [languageExpanded, setLanguageExpanded] = useState(false);
       </ScrollView>
 
       {/* Bottom Navigation */}
-      <View style={styles.bottomNav}>
-        <BottomNav />
-      </View>
+      
     </View>
   );
 };
@@ -385,18 +383,7 @@ const styles = StyleSheet.create({
     color: '#0C8CE9',
     textAlign: 'center',
   },
-  bottomNav: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: '#fff',
-    borderTopWidth: 0.5,
-    borderColor: '#ccc',
-    paddingBottom: 8,
-    paddingTop: 4,
-    height: 60,
-  },
+
 });
 
 export default ProfileScreen;

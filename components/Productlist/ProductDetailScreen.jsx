@@ -19,7 +19,7 @@ import { AntDesign } from "@expo/vector-icons";
 import ProductHeader from "./ProductHeader";
 import ReviewSection from "./ReviewSection";
 import ProductCoursel from "./ProductCoursel";
-import BottomNav from "../HomeScreen/BottomNav";
+
 import { ADD_TO_CART } from "../../graphql/mutations";
 import ImageViewing from "react-native-image-viewing";
 import { useNavigation } from "@react-navigation/native";
@@ -415,7 +415,7 @@ const ProductDetailScreen = ({ route }) => {
         </View>
       )}
 
-      <BottomNav />
+      
     </SafeAreaView>
   );
 };
