@@ -13,7 +13,6 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
-  withTiming,
 } from "react-native-reanimated";
 import { AntDesign, Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -28,11 +27,11 @@ const ProductCard = ({
   id,
   image,
   brand,
-  title,
+  title = "",
   mrpPrice,
   originalPrice,
-  discount,
-  rating,
+  discount = 0,
+  rating = "4.0",
   initialWishlisted = false,
 }) => {
   const [isWishlisted, setIsWishlisted] = useState(initialWishlisted);
@@ -40,7 +39,6 @@ const ProductCard = ({
   const navigation = useNavigation();
   const { width } = useWindowDimensions();
 
-  // Card scale animation
   const scale = useSharedValue(0.9);
 
   useEffect(() => {
@@ -120,30 +118,29 @@ const ProductCard = ({
           </TouchableOpacity>
         </View>
 
-        {/* Image with lazy loading */}
+        {/* Image */}
         <View style={styles.imageWrapper}>
           {!imageLoaded && (
             <ActivityIndicator size="small" color="#ccc" style={styles.loader} />
           )}
           <Image
             source={imageSource}
-            style={[
-              styles.productImage,
-              { opacity: imageLoaded ? 1 : 0.3 },
-            ]}
+            style={[styles.productImage, { opacity: imageLoaded ? 1 : 0.3 }]}
             onLoad={() => setImageLoaded(true)}
           />
         </View>
 
         {/* Rating */}
-        {rating && <Text style={styles.rating}>⭐ {rating}</Text>}
+        {rating && typeof rating === "string" && (
+          <Text style={styles.rating}>⭐ {rating}</Text>
+        )}
 
         {/* Title */}
         <Text style={styles.title} numberOfLines={2}>
           {title}
         </Text>
 
-        {/* Price */}
+        {/* Price Row */}
         <View style={styles.priceRow}>
           <Text style={styles.price}>
             ₹{displayPrice ? displayPrice.toFixed(0) : "N/A"}
@@ -151,12 +148,14 @@ const ProductCard = ({
           {displayMrp &&
             displayPrice &&
             displayMrp > displayPrice && (
-              <Text style={styles.strikePrice}>₹{displayMrp.toFixed(0)}</Text>
+              <Text style={styles.strikePrice}>
+                ₹{displayMrp.toFixed(0)}
+              </Text>
             )}
         </View>
 
         {/* Discount */}
-        {discount && (
+        {typeof discount === "number" && discount > 0 && (
           <Text style={styles.discount}>UPTO {discount}% OFF</Text>
         )}
 
@@ -171,7 +170,6 @@ const ProductCard = ({
 };
 
 export default ProductCard;
-
 
 const styles = StyleSheet.create({
   cardContainer: {
@@ -213,6 +211,10 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderColor: "#ccc",
     resizeMode: "contain",
+  },
+  loader: {
+    position: "absolute",
+    top: "40%",
   },
   rating: {
     fontSize: 12,
@@ -267,11 +269,6 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     borderRadius: 4,
   },
-    loader: {
-    position: "absolute",
-    top: "40%",
-  },
-
   delivery: {
     backgroundColor: "#E0F7EA",
     color: "#2E7D32",

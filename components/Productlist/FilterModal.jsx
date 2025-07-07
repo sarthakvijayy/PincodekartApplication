@@ -38,32 +38,30 @@ const FilterModal = ({ visible, onClose }) => {
   };
 
   const handleClose = () => {
-    if (typeof onClose === 'function') {
-      onClose(); 
-    }
+    onClose?.(); // same as if (typeof onClose === 'function') onClose()
   };
 
   const handleDone = () => {
-    if (typeof onClose === 'function') {
-      onClose(selectedOptions); 
-    }
+    onClose?.(selectedOptions);
   };
 
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <View style={styles.modalOverlay}>
         <View style={styles.modalContainer}>
+          
           {/* Header */}
           <View style={styles.header}>
             <Text style={styles.headerTitle}>Filters</Text>
-            <TouchableOpacity onPress={handleClose}>
+            <TouchableOpacity onPress={handleClose} accessibilityLabel="Close Filter Modal">
               <Text style={styles.closeText}>✕</Text>
             </TouchableOpacity>
           </View>
 
-          
+          {/* Content */}
           <View style={styles.contentRow}>
             
+            {/* Sidebar Tabs */}
             <View style={styles.sidebar}>
               {Object.keys(filters).map((cat, idx) => (
                 <TouchableOpacity
@@ -86,7 +84,7 @@ const FilterModal = ({ visible, onClose }) => {
               ))}
             </View>
 
-            
+            {/* Options for selected tab */}
             <View style={styles.optionsPane}>
               <ScrollView contentContainerStyle={styles.optionsWrapper}>
                 {filters[selectedCategory].map((option, index) => (
@@ -106,7 +104,7 @@ const FilterModal = ({ visible, onClose }) => {
             </View>
           </View>
 
-          
+          {/* Footer */}
           <View style={styles.footer}>
             <Text style={styles.productCount}>100 Products</Text>
             <TouchableOpacity style={styles.clearButton} onPress={clearAll}>
@@ -116,6 +114,7 @@ const FilterModal = ({ visible, onClose }) => {
               <Text style={styles.doneText}>Done</Text>
             </TouchableOpacity>
           </View>
+
         </View>
       </View>
     </Modal>
@@ -137,6 +136,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
+    elevation: 10,
+    zIndex: 999,
   },
   header: {
     padding: 16,

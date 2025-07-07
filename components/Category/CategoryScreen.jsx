@@ -116,7 +116,6 @@ const CategoryScreen = ({ route }) => {
             if (appliedFilters) {
               setFilters(appliedFilters);
               console.log("Selected Filters:", appliedFilters);
-              // Future: Use filters to fetch filtered data
             }
           }}
         />
