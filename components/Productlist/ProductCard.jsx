@@ -131,9 +131,12 @@ const ProductCard = ({
         </View>
 
         {/* Rating */}
-        {rating && typeof rating === "string" && (
-          <Text style={styles.rating}>⭐ {rating}</Text>
-        )}
+        <View>
+
+          { 
+            <Text style={styles.rating}>⭐ {rating}</Text>
+          }
+        </View>
 
         {/* Title */}
         <Text style={styles.title} numberOfLines={2}>
@@ -155,9 +158,11 @@ const ProductCard = ({
         </View>
 
         {/* Discount */}
-        {typeof discount === "number" && discount > 0 && (
-          <Text style={styles.discount}>UPTO {discount}% OFF</Text>
-        )}
+        <View>
+          {typeof discount === "number" && discount > 0 && (
+            <Text style={styles.discount}>UPTO {discount}% OFF</Text>
+          )}
+        </View>
 
         {/* Tags */}
         <View style={styles.labels}>

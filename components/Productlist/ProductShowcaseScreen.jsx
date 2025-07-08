@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   FlatList,
@@ -51,13 +51,12 @@ const ProductShowcaseScreen = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('T-shirts');
-
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
 
   const fetchProducts = async () => {
     try {
-      const variables = { page: 0, take: 100 };
+      const variables = { page: 0, take: 30 };
       const data = await request(GRAPHQL_ENDPOINT, PRODUCTS_QUERY, variables);
       setProducts(data?.getAllProducts?.products || []);
     } catch (error) {
@@ -90,7 +89,7 @@ const ProductShowcaseScreen = () => {
     });
   };
 
-  const renderProductCard = ({ item }) => {
+  const renderProductCard = useCallback(({ item }) => {
     const variant = item?.variant?.[0];
     let image = null;
 
@@ -115,11 +114,10 @@ const ProductShowcaseScreen = () => {
         </TouchableOpacity>
       </View>
     );
-  };
+  }, []);
 
   return (
     <View style={styles.container}>
-      {/* Sticky Static Header */}
       <View style={styles.fixedHeader}>
         <StaticHeader />
       </View>
@@ -132,68 +130,57 @@ const ProductShowcaseScreen = () => {
             data={products}
             keyExtractor={(item) => item.id}
             numColumns={2}
+            initialNumToRender={10}
+            windowSize={5}
+            removeClippedSubviews={true}
             ListHeaderComponent={
-              <>
-                <View style={{ marginTop: 100 }}>
-                  {/* Category Tabs */}
-                  <FlatList
-                    data={CATEGORIES}
-                    keyExtractor={(item) => item}
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.tabBar}
-                    renderItem={({ item }) => (
-                      <TouchableOpacity
-                        style={[
-                          styles.categoryTab,
-                          selectedCategory === item && styles.activeTab,
-                        ]}
-                        onPress={() => {
-                          setSelectedCategory(item);
-                          setShowCategoryModal(true);
-                         
-                        }}
+              <View style={{ marginTop: 100 }}>
+                <FlatList
+                  data={CATEGORIES}
+                  keyExtractor={(item) => item}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.tabBar}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      style={[styles.categoryTab, selectedCategory === item && styles.activeTab]}
+                      onPress={() => setShowCategoryModal(true)}
+                    >
+                      <Text
+                        style={[styles.tabText, selectedCategory === item && styles.activeTabText]}
                       >
-                        <Text
-                          style={[
-                            styles.tabText,
-                            selectedCategory === item && styles.activeTabText,
-                          ]}
-                        >
-                          {item}
-                        </Text>
-                        <Ionicons
-                          name="chevron-down"
-                          size={12}
-                          color={selectedCategory === item ? '#fff' : '#555'}
-                          style={{ marginLeft: 4 }}
-                        />
-                      </TouchableOpacity>
-                    )}
-                  />
+                        {item}
+                      </Text>
+                      <Ionicons
+                        name="chevron-down"
+                        size={12}
+                        color={selectedCategory === item ? '#fff' : '#555'}
+                        style={{ marginLeft: 4 }}
+                      />
+                    </TouchableOpacity>
+                  )}
+                />
 
-                  {/* Filter Tabs */}
-                  <FlatList
-                    data={FILTERS}
-                    keyExtractor={(item) => item}
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.filterBar}
-                    renderItem={({ item }) => (
-                      <TouchableOpacity
-                        style={styles.filterItem}
-                        onPress={() => setShowFilterModal(true)}
-                      >
-                        <Text style={styles.filterLabel}>{item}</Text>
-                        <Ionicons name="chevron-down" size={14} color="#555" />
-                      </TouchableOpacity>
-                    )}
-                  />
+                <FlatList
+                  data={FILTERS}
+                  keyExtractor={(item) => item}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.filterBar}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      style={styles.filterItem}
+                      onPress={() => setShowFilterModal(true)}
+                    >
+                      <Text style={styles.filterLabel}>{item}</Text>
+                      <Ionicons name="chevron-down" size={14} color="#555" />
+                    </TouchableOpacity>
+                  )}
+                />
 
-                  <PromoBanner />
-                  <Text style={styles.sectionTitle}>Featured Products</Text>
-                </View>
-              </>
+                <PromoBanner />
+                <Text style={styles.sectionTitle}>Featured Products</Text>
+              </View>
             }
             renderItem={renderProductCard}
             columnWrapperStyle={styles.rowStyle}
@@ -205,7 +192,6 @@ const ProductShowcaseScreen = () => {
         </>
       )}
 
-      {/* Filter Modal */}
       <FilterModal
         visible={showFilterModal}
         onClose={(filters) => {
@@ -216,10 +202,13 @@ const ProductShowcaseScreen = () => {
         }}
       />
 
-      {/* Category Modal */}
       <CategoryModal
         visible={showCategoryModal}
         onClose={() => setShowCategoryModal(false)}
+        onSelect={(category) => {
+          setSelectedCategory(category);
+          setShowCategoryModal(false);
+        }}
       />
     </View>
   );
@@ -267,8 +256,6 @@ const styles = StyleSheet.create({
   },
   tabBar: {
     flexDirection: 'row',
-    // paddingHorizontal: 10,
-    
   },
   categoryTab: {
     flexDirection: 'row',
@@ -293,7 +280,6 @@ const styles = StyleSheet.create({
   filterBar: {
     flexDirection: 'row',
     flexWrap: 'nowrap',
-    // paddingHorizontal: 10,
   },
   filterItem: {
     flexDirection: 'row',
@@ -303,7 +289,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderColor: '#ddd',
     borderWidth: 1,
-    // marginRight: 8,
   },
   filterLabel: {
     fontSize: 14,
