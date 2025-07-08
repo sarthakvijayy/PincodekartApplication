@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, Text, Image, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, Image, StyleSheet, Dimensions, Platform, useWindowDimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useQuery } from '@apollo/client';
 import { GET_CART } from '../graphql/queries';
@@ -16,31 +17,116 @@ import ProfileScreen from '../screens/ProfileScreen';
 import footMidIcon from '../assets/Footer/footmid.png';
 
 const Tab = createBottomTabNavigator();
-const { width, height } = Dimensions.get('window');
 
-// Responsive dimensions
-const getResponsiveDimensions = () => {
-  const isSmallScreen = width < 375;
-  const isMediumScreen = width >= 375 && width < 768;
-  const isLargeScreen = width >= 768;
+// Enhanced responsive dimensions with proper breakpoints
+const getResponsiveDimensions = (width, height, insets) => {
+  const isSmallPhone = width < 375;
+  const isMediumPhone = width >= 375 && width < 414;
+  const isLargePhone = width >= 414 && width < 768;
   const isTablet = width >= 768;
-
-  return {
-    tabBarHeight: isTablet ? 80 : 70,
-    iconSize: isTablet ? 28 : 24,
-    centerIconSize: isTablet ? 70 : 60,
-    centerImageSize: isTablet ? 40 : 35,
-    fontSize: isTablet ? 14 : 12,
-    badgeSize: isTablet ? 20 : 16,
-    badgeFontSize: isTablet ? 12 : 10,
-    centerIconTop: isTablet ? 15 : 10,
+  const isLargeTablet = width >= 1024;
+  const isLandscape = width > height;
+  
+  // Base dimensions for different device types
+  let baseDimensions = {
+    tabBarHeight: 60,
+    iconSize: 22,
+    centerIconSize: 50,
+    centerImageSize: 30,
+    fontSize: 10,
+    badgeSize: 14,
+    badgeFontSize: 8,
+    centerIconTop: 8,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
   };
+
+  // Adjust for phone sizes
+  if (isSmallPhone) {
+    baseDimensions = {
+      ...baseDimensions,
+      tabBarHeight: 55,
+      iconSize: 20,
+      centerIconSize: 45,
+      centerImageSize: 25,
+      fontSize: 9,
+      badgeSize: 12,
+      badgeFontSize: 7,
+    };
+  } else if (isMediumPhone) {
+    baseDimensions = {
+      ...baseDimensions,
+      tabBarHeight: 60,
+      iconSize: 22,
+      centerIconSize: 50,
+      centerImageSize: 28,
+      fontSize: 10,
+      badgeSize: 14,
+      badgeFontSize: 8,
+    };
+  } else if (isLargePhone) {
+    baseDimensions = {
+      ...baseDimensions,
+      tabBarHeight: 65,
+      iconSize: 24,
+      centerIconSize: 55,
+      centerImageSize: 32,
+      fontSize: 11,
+      badgeSize: 16,
+      badgeFontSize: 9,
+    };
+  }
+
+  // Adjust for tablets
+  if (isTablet) {
+    baseDimensions = {
+      ...baseDimensions,
+      tabBarHeight: isLargeTablet ? 90 : 80,
+      iconSize: isLargeTablet ? 32 : 28,
+      centerIconSize: isLargeTablet ? 80 : 70,
+      centerImageSize: isLargeTablet ? 45 : 40,
+      fontSize: isLargeTablet ? 16 : 14,
+      badgeSize: isLargeTablet ? 24 : 20,
+      badgeFontSize: isLargeTablet ? 14 : 12,
+      centerIconTop: isLargeTablet ? 20 : 15,
+      paddingVertical: isLargeTablet ? 12 : 8,
+      paddingHorizontal: isLargeTablet ? 16 : 12,
+    };
+  }
+
+  // Adjust for landscape orientation
+  if (isLandscape && !isTablet) {
+    baseDimensions = {
+      ...baseDimensions,
+      tabBarHeight: Math.max(baseDimensions.tabBarHeight - 10, 50),
+      iconSize: Math.max(baseDimensions.iconSize - 2, 18),
+      centerIconSize: Math.max(baseDimensions.centerIconSize - 5, 40),
+      centerImageSize: Math.max(baseDimensions.centerImageSize - 3, 22),
+      fontSize: Math.max(baseDimensions.fontSize - 1, 8),
+      paddingVertical: 2,
+    };
+  }
+
+  // Platform-specific adjustments
+  if (Platform.OS === 'ios') {
+    baseDimensions.tabBarHeight += insets.bottom;
+    baseDimensions.paddingBottom = insets.bottom > 0 ? insets.bottom : baseDimensions.paddingVertical;
+  } else {
+    // Android adjustments
+    baseDimensions.tabBarHeight += 8;
+    baseDimensions.paddingBottom = baseDimensions.paddingVertical;
+  }
+
+  return baseDimensions;
 };
 
 const TabNavigator = () => {
   const { isLoggedIn: isLoggedInUser, guestCartData } = useIsLoggedIn();
   const { data: cartData } = useQuery(GET_CART);
-  const dimensions = getResponsiveDimensions();
+  const insets = useSafeAreaInsets();
+  const { width, height } = useWindowDimensions();
+  
+  const dimensions = getResponsiveDimensions(width, height, insets);
 
   const cartItemCount = isLoggedInUser
     ? cartData?.getCart?.cartProducts?.length || 0
@@ -53,7 +139,8 @@ const TabNavigator = () => {
         tabBarStyle: {
           position: 'absolute',
           bottom: 0,
-          width: width,
+          left: 0,
+          right: 0,
           backgroundColor: '#fff',
           borderTopWidth: 1,
           borderTopColor: '#eee',
@@ -65,17 +152,22 @@ const TabNavigator = () => {
           shadowRadius: 6,
           shadowOffset: { width: 0, height: 2 },
           elevation: 6,
-          paddingBottom: width >= 768 ? 8 : 4,
-          paddingTop: width >= 768 ? 8 : 4,
+          paddingBottom: dimensions.paddingBottom,
+          paddingTop: dimensions.paddingVertical,
+          paddingHorizontal: dimensions.paddingHorizontal,
         },
         tabBarShowLabel: true,
         tabBarLabelStyle: {
           fontSize: dimensions.fontSize,
           fontFamily: 'Poppins_500Medium',
           marginTop: 2,
+          lineHeight: dimensions.fontSize * 1.2,
         },
         tabBarActiveTintColor: '#2563EB',
         tabBarInactiveTintColor: '#A0AEC0',
+        tabBarItemStyle: {
+          paddingVertical: 2,
+        },
       }}
     >
       <Tab.Screen
@@ -147,9 +239,12 @@ const TabNavigator = () => {
                   minWidth: dimensions.badgeSize,
                   height: dimensions.badgeSize,
                   borderRadius: dimensions.badgeSize / 2,
+                  right: -dimensions.badgeSize / 2,
+                  top: -dimensions.badgeSize / 3,
                 }]}>
                   <Text style={[styles.badgeText, {
                     fontSize: dimensions.badgeFontSize,
+                    lineHeight: dimensions.badgeSize,
                   }]}>
                     {cartItemCount > 99 ? '99+' : cartItemCount}
                   </Text>
@@ -196,17 +291,16 @@ const styles = StyleSheet.create({
   },
   badge: {
     position: 'absolute',
-    top: -6,
-    right: -10,
-    backgroundColor: 'red',
+    backgroundColor: '#FF4444',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 4,
+    paddingHorizontal: 2,
     zIndex: 1,
   },
   badgeText: {
     color: '#fff',
     fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
 
