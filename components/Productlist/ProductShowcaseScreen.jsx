@@ -151,6 +151,7 @@ const ProductShowcaseScreen = () => {
                         onPress={() => {
                           setSelectedCategory(item);
                           setShowCategoryModal(true);
+                         
                         }}
                       >
                         <Text
@@ -266,7 +267,8 @@ const styles = StyleSheet.create({
   },
   tabBar: {
     flexDirection: 'row',
-    paddingHorizontal: 10,
+    // paddingHorizontal: 10,
+    
   },
   categoryTab: {
     flexDirection: 'row',
@@ -274,7 +276,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     backgroundColor: '#fff',
-    marginRight: 6,
+    marginRight: 3,
   },
   activeTab: {
     backgroundColor: '#5C84EE',
@@ -291,7 +293,7 @@ const styles = StyleSheet.create({
   filterBar: {
     flexDirection: 'row',
     flexWrap: 'nowrap',
-    paddingHorizontal: 10,
+    // paddingHorizontal: 10,
   },
   filterItem: {
     flexDirection: 'row',
@@ -301,7 +303,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderColor: '#ddd',
     borderWidth: 1,
-    marginRight: 8,
+    // marginRight: 8,
   },
   filterLabel: {
     fontSize: 14,
